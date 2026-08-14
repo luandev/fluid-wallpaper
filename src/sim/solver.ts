@@ -64,12 +64,23 @@ export class FluidSolver {
     if (splat) {
       this.splatPointer(splat);
     }
-    this.applyKeepAlive(dt, time);
+    this.applyComposer(dt, time);
+    this.applyPerlinDye(time, this.config.dyeInject);
     this.applyVorticity(dt);
     this.project();
     this.advect(this.velocity, this.velocity, decayFactor(this.config.velocityDecay, dt), dt);
     this.advect(this.dye, this.velocity, decayFactor(this.config.dyeDecay, dt), dt);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  }
+
+  warmup(startTime: number, dt = 1 / 60): number {
+    const steps = Math.max(0, Math.round(this.config.warmupSteps));
+    let time = startTime;
+    for (let i = 0; i < steps; i += 1) {
+      time += dt;
+      this.step(dt, time, null);
+    }
+    return time;
   }
 
   dispose(): void {
@@ -82,21 +93,17 @@ export class FluidSolver {
   }
 
   private seed(): void {
-    const crimson = hexToRgb(this.config.crimson);
-    const charcoal = hexToRgb(this.config.charcoal);
-    const seed = this.passes.marbleSeed;
-    this.use(seed);
-    this.gl.uniform1f(seed.uniforms.uAspect, this.aspect);
-    this.gl.uniform3f(seed.uniforms.uCrimson, crimson[0], crimson[1], crimson[2]);
-    this.gl.uniform3f(seed.uniforms.uCharcoal, charcoal[0], charcoal[1], charcoal[2]);
-    this.drawTo(this.dye.write, this.dyeSize);
-    this.dye.swap();
+    this.applyPerlinDye(0, 1);
     this.copyDouble(this.dye);
 
     const vel = this.passes.marbleVelocity;
     this.use(vel);
-    this.gl.uniform1f(vel.uniforms.uAspect, this.aspect);
-    this.gl.uniform1f(vel.uniforms.uScale, this.config.seedVelocityScale);
+    this.set1f(vel, "uAspect", this.aspect);
+    this.set1f(vel, "uScale", this.config.seedVelocityScale);
+    this.set1f(vel, "uBroad", this.config.composerBroad);
+    this.set1f(vel, "uMedium", this.config.composerMedium);
+    this.set1f(vel, "uFine", this.config.composerFine);
+    this.set1f(vel, "uNoiseScale", this.config.noiseScale);
     this.drawTo(this.velocity.write, this.simSize);
     this.velocity.swap();
     this.copyDouble(this.velocity);
@@ -134,14 +141,39 @@ export class FluidSolver {
     target.swap();
   }
 
-  private applyKeepAlive(dt: number, time: number): void {
+  private applyPerlinDye(time: number, inject: number): void {
+    const pass = this.passes.perlinDye;
+    const crimson = hexToRgb(this.config.crimson);
+    const charcoal = hexToRgb(this.config.charcoal);
+    this.use(pass);
+    this.bindField(pass, "uDye", this.dye.read.texture, 0);
+    this.set1f(pass, "uAspect", this.aspect);
+    this.set1f(pass, "uTime", time);
+    this.set1f(pass, "uNoiseTime", this.config.noiseTime);
+    this.set1f(pass, "uNoiseScale", this.config.noiseScale);
+    this.set1f(pass, "uBroad", this.config.composerBroad);
+    this.set1f(pass, "uMedium", this.config.composerMedium);
+    this.set1f(pass, "uFine", this.config.composerFine);
+    this.set1f(pass, "uInject", inject);
+    this.set3f(pass, "uCrimson", crimson[0], crimson[1], crimson[2]);
+    this.set3f(pass, "uCharcoal", charcoal[0], charcoal[1], charcoal[2]);
+    this.drawTo(this.dye.write, this.dyeSize);
+    this.dye.swap();
+  }
+
+  private applyComposer(dt: number, time: number): void {
     const pass = this.passes.curlNoiseForce;
     this.use(pass);
     this.bindField(pass, "uVelocity", this.velocity.read.texture, 0);
-    this.gl.uniform1f(pass.uniforms.uAspect, this.aspect);
-    this.gl.uniform1f(pass.uniforms.uTime, time);
-    this.gl.uniform1f(pass.uniforms.uStrength, this.config.keepAlive);
-    this.gl.uniform1f(pass.uniforms.uDt, dt);
+    this.set1f(pass, "uAspect", this.aspect);
+    this.set1f(pass, "uTime", time);
+    this.set1f(pass, "uDt", dt);
+    this.set1f(pass, "uStrength", this.config.composerStrength);
+    this.set1f(pass, "uBroad", this.config.composerBroad);
+    this.set1f(pass, "uMedium", this.config.composerMedium);
+    this.set1f(pass, "uFine", this.config.composerFine);
+    this.set1f(pass, "uNoiseScale", this.config.noiseScale);
+    this.set1f(pass, "uNoiseTime", this.config.noiseTime);
     this.drawTo(this.velocity.write, this.simSize);
     this.velocity.swap();
   }

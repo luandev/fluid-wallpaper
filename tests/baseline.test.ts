@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { assertConfig, decayFactor, defaultConfig } from "../src/app/config";
+import {
+  assertConfig,
+  clampConfig,
+  controlSchema,
+  decayFactor,
+  defaultConfig,
+  sanitizeConfig,
+} from "../src/app/config";
 import { CHARCOAL, CRIMSON, hexToRgb, rgbToHex } from "../src/app/colors";
+import { dyeLooksAllBlack, dyeMix, dyeStatsFromRgba8 } from "../src/app/dyeMix";
 import { GL, selectSimTextureFormat, type GpuCaps } from "../src/sim/capabilities";
 import { phase1Budgets } from "../src/quality/budgets";
 
@@ -22,6 +30,10 @@ describe("defaultConfig", () => {
     expect(defaultConfig.pressureIterations).toBeLessThanOrEqual(40);
     expect(defaultConfig.crimson).toBe(CRIMSON);
     expect(defaultConfig.charcoal).toBe(CHARCOAL);
+    expect(defaultConfig.composerStrength).toBeGreaterThan(0);
+    expect(defaultConfig.dyeInject).toBeGreaterThan(0);
+    expect(defaultConfig.warmupSteps).toBeGreaterThan(0);
+    expect(defaultConfig.pointerEnabled).toBe(true);
     expect(() => assertConfig(defaultConfig)).not.toThrow();
   });
 
@@ -96,11 +108,83 @@ describe("selectSimTextureFormat", () => {
   });
 });
 
+describe("controlSchema", () => {
+  it("covers unique keys with defaults in range", () => {
+    const keys = controlSchema.map((control) => control.key);
+    expect(new Set(keys).size).toBe(keys.length);
+    for (const control of controlSchema) {
+      const value = defaultConfig[control.key];
+      if (control.kind === "range") {
+        expect(typeof value).toBe("number");
+        expect(value).toBeGreaterThanOrEqual(control.min ?? -Infinity);
+        expect(value).toBeLessThanOrEqual(control.max ?? Infinity);
+      }
+      if (control.kind === "toggle") {
+        expect(typeof value).toBe("boolean");
+      }
+      if (control.kind === "color") {
+        expect(value).toMatch(/^#[0-9A-Fa-f]{6}$/);
+      }
+    }
+  });
+});
+
+describe("sanitizeConfig", () => {
+  it("fills from defaults and clamps dye above sim", () => {
+    const next = sanitizeConfig({
+      simResolution: 512,
+      dyeResolution: 128,
+      vorticity: 999,
+    });
+    expect(next.dyeResolution).toBeGreaterThanOrEqual(next.simResolution);
+    expect(next.vorticity).toBeLessThanOrEqual(40);
+    expect(next.crimson).toBe(defaultConfig.crimson);
+  });
+});
+
+describe("clampConfig", () => {
+  it("keeps pressure iterations in 20–40", () => {
+    expect(clampConfig({ ...defaultConfig, pressureIterations: 12 }).pressureIterations).toBe(20);
+    expect(clampConfig({ ...defaultConfig, pressureIterations: 80 }).pressureIterations).toBe(40);
+  });
+});
+
 describe("phase1Budgets", () => {
   it("mirrors config", () => {
     const budgets = phase1Budgets();
     expect(budgets.simResolution).toBe(defaultConfig.simResolution);
     expect(budgets.dyeResolution).toBe(defaultConfig.dyeResolution);
     expect(budgets.pressureIterations).toBe(defaultConfig.pressureIterations);
+  });
+});
+
+describe("dyeMix", () => {
+  const charcoal = hexToRgb(CHARCOAL);
+  const crimson = hexToRgb(CRIMSON);
+
+  it("maps negative potential to charcoal and positive to crimson", () => {
+    expect(dyeMix(-1, charcoal, crimson)).toEqual(charcoal);
+    expect(dyeMix(-0.15, charcoal, crimson)).toEqual(charcoal);
+    expect(dyeMix(0.15, charcoal, crimson)).toEqual(crimson);
+    expect(dyeMix(1, charcoal, crimson)).toEqual(crimson);
+  });
+
+  it("blends around zero so both colors are present", () => {
+    const mid = dyeMix(0, charcoal, crimson);
+    expect(mid[0]).toBeGreaterThan(charcoal[0]);
+    expect(mid[0]).toBeLessThan(crimson[0]);
+  });
+
+  it("flags an all-black readback and accepts mixed crimson/charcoal", () => {
+    const black = new Uint8Array(16);
+    expect(dyeLooksAllBlack(dyeStatsFromRgba8(black))).toBe(true);
+
+    const mixed = new Uint8Array([
+      232, 8, 24, 255, 232, 8, 24, 255, 5, 5, 6, 255, 5, 5, 6, 255,
+    ]);
+    const stats = dyeStatsFromRgba8(mixed);
+    expect(stats.crimsonFrac).toBeGreaterThan(0);
+    expect(stats.charcoalFrac).toBeGreaterThan(0);
+    expect(dyeLooksAllBlack(stats)).toBe(false);
   });
 });

@@ -17,7 +17,7 @@ yarn install
 yarn dev
 ```
 
-Opens a full-screen canvas. Drag to stir. Edit GLSL under `src/shaders/`; Vite reloads the module graph.
+Opens a full-screen canvas with an in-page tuner. Multi-scale curl-noise runs without the mouse; drag still stirs if pointer is on. Press **H** to hide the panel. Tunings persist in `localStorage`.
 
 ```bash
 yarn test

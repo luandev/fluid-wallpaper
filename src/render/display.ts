@@ -12,11 +12,12 @@ export function blitDye(
   canvasWidth: number,
   canvasHeight: number,
   manualBilinear: boolean,
+  target: FBO | null = null,
 ): void {
   const charcoal = hexToRgb(config.charcoal);
   const crimson = hexToRgb(config.crimson);
   gl.useProgram(pass.program);
-  bindTarget(gl, null, canvasWidth, canvasHeight);
+  bindTarget(gl, target, canvasWidth, canvasHeight);
   gl.activeTexture(gl.TEXTURE0);
   gl.bindTexture(gl.TEXTURE_2D, dye.texture);
   const dyeLoc = pass.uniforms.uDye;
@@ -38,6 +39,10 @@ export function blitDye(
   const bilinearLoc = pass.uniforms.uManualBilinear;
   if (bilinearLoc) {
     gl.uniform1f(bilinearLoc, manualBilinear ? 1 : 0);
+  }
+  const contrastLoc = pass.uniforms.uContrast;
+  if (contrastLoc) {
+    gl.uniform1f(contrastLoc, config.contrast);
   }
   gl.drawArrays(gl.TRIANGLES, 0, 3);
 }

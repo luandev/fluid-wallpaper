@@ -10,6 +10,7 @@ export class PointerInput {
   private prevX = 0;
   private prevY = 0;
   private moved = false;
+  private enabled = true;
   private readonly canvas: HTMLCanvasElement;
 
   constructor(canvas: HTMLCanvasElement) {
@@ -22,7 +23,8 @@ export class PointerInput {
   }
 
   consume(): PointerSplat | null {
-    if (!this.moved) {
+    if (!this.enabled || !this.moved) {
+      this.moved = false;
       return null;
     }
     this.moved = false;
@@ -30,6 +32,14 @@ export class PointerInput {
       uv: [this.x, this.y],
       delta: [this.x - this.prevX, this.y - this.prevY],
     };
+  }
+
+  setEnabled(enabled: boolean): void {
+    this.enabled = enabled;
+    if (!enabled) {
+      this.down = false;
+      this.moved = false;
+    }
   }
 
   dispose(): void {
@@ -48,6 +58,9 @@ export class PointerInput {
   }
 
   private readonly onDown = (event: PointerEvent): void => {
+    if (!this.enabled) {
+      return;
+    }
     this.canvas.setPointerCapture(event.pointerId);
     const [x, y] = this.eventUv(event);
     this.down = true;
@@ -58,6 +71,9 @@ export class PointerInput {
   };
 
   private readonly onMove = (event: PointerEvent): void => {
+    if (!this.enabled) {
+      return;
+    }
     const [x, y] = this.eventUv(event);
     if (!this.down) {
       this.x = x;

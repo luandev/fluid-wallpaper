@@ -1,4 +1,12 @@
-import { assertConfig, defaultConfig, type FluidConfig } from "./config";
+import {
+  assertConfig,
+  clampConfig,
+  cloneConfig,
+  defaultConfig,
+  mergeConfig,
+  type FluidConfig,
+} from "./config";
+import { dyeLooksAllBlack, dyeStatsFromRgba8, type DyeStats } from "./dyeMix";
 import { PointerInput } from "../inputs/pointer";
 import { BrowserPlatform } from "../platform/browser";
 import { blitDye } from "../render/display";
@@ -9,6 +17,7 @@ import {
   type SimFormat,
 } from "../sim/capabilities";
 import {
+  createByteFbo,
   createFbo,
   createFullscreenVao,
   createGl,
@@ -25,16 +34,15 @@ export class Engine {
   private readonly passes: ShaderPasses;
   private readonly format: SimFormat;
   private solver: FluidSolver;
+  private config: FluidConfig;
   private raf = 0;
   private lastMs = 0;
   private elapsed = 0;
   private disposed = false;
 
-  constructor(
-    canvas: HTMLCanvasElement,
-    private readonly config: FluidConfig = defaultConfig,
-  ) {
-    assertConfig(config);
+  constructor(canvas: HTMLCanvasElement, config: FluidConfig = defaultConfig) {
+    this.config = clampConfig(cloneConfig(config));
+    assertConfig(this.config);
     this.gl = createGl(canvas);
     this.platform = new BrowserPlatform(canvas, {
       onResize: () => this.handleResize(),
@@ -48,6 +56,7 @@ export class Engine {
       },
     });
     this.pointer = new PointerInput(canvas);
+    this.pointer.setEnabled(this.config.pointerEnabled);
     this.gl.disable(this.gl.DEPTH_TEST);
     this.gl.disable(this.gl.BLEND);
     this.vao = createFullscreenVao(this.gl);
@@ -55,10 +64,32 @@ export class Engine {
     this.format = this.chooseFormat();
     this.syncCanvas();
     this.solver = this.createSolver();
+    this.bootSolver();
   }
 
   start(): void {
     this.loop();
+  }
+
+  getConfig(): FluidConfig {
+    return cloneConfig(this.config);
+  }
+
+  applyConfig(patch: Partial<FluidConfig>): FluidConfig {
+    const next = clampConfig(mergeConfig(this.config, patch));
+    assertConfig(next);
+    Object.assign(this.config, next);
+    this.pointer.setEnabled(this.config.pointerEnabled);
+    return this.getConfig();
+  }
+
+  reseed(): void {
+    if (this.disposed) {
+      return;
+    }
+    this.solver.dispose();
+    this.solver = this.createSolver();
+    this.bootSolver();
   }
 
   dispose(): void {
@@ -106,8 +137,47 @@ export class Engine {
   }
 
   private createSolver(): FluidSolver {
+    this.gl.bindVertexArray(this.vao);
     const size = this.platform.getSize();
     return new FluidSolver(this.gl, this.passes, this.format, this.config, size.aspect);
+  }
+
+  private bootSolver(): void {
+    this.gl.bindVertexArray(this.vao);
+    this.elapsed = this.solver.warmup(0);
+    const stats = this.probeDyeStats();
+    if (dyeLooksAllBlack(stats)) {
+      const message =
+        `Dye probe failed after warmup: meanRed=${stats.meanRed.toFixed(4)} ` +
+        `crimsonFrac=${stats.crimsonFrac.toFixed(4)} charcoalFrac=${stats.charcoalFrac.toFixed(4)}`;
+      console.error(message, stats);
+      if (import.meta.env.DEV) {
+        throw new Error(message);
+      }
+    }
+  }
+
+  private probeDyeStats(): DyeStats {
+    const gl = this.gl;
+    const width = 64;
+    const height = 64;
+    const probe = createByteFbo(gl, width, height);
+    blitDye(
+      gl,
+      this.passes.display,
+      this.solver.dyeRead,
+      this.config,
+      width,
+      height,
+      this.format.manualBilinear,
+      probe,
+    );
+    gl.bindFramebuffer(gl.FRAMEBUFFER, probe.framebuffer);
+    const pixels = new Uint8Array(width * height * 4);
+    gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    deleteFbo(gl, probe);
+    return dyeStatsFromRgba8(pixels);
   }
 
   private syncCanvas(): void {
@@ -121,8 +191,7 @@ export class Engine {
     this.syncCanvas();
     const aspect = this.platform.getSize().aspect;
     if (!this.solver.matchesAspect(aspect)) {
-      this.solver.dispose();
-      this.solver = this.createSolver();
+      this.reseed();
     }
   }
 

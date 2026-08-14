@@ -26,6 +26,8 @@ Status: Phase 0–1 baseline implemented (Stam / GPU Gems ch. 38 family, origina
 - Create broad, medium, and fine motion scales
 - Establish palette behavior and non-looping evolution
 
+Status: multi-scale curl-noise composer plus in-page tuner. Pigment composition and non-looping palette evolution remain later.
+
 ## Phase 3 — Material rendering
 
 - Reconstruct surface detail from simulation fields

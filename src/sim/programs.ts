@@ -18,6 +18,7 @@ export type ShaderPasses = {
   marbleSeed: Pass;
   marbleVelocity: Pass;
   curlNoiseForce: Pass;
+  perlinDye: Pass;
   display: Pass;
 };
 
@@ -38,6 +39,7 @@ export function createPasses(gl: WebGL2RenderingContext): ShaderPasses {
     marbleSeed: make(shaders.marbleSeed, "marbleSeed"),
     marbleVelocity: make(shaders.marbleVelocity, "marbleVelocity"),
     curlNoiseForce: make(shaders.curlNoiseForce, "curlNoiseForce"),
+    perlinDye: make(shaders.perlinDye, "perlinDye"),
     display: make(shaders.display, "display"),
   };
 }
