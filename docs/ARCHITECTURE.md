@@ -40,4 +40,4 @@ Owns frame-time observation and adaptive choices such as simulation resolution, 
 
 ## Leading technical direction
 
-A lightweight web GPU application, with browser-testable orchestration and shader-based simulation/rendering, is the current direction. Specific languages, libraries, APIs, and build tools must be confirmed through decision records before implementation begins.
+Confirmed in [DEC-003](DECISIONS.md#dec-003--typescript-vite-webgl2-and-glsl): TypeScript application logic, Vite for development and static builds, WebGL2 + GLSL ES 3.00 for simulation and display. The browser adapter lives in `src/platform`; Wallpaper Engine integration remains a later platform module. Simulation must not decide material appearance.

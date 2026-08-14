@@ -9,12 +9,16 @@ The phases describe outcomes. They do not prescribe exact tools or implementatio
 - Establish a minimal full-screen rendering experiment
 - Record the initial technology decisions
 
+Status: stack recorded in DEC-003; Vite + WebGL2 full-screen canvas is the Phase 0–1 vehicle. Wallpaper Engine lifecycle APIs remain open.
+
 ## Phase 1 — Fluid baseline
 
 - Transport motion and visible pigment reliably
 - Maintain stable, smooth color
 - Add basic local interaction
 - Measure practical quality and performance limits
+
+Status: Phase 0–1 baseline implemented (Stam / GPU Gems ch. 38 family, original passes, marble default look).
 
 ## Phase 2 — Generative motion
 

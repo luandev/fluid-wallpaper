@@ -6,9 +6,11 @@ Help develop a living generative fluid wallpaper while keeping the repository un
 
 ## Current phase
 
-- The repository is documentation-only.
-- Do not add source code, dependencies, build tools, generated files, CI, or deployment configuration unless a task explicitly authorizes it.
-- Treat proposed technologies as candidates until a decision is recorded in `docs/DECISIONS.md`.
+Phase 0–1: a browser-runnable WebGL2 fluid baseline. Implementation is authorized for this stack only (see `docs/DECISIONS.md`, DEC-003).
+
+- Do not add Wallpaper Engine `project.json` properties, Workshop packaging, materials/PBR, audio, or WebGPU unless a task explicitly asks.
+- Do not copy third-party fluid-simulation source. Study the Stam / GPU Gems ch. 38 method family and implement original passes.
+- Treat further platform and quality questions in `docs/OPEN_QUESTIONS.md` as unresolved until a decision is recorded.
 
 ## Before changing anything
 
@@ -21,16 +23,17 @@ Help develop a living generative fluid wallpaper while keeping the repository un
 - Prefer small, reviewable changes tied to one issue or task.
 - Preserve the boundary between simulation, rendering, inputs, platform integration, and quality management.
 - Keep core behavior independent of optional inputs and platform-specific APIs.
-- Avoid premature framework, package, file-format, or deployment commitments.
 - Reference third-party techniques; do not copy third-party source without an explicit license review.
 - Never commit secrets, credentials, private data, generated binaries, or machine-specific settings.
 - Record durable architectural choices and their tradeoffs in `docs/DECISIONS.md`.
 - Update related documentation when scope, behavior, interfaces, or assumptions change.
+- Keep Vite `base` as `'./'` so `dist/` can load from a local folder or Wallpaper Engine later.
+- Use Yarn only (`yarn`, `yarn test`, `yarn build`). Do not use npm; installs are blocked.
 
 ## Validation
 
-- For documentation-only changes, verify links, headings, terminology, and consistency.
-- When implementation begins, use only the repository's documented checks; do not invent commands.
+- Documentation: verify links, headings, terminology, and consistency.
+- Implementation: run the repository scripts in `README.md` (`yarn test`, `yarn build`). Do not invent extra required commands.
 - Report what was checked and any remaining uncertainty.
 
 ## Completion

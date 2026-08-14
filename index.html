@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Generative Fluid Wallpaper</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #141414;
+        overflow: hidden;
+      }
+      canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        touch-action: none;
+      }
+      #fatal {
+        display: none;
+        box-sizing: border-box;
+        position: absolute;
+        inset: 0;
+        margin: 0;
+        padding: 2rem;
+        color: #f2eaea;
+        font: 16px/1.5 system-ui, sans-serif;
+        background: #1a1a1a;
+      }
+      #fatal[data-show="true"] {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="view"></canvas>
+    <p id="fatal" role="alert"></p>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

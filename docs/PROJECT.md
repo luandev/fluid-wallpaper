@@ -14,7 +14,7 @@ Build a high-end generative wallpaper that behaves like living fluid artwork rat
 
 ## First target
 
-Desktop Wallpaper Engine is the initial product target. Browser-based development is the leading direction, but implementation details remain subject to validation.
+Desktop Wallpaper Engine is the product target. Phase 0–1 develops and tests in the browser. Wallpaper Engine will later load a static Vite `dist/` bundle, not the Git working tree.
 
 ## Core capabilities
 

@@ -1,4 +1,4 @@
-# Future asset area
+# Assets
 
 Store only project-owned or properly licensed source assets here.
 
@@ -10,3 +10,5 @@ For every external asset, record:
 - the date the terms were checked.
 
 Do not commit generated binaries, large captures, personal data, or unlicensed references.
+
+Reference stills used during development live in `references/` and are **not** copied into the Vite `dist/` bundle.
