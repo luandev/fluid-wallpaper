@@ -8,12 +8,14 @@ import {
   sanitizeConfig,
 } from "../src/app/config";
 import { CHARCOAL, CRIMSON, hexToRgb, rgbToHex } from "../src/app/colors";
+import { triangleWave, tweenAmount, tweenPrimaries } from "../src/app/colorTween";
 import { dyeLooksAllBlack, dyeMix, dyeStatsFromRgba8 } from "../src/app/dyeMix";
 import {
   blendWeights,
   derivePalette,
   gradePigment,
   luma,
+  mixRgb,
 } from "../src/app/palette";
 import { GL, selectSimTextureFormat, type GpuCaps } from "../src/sim/capabilities";
 import { phase1Budgets } from "../src/quality/budgets";
@@ -242,5 +244,38 @@ describe("palette", () => {
     expect(mid[0]).toBeLessThan(crimson[0]);
     expect(luma(mid)).toBeLessThan(luma(crimson));
     expect(luma(mid)).toBeGreaterThan(luma(charcoal));
+  });
+});
+
+describe("colorTween", () => {
+  it("triangle wave goes 0 → 1 → 0 over a period of 2", () => {
+    expect(triangleWave(0)).toBe(0);
+    expect(triangleWave(1)).toBe(1);
+    expect(triangleWave(2)).toBe(0);
+    expect(triangleWave(0.5)).toBeCloseTo(0.5);
+    expect(triangleWave(1.5)).toBeCloseTo(0.5);
+  });
+
+  it("speed 0 freezes at endpoint A", () => {
+    expect(tweenAmount(10, 0)).toBe(0);
+    const live = tweenPrimaries({ ...defaultConfig, colorTweenSpeed: 0 }, 100);
+    expect(live.t).toBe(0);
+    expect(live.crimsonHex.toLowerCase()).toBe(defaultConfig.crimson.toLowerCase());
+    expect(live.charcoalHex.toLowerCase()).toBe(defaultConfig.charcoal.toLowerCase());
+  });
+
+  it("mixes A and B at the midpoint of the ping-pong", () => {
+    const config = {
+      ...defaultConfig,
+      colorTweenSpeed: 1,
+      crimson: "#000000",
+      crimsonB: "#FFFFFF",
+      charcoal: "#000000",
+      charcoalB: "#808080",
+    };
+    const mid = tweenPrimaries(config, 0.5);
+    expect(mid.t).toBeCloseTo(0.5);
+    expect(mid.crimson).toEqual(mixRgb(hexToRgb("#000000"), hexToRgb("#FFFFFF"), 0.5));
+    expect(mid.charcoal).toEqual(mixRgb(hexToRgb("#000000"), hexToRgb("#808080"), 0.5));
   });
 });

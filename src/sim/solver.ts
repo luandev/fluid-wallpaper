@@ -4,6 +4,7 @@
  * vorticity confinement. Not copied from any third-party source.
  */
 import { hexToRgb } from "../app/colors";
+import { tweenPrimaries, type LivePrimaries } from "../app/colorTween";
 import type { FluidConfig } from "../app/config";
 import { decayFactor } from "../app/config";
 import type { PointerSplat } from "../inputs/pointer";
@@ -28,6 +29,8 @@ export class FluidSolver {
   private curl: FBO;
   private readonly simSize: { width: number; height: number };
   private readonly dyeSize: { width: number; height: number };
+  private liveCrimson: [number, number, number] = [0, 0, 0];
+  private liveCharcoal: [number, number, number] = [0, 0, 0];
 
   constructor(
     private readonly gl: WebGL2RenderingContext,
@@ -43,7 +46,14 @@ export class FluidSolver {
     this.divergence = createFbo(gl, this.simSize.width, this.simSize.height, format);
     this.curl = createFbo(gl, this.simSize.width, this.simSize.height, format);
     this.dye = createDoubleFbo(gl, this.dyeSize.width, this.dyeSize.height, format);
+    this.liveCrimson = hexToRgb(config.crimson);
+    this.liveCharcoal = hexToRgb(config.charcoal);
     this.seed();
+  }
+
+  setLivePrimaries(primaries: LivePrimaries): void {
+    this.liveCrimson = [...primaries.crimson];
+    this.liveCharcoal = [...primaries.charcoal];
   }
 
   get dyeRead(): FBO {
@@ -82,6 +92,7 @@ export class FluidSolver {
     let time = startTime;
     for (let i = 0; i < steps; i += 1) {
       time += simDt;
+      this.setLivePrimaries(tweenPrimaries(this.config, time));
       this.step(dt, time, null);
     }
     return time;
@@ -118,11 +129,10 @@ export class FluidSolver {
     const forceX = splat.delta[0] * this.config.splatForce * this.simSize.width;
     const forceY = splat.delta[1] * this.config.splatForce * this.simSize.height;
     this.splat(this.velocity, splat.uv, [forceX, forceY, 0], this.config.splatRadius);
-    const crimson = hexToRgb(this.config.crimson);
     this.splat(
       this.dye,
       splat.uv,
-      [crimson[0], crimson[1], crimson[2]],
+      [this.liveCrimson[0], this.liveCrimson[1], this.liveCrimson[2]],
       this.config.dyeSplatRadius,
     );
   }
@@ -148,8 +158,6 @@ export class FluidSolver {
 
   private applyPerlinDye(time: number, inject: number): void {
     const pass = this.passes.perlinDye;
-    const crimson = hexToRgb(this.config.crimson);
-    const charcoal = hexToRgb(this.config.charcoal);
     this.use(pass);
     this.bindField(pass, "uDye", this.dye.read.texture, 0);
     this.set1f(pass, "uAspect", this.aspect);
@@ -160,8 +168,8 @@ export class FluidSolver {
     this.set1f(pass, "uMedium", this.config.composerMedium);
     this.set1f(pass, "uFine", this.config.composerFine);
     this.set1f(pass, "uInject", inject);
-    this.set3f(pass, "uCrimson", crimson[0], crimson[1], crimson[2]);
-    this.set3f(pass, "uCharcoal", charcoal[0], charcoal[1], charcoal[2]);
+    this.set3f(pass, "uCrimson", this.liveCrimson[0], this.liveCrimson[1], this.liveCrimson[2]);
+    this.set3f(pass, "uCharcoal", this.liveCharcoal[0], this.liveCharcoal[1], this.liveCharcoal[2]);
     this.drawTo(this.dye.write, this.dyeSize);
     this.dye.swap();
   }

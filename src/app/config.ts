@@ -25,6 +25,9 @@ export type FluidConfig = {
   maxDt: number;
   crimson: string;
   charcoal: string;
+  crimsonB: string;
+  charcoalB: string;
+  colorTweenSpeed: number;
 };
 
 export const defaultConfig: FluidConfig = {
@@ -52,6 +55,9 @@ export const defaultConfig: FluidConfig = {
   maxDt: 1 / 30,
   crimson: CRIMSON,
   charcoal: CHARCOAL,
+  crimsonB: "#8B1520",
+  charcoalB: "#1A1214",
+  colorTweenSpeed: 0.12,
 };
 
 export type ControlGroup = "Look" | "Flow" | "Composer" | "Quality" | "Input";
@@ -70,6 +76,9 @@ export type ControlDef = {
 export const controlSchema: ControlDef[] = [
   { key: "crimson", label: "Crimson", group: "Look", kind: "color" },
   { key: "charcoal", label: "Charcoal", group: "Look", kind: "color" },
+  { key: "crimsonB", label: "Crimson B", group: "Look", kind: "color" },
+  { key: "charcoalB", label: "Charcoal B", group: "Look", kind: "color" },
+  { key: "colorTweenSpeed", label: "Tween speed", group: "Look", kind: "range", min: 0, max: 1, step: 0.01 },
   { key: "contrast", label: "Contrast", group: "Look", kind: "range", min: 0.4, max: 3, step: 0.05 },
   { key: "viewZoom", label: "View zoom", group: "Look", kind: "range", min: 0.25, max: 2.5, step: 0.01, reseed: true },
   { key: "dyeDecay", label: "Dye decay", group: "Look", kind: "range", min: 0, max: 0.05, step: 0.001 },

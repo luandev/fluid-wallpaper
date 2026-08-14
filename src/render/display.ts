@@ -1,4 +1,5 @@
 import { hexToRgb } from "../app/colors";
+import type { LivePrimaries } from "../app/colorTween";
 import type { FluidConfig } from "../app/config";
 import { derivePalette } from "../app/palette";
 import type { Pass } from "../sim/programs";
@@ -20,8 +21,11 @@ export function blitDye(
   canvasHeight: number,
   manualBilinear: boolean,
   target: FBO | null = null,
+  primaries?: LivePrimaries,
 ): void {
-  const palette = derivePalette(hexToRgb(config.charcoal), hexToRgb(config.crimson));
+  const charcoal = primaries?.charcoal ?? hexToRgb(config.charcoal);
+  const crimson = primaries?.crimson ?? hexToRgb(config.crimson);
+  const palette = derivePalette(charcoal, crimson);
   gl.useProgram(pass.program);
   bindTarget(gl, target, canvasWidth, canvasHeight);
   gl.activeTexture(gl.TEXTURE0);

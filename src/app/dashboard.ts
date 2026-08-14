@@ -9,7 +9,7 @@ import {
   type FluidConfig,
 } from "./config";
 
-const STORAGE_KEY = "fluid-wallpaper.config.v4";
+const STORAGE_KEY = "fluid-wallpaper.config.v5";
 const GROUPS: ControlGroup[] = ["Look", "Flow", "Composer", "Quality", "Input"];
 
 export function loadStoredConfig(): FluidConfig {

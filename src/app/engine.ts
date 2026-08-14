@@ -6,6 +6,7 @@ import {
   mergeConfig,
   type FluidConfig,
 } from "./config";
+import { tweenPrimaries } from "./colorTween";
 import { dyeLooksAllBlack, dyeStatsFromRgba8, type DyeStats } from "./dyeMix";
 import { PointerInput } from "../inputs/pointer";
 import { BrowserPlatform } from "../platform/browser";
@@ -144,6 +145,7 @@ export class Engine {
 
   private bootSolver(): void {
     this.gl.bindVertexArray(this.vao);
+    this.solver.setLivePrimaries(tweenPrimaries(this.config, 0));
     this.elapsed = this.solver.warmup(0);
     const stats = this.probeDyeStats();
     if (dyeLooksAllBlack(stats)) {
@@ -162,6 +164,7 @@ export class Engine {
     const width = 64;
     const height = 64;
     const probe = createByteFbo(gl, width, height);
+    const primaries = tweenPrimaries(this.config, this.elapsed);
     blitDye(
       gl,
       this.passes.display,
@@ -171,6 +174,7 @@ export class Engine {
       height,
       this.format.manualBilinear,
       probe,
+      primaries,
     );
     gl.bindFramebuffer(gl.FRAMEBUFFER, probe.framebuffer);
     const pixels = new Uint8Array(width * height * 4);
@@ -217,8 +221,10 @@ export class Engine {
     const dt = this.lastMs === 0 ? 1 / 60 : Math.min(this.config.maxDt, (now - this.lastMs) / 1000);
     this.lastMs = now;
     this.elapsed += dt * this.config.noiseTime;
+    const primaries = tweenPrimaries(this.config, this.elapsed);
 
     this.gl.bindVertexArray(this.vao);
+    this.solver.setLivePrimaries(primaries);
     this.solver.step(dt, this.elapsed, this.pointer.consume());
     const size = this.platform.getSize();
     blitDye(
@@ -229,6 +235,8 @@ export class Engine {
       size.pixelWidth,
       size.pixelHeight,
       this.format.manualBilinear,
+      null,
+      primaries,
     );
     this.gl.bindVertexArray(null);
     this.loop();
