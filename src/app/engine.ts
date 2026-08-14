@@ -216,7 +216,7 @@ export class Engine {
     }
     const dt = this.lastMs === 0 ? 1 / 60 : Math.min(this.config.maxDt, (now - this.lastMs) / 1000);
     this.lastMs = now;
-    this.elapsed += dt;
+    this.elapsed += dt * this.config.noiseTime;
 
     this.gl.bindVertexArray(this.vao);
     this.solver.step(dt, this.elapsed, this.pointer.consume());

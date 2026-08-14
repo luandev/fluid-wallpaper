@@ -10,10 +10,11 @@ uniform float uBroad;
 uniform float uMedium;
 uniform float uFine;
 uniform float uNoiseScale;
+uniform float uZoom;
 
 // #include perlin
 
 void main() {
-  vec2 force = composerCurl(vUv, uAspect, 0.0, uNoiseScale, uBroad, uMedium, uFine);
+  vec2 force = composerCurl(vUv, uAspect, 0.0, uNoiseScale, uZoom, uBroad, uMedium, uFine);
   fragColor = vec4(force * uScale * NOISE_DRIVE, 0.0, 1.0);
 }

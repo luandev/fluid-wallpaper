@@ -9,6 +9,12 @@ import {
 } from "../src/app/config";
 import { CHARCOAL, CRIMSON, hexToRgb, rgbToHex } from "../src/app/colors";
 import { dyeLooksAllBlack, dyeMix, dyeStatsFromRgba8 } from "../src/app/dyeMix";
+import {
+  blendWeights,
+  derivePalette,
+  gradePigment,
+  luma,
+} from "../src/app/palette";
 import { GL, selectSimTextureFormat, type GpuCaps } from "../src/sim/capabilities";
 import { phase1Budgets } from "../src/quality/budgets";
 
@@ -32,6 +38,7 @@ describe("defaultConfig", () => {
     expect(defaultConfig.charcoal).toBe(CHARCOAL);
     expect(defaultConfig.composerStrength).toBeGreaterThan(0);
     expect(defaultConfig.dyeInject).toBeGreaterThan(0);
+    expect(defaultConfig.noiseTime).toBeLessThan(1);
     expect(defaultConfig.warmupSteps).toBeGreaterThan(0);
     expect(defaultConfig.pointerEnabled).toBe(true);
     expect(() => assertConfig(defaultConfig)).not.toThrow();
@@ -164,15 +171,17 @@ describe("dyeMix", () => {
 
   it("maps negative potential to charcoal and positive to crimson", () => {
     expect(dyeMix(-1, charcoal, crimson)).toEqual(charcoal);
-    expect(dyeMix(-0.15, charcoal, crimson)).toEqual(charcoal);
-    expect(dyeMix(0.15, charcoal, crimson)).toEqual(crimson);
+    expect(dyeMix(-0.55, charcoal, crimson)).toEqual(charcoal);
+    expect(dyeMix(0.55, charcoal, crimson)).toEqual(crimson);
     expect(dyeMix(1, charcoal, crimson)).toEqual(crimson);
   });
 
-  it("blends around zero so both colors are present", () => {
+  it("blends around zero into maroon midtones instead of snapping", () => {
     const mid = dyeMix(0, charcoal, crimson);
     expect(mid[0]).toBeGreaterThan(charcoal[0]);
     expect(mid[0]).toBeLessThan(crimson[0]);
+    expect(mid).not.toEqual(charcoal);
+    expect(mid).not.toEqual(crimson);
   });
 
   it("flags an all-black readback and accepts mixed crimson/charcoal", () => {
@@ -186,5 +195,52 @@ describe("dyeMix", () => {
     expect(stats.crimsonFrac).toBeGreaterThan(0);
     expect(stats.charcoalFrac).toBeGreaterThan(0);
     expect(dyeLooksAllBlack(stats)).toBe(false);
+  });
+});
+
+describe("palette", () => {
+  const charcoal = hexToRgb(CHARCOAL);
+  const crimson = hexToRgb(CRIMSON);
+
+  it("derives wine, ember, slate, and plum from the two primaries", () => {
+    const palette = derivePalette(charcoal, crimson);
+    expect(luma(palette.wine)).toBeLessThan(luma(palette.crimson));
+    expect(luma(palette.ember)).toBeGreaterThan(luma(palette.crimson) * 0.98);
+    expect(palette.ember[0]).toBeGreaterThan(palette.ember[1]);
+    expect(palette.ember[0]).toBeGreaterThan(palette.ember[2]);
+    expect(palette.wine[0]).toBeGreaterThan(palette.wine[1]);
+    expect(palette.slate[2]).toBeGreaterThan(palette.charcoal[2]);
+    expect(palette.plum[0]).toBeGreaterThan(palette.plum[2]);
+  });
+
+  it("shifts from additive to multiply to burn as concentration rises", () => {
+    const thin = blendWeights(0.12);
+    const mid = blendWeights(0.5);
+    const dense = blendWeights(0.9);
+    expect(thin.add).toBeGreaterThan(thin.mul);
+    expect(thin.add).toBeGreaterThan(thin.burn);
+    expect(mid.mul).toBeGreaterThan(mid.add);
+    expect(dense.burn).toBeGreaterThan(dense.add);
+  });
+
+  it("keeps extreme filaments and overshoot inside the family", () => {
+    const thin = gradePigment(0.12, 0, charcoal, crimson);
+    const pooled = gradePigment(0.9, 0, charcoal, crimson);
+    const bloom = gradePigment(1.4, 0, charcoal, crimson);
+    const filament = gradePigment(0.18, 0.4, charcoal, crimson);
+    expect(luma(thin)).toBeGreaterThan(luma(charcoal));
+    expect(luma(pooled)).toBeLessThan(luma(crimson));
+    expect(luma(bloom)).toBeGreaterThan(luma(gradePigment(1, 0, charcoal, crimson)));
+    expect(filament[2]).toBeGreaterThan(thin[2]);
+    expect(bloom[0]).toBeGreaterThan(bloom[1]);
+    expect(gradePigment(1, 0.08, charcoal, crimson)[0]).toBeGreaterThan(0.35);
+  });
+
+  it("grades mid concentration as wine rather than a binary snap", () => {
+    const mid = gradePigment(0.45, 0.08, charcoal, crimson);
+    expect(mid[0]).toBeGreaterThan(charcoal[0]);
+    expect(mid[0]).toBeLessThan(crimson[0]);
+    expect(luma(mid)).toBeLessThan(luma(crimson));
+    expect(luma(mid)).toBeGreaterThan(luma(charcoal));
   });
 });

@@ -1,4 +1,4 @@
-const float NOISE_DRIVE = 18.0;
+const float NOISE_DRIVE = 8.0;
 
 vec3 fade3(vec3 t) {
   return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
@@ -45,20 +45,20 @@ vec2 perlinCurl3(vec3 p) {
   return vec2(nT - nB, nL - nR) / (2.0 * e);
 }
 
-vec2 composerCurl(vec2 uv, float aspect, float t, float scale, float broad, float medium, float fine) {
-  vec2 p = vec2(uv.x * aspect, uv.y) * scale;
+vec2 composerCurl(vec2 uv, float aspect, float t, float scale, float zoom, float broad, float medium, float fine) {
+  vec2 p = vec2((uv.x - 0.5) * aspect, uv.y - 0.5) * scale / max(zoom, 0.05);
   return broad * perlinCurl3(vec3(p * 0.7, t * 0.22)) +
     medium * perlinCurl3(vec3(p * 2.2 + 17.0, t * 0.55)) +
     fine * perlinCurl3(vec3(p * 6.5 + 31.0, t * 1.1));
 }
 
-float composerPotential(vec2 uv, float aspect, float t, float scale, float broad, float medium, float fine) {
-  vec2 p = vec2(uv.x * aspect, uv.y) * scale;
+float composerPotential(vec2 uv, float aspect, float t, float scale, float zoom, float broad, float medium, float fine) {
+  vec2 p = vec2((uv.x - 0.5) * aspect, uv.y - 0.5) * scale / max(zoom, 0.05);
   return broad * perlin3(vec3(p * 0.7, t * 0.22)) +
     medium * perlin3(vec3(p * 2.2 + 17.0, t * 0.55)) +
     fine * perlin3(vec3(p * 6.5 + 31.0, t * 1.1));
 }
 
 float dyeMixT(float n) {
-  return smoothstep(-0.15, 0.15, n);
+  return smoothstep(-0.55, 0.55, n);
 }

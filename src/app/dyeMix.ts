@@ -1,6 +1,6 @@
 export function dyeMixT(n: number): number {
-  const edge0 = -0.15;
-  const edge1 = 0.15;
+  const edge0 = -0.55;
+  const edge1 = 0.55;
   const x = Math.min(1, Math.max(0, (n - edge0) / (edge1 - edge0)));
   return x * x * (3 - 2 * x);
 }

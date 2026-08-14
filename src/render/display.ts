@@ -1,8 +1,15 @@
 import { hexToRgb } from "../app/colors";
 import type { FluidConfig } from "../app/config";
+import { derivePalette } from "../app/palette";
 import type { Pass } from "../sim/programs";
 import type { FBO } from "../sim/gpu";
 import { bindTarget } from "../sim/gpu";
+
+function setVec3(gl: WebGL2RenderingContext, loc: WebGLUniformLocation | undefined, rgb: readonly [number, number, number]): void {
+  if (loc) {
+    gl.uniform3f(loc, rgb[0], rgb[1], rgb[2]);
+  }
+}
 
 export function blitDye(
   gl: WebGL2RenderingContext,
@@ -14,8 +21,7 @@ export function blitDye(
   manualBilinear: boolean,
   target: FBO | null = null,
 ): void {
-  const charcoal = hexToRgb(config.charcoal);
-  const crimson = hexToRgb(config.crimson);
+  const palette = derivePalette(hexToRgb(config.charcoal), hexToRgb(config.crimson));
   gl.useProgram(pass.program);
   bindTarget(gl, target, canvasWidth, canvasHeight);
   gl.activeTexture(gl.TEXTURE0);
@@ -24,14 +30,13 @@ export function blitDye(
   if (dyeLoc) {
     gl.uniform1i(dyeLoc, 0);
   }
-  const charcoalLoc = pass.uniforms.uCharcoal;
-  if (charcoalLoc) {
-    gl.uniform3f(charcoalLoc, charcoal[0], charcoal[1], charcoal[2]);
-  }
-  const crimsonLoc = pass.uniforms.uCrimson;
-  if (crimsonLoc) {
-    gl.uniform3f(crimsonLoc, crimson[0], crimson[1], crimson[2]);
-  }
+  setVec3(gl, pass.uniforms.uCharcoal, palette.charcoal);
+  setVec3(gl, pass.uniforms.uCrimson, palette.crimson);
+  setVec3(gl, pass.uniforms.uWine, palette.wine);
+  setVec3(gl, pass.uniforms.uEmber, palette.ember);
+  setVec3(gl, pass.uniforms.uSlate, palette.slate);
+  setVec3(gl, pass.uniforms.uPlum, palette.plum);
+  setVec3(gl, pass.uniforms.uAsh, palette.ash);
   const resLoc = pass.uniforms.uDyeRes;
   if (resLoc) {
     gl.uniform2f(resLoc, dye.width, dye.height);
