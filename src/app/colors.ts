@@ -1,7 +1,7 @@
 const HEX6 = /^#?[0-9a-fA-F]{6}$/;
 
-export const CRIMSON = "#C41628";
-export const CHARCOAL = "#161618";
+export const CRIMSON = "#E80818";
+export const CHARCOAL = "#050506";
 
 export function hexToRgb(hex: string): [number, number, number] {
   if (!HEX6.test(hex)) {

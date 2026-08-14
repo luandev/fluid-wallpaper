@@ -6,6 +6,7 @@ out vec4 fragColor;
 
 uniform sampler2D uDye;
 uniform vec3 uCharcoal;
+uniform vec3 uCrimson;
 uniform vec2 uDyeRes;
 uniform float uManualBilinear;
 
@@ -28,8 +29,10 @@ vec3 sampleDye(vec2 uv) {
 
 void main() {
   vec3 c = max(sampleDye(vUv), vec3(0.0));
-  c = pow(c, vec3(0.92));
-  float luma = dot(c, vec3(0.299, 0.587, 0.114));
-  c = mix(uCharcoal, c, smoothstep(0.02, 0.08, luma) * 1.06);
-  fragColor = vec4(c, 1.0);
+  float luma = dot(c, vec3(0.42, 0.08, 0.06));
+  float t = smoothstep(0.06, 0.22, luma);
+  t = t * t * (3.0 - 2.0 * t);
+  vec3 graded = mix(uCharcoal, uCrimson, t);
+  graded = mix(graded, min(uCrimson * 1.22, vec3(1.0)), pow(t, 5.0));
+  fragColor = vec4(graded, 1.0);
 }

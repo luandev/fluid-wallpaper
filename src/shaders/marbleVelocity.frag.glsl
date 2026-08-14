@@ -16,7 +16,7 @@ void main() {
   float nB = marbleField(vUv - vec2(0.0, e), uAspect);
   float nT = marbleField(vUv + vec2(0.0, e), uAspect);
   vec2 curl = vec2(nT - nB, nL - nR);
-  vec2 drift = vec2(0.42, -0.28);
-  vec2 vel = (normalize(curl + 1e-4) * length(curl) * 18.0 + drift) * uScale;
+  vec2 drift = vec2(0.12, -0.08);
+  vec2 vel = (normalize(curl + 1e-4) * length(curl) * 3.2 + drift) * uScale;
   fragColor = vec4(vel, 0.0, 1.0);
 }

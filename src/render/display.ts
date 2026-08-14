@@ -14,6 +14,7 @@ export function blitDye(
   manualBilinear: boolean,
 ): void {
   const charcoal = hexToRgb(config.charcoal);
+  const crimson = hexToRgb(config.crimson);
   gl.useProgram(pass.program);
   bindTarget(gl, null, canvasWidth, canvasHeight);
   gl.activeTexture(gl.TEXTURE0);
@@ -25,6 +26,10 @@ export function blitDye(
   const charcoalLoc = pass.uniforms.uCharcoal;
   if (charcoalLoc) {
     gl.uniform3f(charcoalLoc, charcoal[0], charcoal[1], charcoal[2]);
+  }
+  const crimsonLoc = pass.uniforms.uCrimson;
+  if (crimsonLoc) {
+    gl.uniform3f(crimsonLoc, crimson[0], crimson[1], crimson[2]);
   }
   const resLoc = pass.uniforms.uDyeRes;
   if (resLoc) {

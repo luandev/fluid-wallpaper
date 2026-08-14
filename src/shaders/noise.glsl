@@ -27,16 +27,16 @@ float fbm(vec2 p) {
 }
 
 vec2 marbleDomain(vec2 uv, float aspect) {
-  vec2 p = vec2(uv.x * aspect, uv.y) * 2.8 + vec2(-0.15, 0.2);
-  return vec2(p.x + p.y, p.y - p.x * 0.35);
+  vec2 p = vec2(uv.x * aspect, uv.y) * 0.72 + vec2(0.18, 0.34);
+  return vec2(p.x + p.y * 0.55, p.y - p.x * 0.22);
 }
 
 float marbleField(vec2 uv, float aspect) {
   vec2 p = marbleDomain(uv, aspect);
   vec2 q = vec2(fbm(p), fbm(p + vec2(5.2, 1.3)));
   vec2 r = vec2(
-    fbm(p + 4.0 * q + vec2(1.7, 9.2)),
-    fbm(p + 4.0 * q + vec2(8.3, 2.8))
+    fbm(p + 1.15 * q + vec2(1.7, 9.2)),
+    fbm(p + 1.15 * q + vec2(8.3, 2.8))
   );
-  return fbm(p + 4.0 * r);
+  return fbm(p + 1.25 * r);
 }

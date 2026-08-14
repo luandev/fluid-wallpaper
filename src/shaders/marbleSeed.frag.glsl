@@ -13,12 +13,12 @@ uniform vec3 uCharcoal;
 void main() {
   float n = marbleField(vUv, uAspect);
   vec2 p = marbleDomain(vUv, uAspect);
-  vec2 q = vec2(fbm(p), fbm(p + vec2(5.2, 1.3)));
-  float veins = 1.0 - abs(sin(n * 12.0 + q.x * 6.0));
-  veins = pow(clamp(veins, 0.0, 1.0), 8.0);
-  float body = smoothstep(0.32, 0.72, n);
+  vec2 q = vec2(fbm(p * 1.6), fbm(p * 1.6 + vec2(5.2, 1.3)));
+  float veins = 1.0 - abs(sin(n * 4.2 + q.x * 2.4));
+  veins = pow(clamp(veins, 0.0, 1.0), 14.0);
+  float body = smoothstep(0.46, 0.54, n);
+  body = body * body * (3.0 - 2.0 * body);
   vec3 color = mix(uCharcoal, uCrimson, body);
-  color = mix(color, uCrimson * 1.18, veins);
-  color = mix(color, uCharcoal, pow(1.0 - body, 2.0) * 0.28);
+  color = mix(color, uCrimson, veins);
   fragColor = vec4(color, 1.0);
 }
