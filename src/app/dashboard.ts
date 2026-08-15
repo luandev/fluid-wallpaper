@@ -8,8 +8,14 @@ import {
   type ControlGroup,
   type FluidConfig,
 } from "./config";
+import {
+  deletePreset,
+  loadPresets,
+  upsertPreset,
+  type FluidPreset,
+} from "./presets";
 
-const STORAGE_KEY = "fluid-wallpaper.config.v5";
+const STORAGE_KEY = "fluid-wallpaper.config.v7";
 const GROUPS: ControlGroup[] = ["Look", "Flow", "Composer", "Quality", "Input"];
 
 export function loadStoredConfig(): FluidConfig {
@@ -36,11 +42,15 @@ export function mountDashboard(engine: Engine, root: HTMLElement): () => void {
 
   const header = el("div", "dash__header");
   const title = el("h2", "dash__title", "Tuner");
-  const hint = el("p", "dash__hint", "H hides · Perlin seeds and drives flow without the mouse");
+  const hint = el(
+    "p",
+    "dash__hint",
+    "H hides tuner · F hides perf · presets stay in localStorage for later looks / animation options",
+  );
   header.append(title, hint);
 
   const body = el("div", "dash__body");
-  const controls = new Map<keyof FluidConfig, HTMLInputElement>();
+  const controls = new Map<keyof FluidConfig, HTMLInputElement | HTMLSelectElement>();
 
   for (const group of GROUPS) {
     const section = el("section", "dash__group");
@@ -59,6 +69,90 @@ export function mountDashboard(engine: Engine, root: HTMLElement): () => void {
     }
     body.append(section);
   }
+
+  const presetsSection = el("section", "dash__group");
+  presetsSection.append(el("h3", "dash__group-title", "Presets"));
+
+  const nameRow = el("div", "dash__row");
+  const nameInput = document.createElement("input");
+  nameInput.className = "dash__input dash__text";
+  nameInput.type = "text";
+  nameInput.placeholder = "Preset name";
+  nameInput.maxLength = 48;
+  nameInput.autocomplete = "off";
+  nameRow.append(nameInput);
+
+  const selectRow = el("div", "dash__row");
+  const select = document.createElement("select");
+  select.className = "dash__input dash__select";
+  selectRow.append(select);
+
+  const presetActions = el("div", "dash__preset-actions");
+  const refreshSelect = (selectedId?: string): void => {
+    const presets = loadPresets();
+    select.replaceChildren();
+    if (presets.length === 0) {
+      const empty = document.createElement("option");
+      empty.value = "";
+      empty.textContent = "No presets yet";
+      select.append(empty);
+      select.disabled = true;
+      return;
+    }
+    select.disabled = false;
+    for (const preset of presets) {
+      const option = document.createElement("option");
+      option.value = preset.id;
+      option.textContent = preset.name;
+      select.append(option);
+    }
+    const pick =
+      selectedId && presets.some((preset) => preset.id === selectedId)
+        ? selectedId
+        : presets[0]?.id ?? "";
+    select.value = pick;
+  };
+
+  const saveBtn = button("Save", () => {
+    try {
+      config = engine.getConfig();
+      const preset = upsertPreset(nameInput.value, config);
+      nameInput.value = preset.name;
+      refreshSelect(preset.id);
+    } catch (error) {
+      console.warn(error instanceof Error ? error.message : error);
+    }
+  });
+  const loadBtn = button("Load", () => {
+    const id = select.value;
+    if (!id) {
+      return;
+    }
+    const presets = loadPresets();
+    const preset = presets.find((item: FluidPreset) => item.id === id);
+    if (!preset) {
+      refreshSelect();
+      return;
+    }
+    config = engine.applyConfig(cloneConfig(preset.config));
+    syncInputs(controls, config);
+    saveStoredConfig(config);
+    nameInput.value = preset.name;
+    engine.reseed();
+    refreshSelect(preset.id);
+  });
+  const deleteBtn = button("Delete", () => {
+    const id = select.value;
+    if (!id) {
+      return;
+    }
+    deletePreset(id);
+    refreshSelect();
+  });
+  presetActions.append(saveBtn, loadBtn, deleteBtn);
+  presetsSection.append(nameRow, selectRow, presetActions);
+  body.append(presetsSection);
+  refreshSelect();
 
   const actions = el("div", "dash__actions");
   const reseedBtn = button("Reseed", () => engine.reseed());
@@ -87,7 +181,10 @@ export function mountDashboard(engine: Engine, root: HTMLElement): () => void {
       return;
     }
     const target = event.target;
-    if (target instanceof HTMLElement && (target.tagName === "INPUT" || target.isContentEditable)) {
+    if (
+      target instanceof HTMLElement &&
+      (target.tagName === "INPUT" || target.tagName === "SELECT" || target.isContentEditable)
+    ) {
       return;
     }
     const open = root.dataset.open !== "true";
@@ -106,10 +203,32 @@ function buildControl(
   def: ControlDef,
   config: FluidConfig,
   onChange: (key: keyof FluidConfig, value: FluidConfig[keyof FluidConfig], reseed: boolean) => void,
-): { row: HTMLElement; input: HTMLInputElement } {
+): { row: HTMLElement; input: HTMLInputElement | HTMLSelectElement } {
   const row = el("label", "dash__row");
   const name = el("span", "dash__label", def.label);
   const valueLabel = el("span", "dash__value");
+
+  if (def.kind === "select") {
+    const select = document.createElement("select");
+    select.className = "dash__input dash__select";
+    for (const optionDef of def.options ?? []) {
+      const option = document.createElement("option");
+      option.value = optionDef.value;
+      option.textContent = optionDef.label;
+      select.append(option);
+    }
+    select.value = String(config[def.key]);
+    valueLabel.textContent = select.options[select.selectedIndex]?.textContent ?? select.value;
+    select.addEventListener("change", () => {
+      valueLabel.textContent = select.options[select.selectedIndex]?.textContent ?? select.value;
+      onChange(def.key, select.value as FluidConfig[keyof FluidConfig], Boolean(def.reseed));
+    });
+    const meta = el("div", "dash__meta");
+    meta.append(name, valueLabel);
+    row.append(meta, select);
+    return { row, input: select };
+  }
+
   const input = document.createElement("input");
   input.className = "dash__input";
 
@@ -149,7 +268,10 @@ function buildControl(
   return { row, input };
 }
 
-function syncInputs(controls: Map<keyof FluidConfig, HTMLInputElement>, config: FluidConfig): void {
+function syncInputs(
+  controls: Map<keyof FluidConfig, HTMLInputElement | HTMLSelectElement>,
+  config: FluidConfig,
+): void {
   for (const def of controlSchema) {
     const input = controls.get(def.key);
     if (!input) {
@@ -158,17 +280,22 @@ function syncInputs(controls: Map<keyof FluidConfig, HTMLInputElement>, config: 
     const value = config[def.key];
     const row = input.closest(".dash__row");
     const valueLabel = row?.querySelector(".dash__value");
-    if (def.kind === "toggle") {
+    if (def.kind === "toggle" && input instanceof HTMLInputElement) {
       input.checked = Boolean(value);
       if (valueLabel) {
         valueLabel.textContent = input.checked ? "on" : "off";
       }
-    } else if (def.kind === "color") {
+    } else if (def.kind === "select" && input instanceof HTMLSelectElement) {
+      input.value = String(value);
+      if (valueLabel) {
+        valueLabel.textContent = input.options[input.selectedIndex]?.textContent ?? input.value;
+      }
+    } else if (def.kind === "color" && input instanceof HTMLInputElement) {
       input.value = String(value);
       if (valueLabel) {
         valueLabel.textContent = input.value;
       }
-    } else {
+    } else if (input instanceof HTMLInputElement) {
       input.value = String(value);
       if (valueLabel) {
         valueLabel.textContent = formatNumber(Number(value), def.step);

@@ -17,6 +17,13 @@ import {
   luma,
   mixRgb,
 } from "../src/app/palette";
+import { perlin3, wiggleMotion } from "../src/app/wiggle";
+import {
+  deletePresetFromList,
+  getPresetFromList,
+  sanitizePresetList,
+  upsertPresetInList,
+} from "../src/app/presets";
 import { GL, selectSimTextureFormat, type GpuCaps } from "../src/sim/capabilities";
 import { phase1Budgets } from "../src/quality/budgets";
 
@@ -134,7 +141,12 @@ describe("controlSchema", () => {
       if (control.kind === "color") {
         expect(value).toMatch(/^#[0-9A-Fa-f]{6}$/);
       }
+      if (control.kind === "select") {
+        expect(typeof value).toBe("string");
+        expect(control.options?.some((option) => option.value === value)).toBe(true);
+      }
     }
+    expect(controlSchema.filter((control) => control.key === "noiseType")).toHaveLength(1);
   });
 });
 
@@ -148,6 +160,11 @@ describe("sanitizeConfig", () => {
     expect(next.dyeResolution).toBeGreaterThanOrEqual(next.simResolution);
     expect(next.vorticity).toBeLessThanOrEqual(40);
     expect(next.crimson).toBe(defaultConfig.crimson);
+  });
+
+  it("falls unknown noise types back to perlin", () => {
+    expect(sanitizeConfig({ noiseType: "banana" }).noiseType).toBe("perlin");
+    expect(sanitizeConfig({ noiseType: "worley" }).noiseType).toBe("worley");
   });
 });
 
@@ -277,5 +294,66 @@ describe("colorTween", () => {
     expect(mid.t).toBeCloseTo(0.5);
     expect(mid.crimson).toEqual(mixRgb(hexToRgb("#000000"), hexToRgb("#FFFFFF"), 0.5));
     expect(mid.charcoal).toEqual(mixRgb(hexToRgb("#000000"), hexToRgb("#808080"), 0.5));
+  });
+});
+
+describe("wiggleMotion", () => {
+  it("leaves timescale and noise scale alone when amount is 0", () => {
+    const live = wiggleMotion({ ...defaultConfig, wiggleAmount: 0 }, 3.5);
+    expect(live.noiseTime).toBe(defaultConfig.noiseTime);
+    expect(live.noiseScale).toBe(defaultConfig.noiseScale);
+  });
+
+  it("modulates intensity from Perlin when amount is positive", () => {
+    const base = { ...defaultConfig, wiggleAmount: 0.5, noiseTime: 0.5, noiseScale: 2 };
+    const a = wiggleMotion(base, 1.25);
+    const b = wiggleMotion(base, 4.8);
+    expect(a.noiseTime).not.toBe(b.noiseTime);
+    expect(a.noiseScale).not.toBe(b.noiseScale);
+    expect(a.noiseTime).toBeGreaterThan(0);
+    expect(a.noiseScale).toBeGreaterThanOrEqual(0.2);
+    expect(perlin3(0.1, 0.2, 0.3)).not.toBe(perlin3(1.1, 2.2, 3.3));
+  });
+});
+
+describe("presets", () => {
+  it("upserts by name while keeping a stable id", () => {
+    let ids = 0;
+    const createId = () => `id-${(ids += 1)}`;
+    const first = upsertPresetInList([], " Calm Look ", defaultConfig, 100, createId);
+    expect(first.preset.name).toBe("Calm Look");
+    expect(first.preset.id).toBe("id-1");
+    const second = upsertPresetInList(
+      first.list,
+      "calm look",
+      { ...defaultConfig, vorticity: 12 },
+      200,
+      createId,
+    );
+    expect(second.list).toHaveLength(1);
+    expect(second.preset.id).toBe("id-1");
+    expect(second.preset.config.vorticity).toBe(12);
+    expect(second.preset.updatedAt).toBe(200);
+  });
+
+  it("sanitizes bad entries and fills missing config fields", () => {
+    const cleaned = sanitizePresetList([
+      null,
+      { id: "a", name: "  Ok  ", config: { vorticity: 999 } },
+      { id: "b", name: "", config: defaultConfig },
+      { id: "a", name: "Dup", config: defaultConfig },
+    ]);
+    expect(cleaned).toHaveLength(1);
+    expect(cleaned[0]?.name).toBe("Ok");
+    expect(cleaned[0]?.config.vorticity).toBeLessThanOrEqual(40);
+    expect(cleaned[0]?.config.crimson).toBe(defaultConfig.crimson);
+  });
+
+  it("deletes by id", () => {
+    const created = upsertPresetInList([], "One", defaultConfig, 1, () => "p1");
+    const withTwo = upsertPresetInList(created.list, "Two", defaultConfig, 2, () => "p2");
+    const next = deletePresetFromList(withTwo.list, "p1");
+    expect(next.map((preset) => preset.id)).toEqual(["p2"]);
+    expect(getPresetFromList(next, "p1")).toBeUndefined();
   });
 });

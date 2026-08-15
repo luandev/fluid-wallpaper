@@ -1,9 +1,11 @@
 import { Engine } from "./app/engine";
 import { loadStoredConfig, mountDashboard } from "./app/dashboard";
+import { mountPerfHud } from "./app/perfHud";
 
 const canvas = document.querySelector("#view");
 const fatal = document.querySelector("#fatal");
 const dashRoot = document.querySelector("#dash");
+const perfRoot = document.querySelector("#perf");
 
 if (!(canvas instanceof HTMLCanvasElement)) {
   throw new Error("Missing #view canvas");
@@ -20,6 +22,7 @@ function showFatal(message: string): void {
 
 let engine: Engine | null = null;
 let unmountDash: (() => void) | null = null;
+let unmountPerf: (() => void) | null = null;
 
 try {
   engine = new Engine(canvas, loadStoredConfig());
@@ -27,6 +30,9 @@ try {
   if (dashRoot instanceof HTMLElement) {
     dashRoot.hidden = false;
     unmountDash = mountDashboard(engine, dashRoot);
+  }
+  if (perfRoot instanceof HTMLElement) {
+    unmountPerf = mountPerfHud(engine, perfRoot);
   }
 } catch (error) {
   const message = error instanceof Error ? error.message : String(error);
@@ -37,6 +43,8 @@ if (import.meta.hot) {
   import.meta.hot.dispose(() => {
     unmountDash?.();
     unmountDash = null;
+    unmountPerf?.();
+    unmountPerf = null;
     engine?.dispose();
     engine = null;
   });

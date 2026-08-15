@@ -8,6 +8,7 @@ import {
 } from "./config";
 import { tweenPrimaries } from "./colorTween";
 import { dyeLooksAllBlack, dyeStatsFromRgba8, type DyeStats } from "./dyeMix";
+import { wiggleMotion } from "./wiggle";
 import { PointerInput } from "../inputs/pointer";
 import { BrowserPlatform } from "../platform/browser";
 import { blitDye } from "../render/display";
@@ -26,6 +27,7 @@ import {
 } from "../sim/gpu";
 import { createPasses, deletePasses, type ShaderPasses } from "../sim/programs";
 import { FluidSolver } from "../sim/solver";
+import type { PerfSample } from "./perfHud";
 
 export class Engine {
   private readonly gl: WebGL2RenderingContext;
@@ -40,6 +42,8 @@ export class Engine {
   private lastMs = 0;
   private elapsed = 0;
   private disposed = false;
+  private frameMs = 16.67;
+  private fpsEma = 60;
 
   constructor(canvas: HTMLCanvasElement, config: FluidConfig = defaultConfig) {
     this.config = clampConfig(cloneConfig(config));
@@ -74,6 +78,18 @@ export class Engine {
 
   getConfig(): FluidConfig {
     return cloneConfig(this.config);
+  }
+
+  getPerfSample(): PerfSample {
+    const grids = this.solver.gridSizes;
+    return {
+      fps: this.fpsEma,
+      frameMs: this.frameMs,
+      simWidth: grids.simWidth,
+      simHeight: grids.simHeight,
+      dyeWidth: grids.dyeWidth,
+      dyeHeight: grids.dyeHeight,
+    };
   }
 
   applyConfig(patch: Partial<FluidConfig>): FluidConfig {
@@ -145,6 +161,7 @@ export class Engine {
 
   private bootSolver(): void {
     this.gl.bindVertexArray(this.vao);
+    this.solver.setLiveMotion(wiggleMotion(this.config, 0));
     this.solver.setLivePrimaries(tweenPrimaries(this.config, 0));
     this.elapsed = this.solver.warmup(0);
     const stats = this.probeDyeStats();
@@ -219,11 +236,16 @@ export class Engine {
       return;
     }
     const dt = this.lastMs === 0 ? 1 / 60 : Math.min(this.config.maxDt, (now - this.lastMs) / 1000);
+    this.frameMs = this.lastMs === 0 ? 16.67 : Math.max(0.01, now - this.lastMs);
+    const instantFps = 1000 / this.frameMs;
+    this.fpsEma = this.lastMs === 0 ? instantFps : this.fpsEma * 0.9 + instantFps * 0.1;
     this.lastMs = now;
-    this.elapsed += dt * this.config.noiseTime;
+    const motion = wiggleMotion(this.config, this.elapsed);
+    this.elapsed += dt * motion.noiseTime;
     const primaries = tweenPrimaries(this.config, this.elapsed);
 
     this.gl.bindVertexArray(this.vao);
+    this.solver.setLiveMotion(motion);
     this.solver.setLivePrimaries(primaries);
     this.solver.step(dt, this.elapsed, this.pointer.consume());
     const size = this.platform.getSize();

@@ -5,8 +5,9 @@
  */
 import { hexToRgb } from "../app/colors";
 import { tweenPrimaries, type LivePrimaries } from "../app/colorTween";
-import type { FluidConfig } from "../app/config";
+import { noiseTypeIndex, type FluidConfig } from "../app/config";
 import { decayFactor } from "../app/config";
+import { wiggleMotion, type LiveMotion } from "../app/wiggle";
 import type { PointerSplat } from "../inputs/pointer";
 import type { SimFormat } from "./capabilities";
 import {
@@ -31,6 +32,8 @@ export class FluidSolver {
   private readonly dyeSize: { width: number; height: number };
   private liveCrimson: [number, number, number] = [0, 0, 0];
   private liveCharcoal: [number, number, number] = [0, 0, 0];
+  private liveNoiseTime = 0;
+  private liveNoiseScale = 1;
 
   constructor(
     private readonly gl: WebGL2RenderingContext,
@@ -48,6 +51,8 @@ export class FluidSolver {
     this.dye = createDoubleFbo(gl, this.dyeSize.width, this.dyeSize.height, format);
     this.liveCrimson = hexToRgb(config.crimson);
     this.liveCharcoal = hexToRgb(config.charcoal);
+    this.liveNoiseTime = config.noiseTime;
+    this.liveNoiseScale = config.noiseScale;
     this.seed();
   }
 
@@ -56,8 +61,22 @@ export class FluidSolver {
     this.liveCharcoal = [...primaries.charcoal];
   }
 
+  setLiveMotion(motion: LiveMotion): void {
+    this.liveNoiseTime = motion.noiseTime;
+    this.liveNoiseScale = motion.noiseScale;
+  }
+
   get dyeRead(): FBO {
     return this.dye.read;
+  }
+
+  get gridSizes(): { simWidth: number; simHeight: number; dyeWidth: number; dyeHeight: number } {
+    return {
+      simWidth: this.simSize.width,
+      simHeight: this.simSize.height,
+      dyeWidth: this.dyeSize.width,
+      dyeHeight: this.dyeSize.height,
+    };
   }
 
   get aspect(): number {
@@ -71,7 +90,7 @@ export class FluidSolver {
 
   step(dt: number, time: number, splat: PointerSplat | null): void {
     const gl = this.gl;
-    const simDt = Math.max(0, dt * this.config.noiseTime);
+    const simDt = Math.max(0, dt * this.liveNoiseTime);
     if (splat) {
       this.splatPointer(splat);
     }
@@ -88,10 +107,11 @@ export class FluidSolver {
 
   warmup(startTime: number, dt = 1 / 60): number {
     const steps = Math.max(0, Math.round(this.config.warmupSteps));
-    const simDt = dt * this.config.noiseTime;
     let time = startTime;
     for (let i = 0; i < steps; i += 1) {
-      time += simDt;
+      const motion = wiggleMotion(this.config, time);
+      this.setLiveMotion(motion);
+      time += dt * motion.noiseTime;
       this.setLivePrimaries(tweenPrimaries(this.config, time));
       this.step(dt, time, null);
     }
@@ -120,6 +140,7 @@ export class FluidSolver {
     this.set1f(vel, "uFine", this.config.composerFine);
     this.set1f(vel, "uNoiseScale", this.config.noiseScale);
     this.set1f(vel, "uZoom", this.config.viewZoom);
+    this.set1i(vel, "uNoiseType", noiseTypeIndex(this.config.noiseType));
     this.drawTo(this.velocity.write, this.simSize);
     this.velocity.swap();
     this.copyDouble(this.velocity);
@@ -162,12 +183,13 @@ export class FluidSolver {
     this.bindField(pass, "uDye", this.dye.read.texture, 0);
     this.set1f(pass, "uAspect", this.aspect);
     this.set1f(pass, "uTime", time);
-    this.set1f(pass, "uNoiseScale", this.config.noiseScale);
+    this.set1f(pass, "uNoiseScale", this.liveNoiseScale);
     this.set1f(pass, "uZoom", this.config.viewZoom);
     this.set1f(pass, "uBroad", this.config.composerBroad);
     this.set1f(pass, "uMedium", this.config.composerMedium);
     this.set1f(pass, "uFine", this.config.composerFine);
     this.set1f(pass, "uInject", inject);
+    this.set1i(pass, "uNoiseType", noiseTypeIndex(this.config.noiseType));
     this.set3f(pass, "uCrimson", this.liveCrimson[0], this.liveCrimson[1], this.liveCrimson[2]);
     this.set3f(pass, "uCharcoal", this.liveCharcoal[0], this.liveCharcoal[1], this.liveCharcoal[2]);
     this.drawTo(this.dye.write, this.dyeSize);
@@ -185,8 +207,9 @@ export class FluidSolver {
     this.set1f(pass, "uBroad", this.config.composerBroad);
     this.set1f(pass, "uMedium", this.config.composerMedium);
     this.set1f(pass, "uFine", this.config.composerFine);
-    this.set1f(pass, "uNoiseScale", this.config.noiseScale);
+    this.set1f(pass, "uNoiseScale", this.liveNoiseScale);
     this.set1f(pass, "uZoom", this.config.viewZoom);
+    this.set1i(pass, "uNoiseType", noiseTypeIndex(this.config.noiseType));
     this.drawTo(this.velocity.write, this.simSize);
     this.velocity.swap();
   }
@@ -292,6 +315,13 @@ export class FluidSolver {
     const loc = pass.uniforms[name];
     if (loc) {
       this.gl.uniform1f(loc, value);
+    }
+  }
+
+  private set1i(pass: Pass, name: string, value: number): void {
+    const loc = pass.uniforms[name];
+    if (loc) {
+      this.gl.uniform1i(loc, value);
     }
   }
 

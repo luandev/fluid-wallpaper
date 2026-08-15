@@ -1,5 +1,20 @@
 import { CHARCOAL, CRIMSON } from "./colors";
 
+export const NOISE_TYPES = ["perlin", "simplex", "value", "worley"] as const;
+export type NoiseType = (typeof NOISE_TYPES)[number];
+
+export function noiseTypeIndex(type: NoiseType): number {
+  const index = NOISE_TYPES.indexOf(type);
+  return index < 0 ? 0 : index;
+}
+
+export function sanitizeNoiseType(value: unknown): NoiseType {
+  if (typeof value === "string" && (NOISE_TYPES as readonly string[]).includes(value)) {
+    return value as NoiseType;
+  }
+  return "perlin";
+}
+
 export type FluidConfig = {
   simResolution: number;
   dyeResolution: number;
@@ -17,6 +32,7 @@ export type FluidConfig = {
   composerFine: number;
   noiseScale: number;
   noiseTime: number;
+  noiseType: NoiseType;
   dyeInject: number;
   warmupSteps: number;
   viewZoom: number;
@@ -28,6 +44,7 @@ export type FluidConfig = {
   crimsonB: string;
   charcoalB: string;
   colorTweenSpeed: number;
+  wiggleAmount: number;
 };
 
 export const defaultConfig: FluidConfig = {
@@ -47,6 +64,7 @@ export const defaultConfig: FluidConfig = {
   composerFine: 0.12,
   noiseScale: 1.05,
   noiseTime: 0.28,
+  noiseType: "perlin",
   dyeInject: 0.015,
   warmupSteps: 64,
   viewZoom: 0.85,
@@ -58,6 +76,7 @@ export const defaultConfig: FluidConfig = {
   crimsonB: "#8B1520",
   charcoalB: "#1A1214",
   colorTweenSpeed: 0.12,
+  wiggleAmount: 0.28,
 };
 
 export type ControlGroup = "Look" | "Flow" | "Composer" | "Quality" | "Input";
@@ -66,11 +85,12 @@ export type ControlDef = {
   key: keyof FluidConfig;
   label: string;
   group: ControlGroup;
-  kind: "range" | "color" | "toggle";
+  kind: "range" | "color" | "toggle" | "select";
   min?: number;
   max?: number;
   step?: number;
   reseed?: boolean;
+  options?: ReadonlyArray<{ value: string; label: string }>;
 };
 
 export const controlSchema: ControlDef[] = [
@@ -90,8 +110,22 @@ export const controlSchema: ControlDef[] = [
   { key: "composerBroad", label: "Broad", group: "Composer", kind: "range", min: 0, max: 2, step: 0.01 },
   { key: "composerMedium", label: "Medium", group: "Composer", kind: "range", min: 0, max: 2, step: 0.01 },
   { key: "composerFine", label: "Fine", group: "Composer", kind: "range", min: 0, max: 2, step: 0.01 },
+  {
+    key: "noiseType",
+    label: "Noise",
+    group: "Composer",
+    kind: "select",
+    reseed: true,
+    options: [
+      { value: "perlin", label: "Perlin" },
+      { value: "simplex", label: "Simplex" },
+      { value: "value", label: "Value" },
+      { value: "worley", label: "Worley" },
+    ],
+  },
   { key: "noiseScale", label: "Noise scale", group: "Composer", kind: "range", min: 0.2, max: 8, step: 0.05 },
   { key: "noiseTime", label: "Time speed", group: "Composer", kind: "range", min: 0, max: 1.2, step: 0.01 },
+  { key: "wiggleAmount", label: "Wiggle", group: "Composer", kind: "range", min: 0, max: 1, step: 0.01 },
   { key: "dyeInject", label: "Dye inject", group: "Composer", kind: "range", min: 0, max: 0.25, step: 0.005 },
   { key: "simResolution", label: "Sim resolution", group: "Quality", kind: "range", min: 128, max: 512, step: 32, reseed: true },
   { key: "dyeResolution", label: "Dye resolution", group: "Quality", kind: "range", min: 256, max: 1024, step: 32, reseed: true },
@@ -127,6 +161,7 @@ export function assertConfig(config: FluidConfig): void {
 
 export function clampConfig(config: FluidConfig): FluidConfig {
   const next = cloneConfig(config);
+  next.noiseType = sanitizeNoiseType(next.noiseType);
   for (const control of controlSchema) {
     if (control.kind !== "range" || control.min === undefined || control.max === undefined) {
       continue;
@@ -156,6 +191,10 @@ export function sanitizeConfig(raw: unknown): FluidConfig {
   for (const key of Object.keys(defaultConfig) as (keyof FluidConfig)[]) {
     const value = input[key];
     if (value === undefined) {
+      continue;
+    }
+    if (key === "noiseType") {
+      next.noiseType = sanitizeNoiseType(value);
       continue;
     }
     if (typeof defaultConfig[key] === "number" && typeof value === "number" && Number.isFinite(value)) {
