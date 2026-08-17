@@ -71,3 +71,14 @@ Record durable decisions here. Do not record an option as decided until its evid
 - **Consequences:** Four simultaneous identities at current dye cost. Slight sim coupling through concentration-weighted damping, documented rather than silent. Eight materials would need another dye target and advect pass. Tuner lists (materials, emitters) live beside the flat `controlSchema`, not as flattened keys.
 - **Evidence:** `docs/ARCHITECTURE.md`; `src/app/config.ts` material/emitter caps; inject, viscosity-weight, and display passes.
 - **Review trigger:** Four packed channels visibly alias when mixed, or the weighted damping is too weak/strong to read as thickness.
+
+### DEC-006 — React product-shell dashboard and value drivers
+
+- **Status:** Accepted
+- **Date:** 2026-08-17
+- **Context:** The vanilla tuner became a long stack of nested cards. Artists need to see and bind what they are changing, including LFOs that drive any numeric knob. Mic, camera, and tilt belong to later optional inputs (Phase 5) and must not be required for a complete look.
+- **Decision:** Use React only for the product-shell dashboard overlay (`src/ui`). Simulation, shaders, and `Engine` stay TypeScript. Numeric **value emitters** (sine, triangle, saw, square, noise) map a wave in `[0,1]` onto `[from, to]` and mix into **base** config via bindings. Mic, camera, and tilt exist as stub kinds that sample `0.5` and request no permissions. Storage and presets save **base** config plus the driver graph, never 60fps live values.
+- **Alternatives:** Keep and restyle the vanilla tuner; add a heavier UI kit; wire real getUserMedia in this pass.
+- **Consequences:** Yarn installs `react` / `react-dom`. The artwork still runs with the panel closed and with an empty driver list. Real sensor adapters can later replace stub `sample()` without touching the solver.
+- **Evidence:** `src/ui/Dashboard.tsx`; `src/app/drivers.ts`; `src/app/engine.ts` base vs live split.
+- **Review trigger:** React overlay cost is visible on the target Wallpaper Engine CEF class, or artists need to bind colors / reseed keys.

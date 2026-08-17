@@ -4,6 +4,8 @@ import {
   CRIMSON_MATERIAL_ID,
   MAX_EMITTERS,
   MAX_MATERIALS,
+  MAX_VALUE_BINDINGS,
+  MAX_VALUE_EMITTERS,
   MAX_WIND_STATIONS,
   assertConfig,
   clampConfig,
@@ -15,6 +17,7 @@ import {
   scatterWindStations,
 } from "../src/app/config";
 import { CHARCOAL, CRIMSON, hexToRgb, rgbToHex } from "../src/app/colors";
+import { BINDABLE_PATHS, applyDrivers, evaluateEmitter, getPath, setPath, wave01 } from "../src/app/drivers";
 import { padLiveMaterials, triangleWave, tweenAmount, tweenMaterials } from "../src/app/colorTween";
 import { dyeLooksAllBlack, dyeStatsFromRgba8, fieldMask } from "../src/app/dyeMix";
 import { luma, mixRgb } from "../src/app/palette";
@@ -30,6 +33,7 @@ import {
 import { GL, selectSimTextureFormat, type GpuCaps } from "../src/sim/capabilities";
 import { phase1Budgets } from "../src/quality/budgets";
 import { windForceAt } from "../src/app/wind";
+import { clampPanelPos, sanitizePanelLayout } from "../src/app/panelLayout";
 
 function caps(overrides: Partial<GpuCaps> = {}): GpuCaps {
   return {
@@ -63,6 +67,8 @@ describe("defaultConfig", () => {
     expect(defaultConfig.noiseTime).toBeLessThan(1);
     expect(defaultConfig.warmupSteps).toBeGreaterThan(0);
     expect(defaultConfig.windStations).toEqual([]);
+    expect(defaultConfig.valueEmitters).toEqual([]);
+    expect(defaultConfig.valueBindings).toEqual([]);
     expect(defaultConfig.windStrength).toBeGreaterThan(0);
     expect(() => assertConfig(defaultConfig)).not.toThrow();
   });
@@ -232,6 +238,48 @@ describe("sanitizeConfig", () => {
     expect(next.windStations.every((station) => station.uvX <= 1)).toBe(true);
     expect(next.windStations.every((station) => station.spin <= 1)).toBe(true);
     expect(cloneConfig(next).windStations).not.toBe(next.windStations);
+    expect(cloneConfig(next).valueEmitters).not.toBe(next.valueEmitters);
+  });
+
+  it("caps value emitters and bindings and drops invalid driver paths", () => {
+    const waves = Array.from({ length: 12 }, (_, i) => ({
+      id: `wave-${i}`,
+      name: `Wave ${i}`,
+      enabled: true,
+      kind: i === 0 ? "orb" : "sine",
+      rate: 0.2,
+      phase: 0,
+      from: 0,
+      to: 4,
+    }));
+    const next = sanitizeConfig({
+      valueEmitters: waves,
+      valueBindings: [
+        { id: "b1", emitterId: "wave-0", path: "vorticity", amount: 0.5 },
+        { id: "b2", emitterId: "missing", path: "vorticity", amount: 1 },
+        { id: "b3", emitterId: "wave-0", path: "simResolution", amount: 1 },
+        { id: "b4", emitterId: "wave-0", path: "materials.mat-crimson.color", amount: 1 },
+        { id: "b5", emitterId: "wave-0", path: "materials.mat-crimson.glow", amount: 2 },
+        ...Array.from({ length: 20 }, (_, i) => ({
+          id: `extra-${i}`,
+          emitterId: "wave-0",
+          path: "dyeInject",
+          amount: 0.25,
+        })),
+      ],
+    });
+    expect(next.valueEmitters).toHaveLength(MAX_VALUE_EMITTERS);
+    expect(next.valueEmitters[0]?.kind).toBe("sine");
+    expect(next.valueBindings).toHaveLength(MAX_VALUE_BINDINGS);
+    expect(next.valueBindings.every((binding) => binding.emitterId === "wave-0")).toBe(true);
+    expect(next.valueBindings.some((binding) => binding.path === "simResolution")).toBe(false);
+    expect(next.valueBindings.some((binding) => binding.path.endsWith(".color"))).toBe(false);
+    expect(next.valueBindings.find((binding) => binding.path.endsWith(".glow"))?.amount).toBe(1);
+    const cloned = cloneConfig(next);
+    expect(cloned.valueEmitters).not.toBe(next.valueEmitters);
+    expect(cloned.valueBindings).not.toBe(next.valueBindings);
+    cloned.valueEmitters[0] = { ...cloned.valueEmitters[0], rate: 7 };
+    expect(next.valueEmitters[0]?.rate).not.toBe(7);
   });
 });
 
@@ -414,6 +462,83 @@ describe("wiggleMotion", () => {
   });
 });
 
+describe("drivers", () => {
+  it("maps wave kinds into [0,1] and stubs stay at 0.5", () => {
+    expect(wave01("sine", 0)).toBeCloseTo(0.5, 5);
+    expect(wave01("sine", 0.25)).toBeCloseTo(1, 5);
+    expect(wave01("sine", 0.75)).toBeCloseTo(0, 5);
+    expect(wave01("triangle", 0)).toBeCloseTo(0, 5);
+    expect(wave01("triangle", 0.5)).toBeCloseTo(1, 5);
+    expect(wave01("saw", 0.25)).toBeCloseTo(0.25, 5);
+    expect(wave01("square", 0.2)).toBe(0);
+    expect(wave01("square", 0.7)).toBe(1);
+    expect(wave01("mic", 12)).toBe(0.5);
+    expect(wave01("camera", 3)).toBe(0.5);
+    expect(wave01("tilt", 8)).toBe(0.5);
+    expect(() => wave01("noise", 1.25)).not.toThrow();
+  });
+
+  it("evaluates an A-to-B sine tween", () => {
+    const emitter = {
+      id: "wave-1",
+      name: "Wave",
+      enabled: true,
+      kind: "sine" as const,
+      rate: 1,
+      phase: 0.25,
+      from: 2,
+      to: 8,
+    };
+    expect(evaluateEmitter(emitter, 0)).toBeCloseTo(8, 5);
+    expect(evaluateEmitter({ ...emitter, enabled: false }, 0)).toBe(2);
+  });
+
+  it("gets and sets nested numeric paths", () => {
+    const config = cloneConfig(defaultConfig);
+    expect(getPath(config, "vorticity")).toBe(config.vorticity);
+    expect(setPath(config, "vorticity", 11)).toBe(true);
+    expect(config.vorticity).toBe(11);
+    const glowPath = `materials.${CRIMSON_MATERIAL_ID}.glow`;
+    expect(setPath(config, glowPath, 0.4)).toBe(true);
+    expect(getPath(config, glowPath)).toBe(0.4);
+    expect(setPath(config, "materials.missing.glow", 0.2)).toBe(false);
+    expect(getPath(config, "crimson")).toBeUndefined();
+  });
+
+  it("excludes reseed keys from the bindable registry", () => {
+    const paths = BINDABLE_PATHS(defaultConfig).map((item) => item.path);
+    expect(paths).toContain("vorticity");
+    expect(paths).toContain(`materials.${CRIMSON_MATERIAL_ID}.glow`);
+    expect(paths).not.toContain("simResolution");
+    expect(paths).not.toContain("dyeResolution");
+    expect(paths).not.toContain("pressureIterations");
+    expect(paths).not.toContain("warmupSteps");
+    expect(paths).not.toContain("viewZoom");
+  });
+
+  it("mixes driven values onto a cloned live config", () => {
+    const base = cloneConfig(defaultConfig);
+    base.vorticity = 4;
+    base.valueEmitters = [
+      {
+        id: "wave-1",
+        name: "Pulse",
+        enabled: true,
+        kind: "sine",
+        rate: 1,
+        phase: 0.25,
+        from: 0,
+        to: 20,
+      },
+    ];
+    base.valueBindings = [{ id: "bind-1", emitterId: "wave-1", path: "vorticity", amount: 1 }];
+    const live = applyDrivers(base, 0);
+    expect(live.vorticity).toBeCloseTo(20, 5);
+    expect(base.vorticity).toBe(4);
+    expect(live.valueEmitters).not.toBe(base.valueEmitters);
+  });
+});
+
 describe("presets", () => {
   it("upserts by name while keeping a stable id", () => {
     let ids = 0;
@@ -432,6 +557,29 @@ describe("presets", () => {
     expect(second.preset.id).toBe("id-1");
     expect(second.preset.config.vorticity).toBe(12);
     expect(second.preset.updatedAt).toBe(200);
+  });
+
+  it("keeps the driver graph on save", () => {
+    const config = cloneConfig(defaultConfig);
+    config.valueEmitters = [
+      {
+        id: "wave-1",
+        name: "Pulse",
+        enabled: true,
+        kind: "triangle",
+        rate: 0.5,
+        phase: 0.1,
+        from: 0,
+        to: 12,
+      },
+    ];
+    config.valueBindings = [{ id: "bind-1", emitterId: "wave-1", path: "vorticity", amount: 0.4 }];
+    const saved = upsertPresetInList([], "Driven", config, 1, () => "p-drive");
+    expect(saved.preset.config.valueEmitters).toHaveLength(1);
+    expect(saved.preset.config.valueEmitters[0]?.kind).toBe("triangle");
+    expect(saved.preset.config.valueBindings).toEqual([
+      { id: "bind-1", emitterId: "wave-1", path: "vorticity", amount: 0.4 },
+    ]);
   });
 
   it("sanitizes bad entries and fills missing config fields", () => {
@@ -453,5 +601,29 @@ describe("presets", () => {
     const next = deletePresetFromList(withTwo.list, "p1");
     expect(next.map((preset) => preset.id)).toEqual(["p2"]);
     expect(getPresetFromList(next, "p1")).toBeUndefined();
+  });
+});
+
+describe("panelLayout", () => {
+  it("drops unknown keys and non-finite positions", () => {
+    const layout = sanitizePanelLayout({
+      dash: { left: 12.6, top: 40.2 },
+      extra: { left: 1, top: 1 },
+      perf: { left: Number.NaN, top: 8 },
+      dashFab: { left: "12", top: 9 },
+    });
+    expect(layout).toEqual({ dash: { left: 13, top: 40 } });
+  });
+
+  it("keeps overlays on screen when the viewport shrinks", () => {
+    expect(
+      clampPanelPos(2000, 2000, { width: 420, height: 200 }, { width: 1280, height: 720 }),
+    ).toEqual({ left: 852, top: 512 });
+    expect(
+      clampPanelPos(-40, -40, { width: 420, height: 200 }, { width: 1280, height: 720 }),
+    ).toEqual({ left: 8, top: 8 });
+    expect(
+      clampPanelPos(-1000, -1000, { width: 800, height: 600 }, { width: 400, height: 300 }),
+    ).toEqual({ left: -408, top: -308 });
   });
 });

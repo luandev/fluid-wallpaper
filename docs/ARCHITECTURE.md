@@ -4,7 +4,7 @@ This document describes responsibilities, not a fixed technology stack.
 
 ## Product shell
 
-Owns settings, presets, lifecycle events, user-facing state, and platform coordination.
+Owns settings, presets, lifecycle events, user-facing state, the **React dashboard overlay**, and platform coordination. Overlay positions persist in `localStorage` separately from look config. React does not own simulation or the renderer ([DEC-006](DECISIONS.md#dec-006--react-product-shell-dashboard-and-value-drivers)).
 
 ## Simulation
 
@@ -20,7 +20,7 @@ The same concentration field should support multiple visual identities (glow, sh
 
 ## Inputs
 
-Owns optional pointer, **sparse 2D wind stations**, audio, sensor, or external-data adapters. Wind stations are procedural stand-ins for weather-sample points (heading, speed, spin). Live METAR/GRIB/API feeds stay a later optional adapter. Every input must be bounded, optional, and able to disappear without breaking the artwork.
+Owns optional pointer, **sparse 2D wind stations**, **value emitters** (waves now; mic / camera / tilt as stubs), audio, sensor, or external-data adapters. Wind stations are procedural stand-ins for weather-sample points (heading, speed, spin). Live METAR/GRIB/API feeds stay a later optional adapter. Every input must be bounded, optional, and able to disappear without breaking the artwork.
 
 ## Platform integration
 
@@ -40,4 +40,4 @@ Owns frame-time observation and adaptive choices such as simulation resolution, 
 
 ## Leading technical direction
 
-Confirmed in [DEC-003](DECISIONS.md#dec-003--typescript-vite-webgl2-and-glsl): TypeScript application logic, Vite for development and static builds, WebGL2 + GLSL ES 3.00 for simulation and display. The browser adapter lives in `src/platform`; Wallpaper Engine integration remains a later platform module. Simulation transports concentrations and may apply derived thickness; the renderer owns look ([DEC-002](DECISIONS.md#dec-002--separate-simulation-from-appearance), [DEC-005](DECISIONS.md#dec-005--packed-material-concentrations-and-25d-look)).
+Confirmed in [DEC-003](DECISIONS.md#dec-003--typescript-vite-webgl2-and-glsl): TypeScript application logic, Vite for development and static builds, WebGL2 + GLSL ES 3.00 for simulation and display. The in-page tuner is a React overlay ([DEC-006](DECISIONS.md#dec-006--react-product-shell-dashboard-and-value-drivers)). The browser adapter lives in `src/platform`; Wallpaper Engine integration remains a later platform module. Simulation transports concentrations and may apply derived thickness; the renderer owns look ([DEC-002](DECISIONS.md#dec-002--separate-simulation-from-appearance), [DEC-005](DECISIONS.md#dec-005--packed-material-concentrations-and-25d-look)).

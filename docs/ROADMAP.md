@@ -44,11 +44,15 @@ Status: in progress. Dye channels are material amounts; display mixes a 2.5D loo
 - Add adaptive quality and frame-rate controls
 - Validate packaging and release flow
 
+Status: in progress for the in-page product shell. A tabbed React dashboard edits looks, materials, emitters, wind, and presets. Value emitters can drive numeric knobs ([DEC-006](DECISIONS.md#dec-006--react-product-shell-dashboard-and-value-drivers)). Wallpaper Engine properties, pause lifecycle, and adaptive quality remain later.
+
 ## Phase 5 — Expressive inputs
 
 - Add bounded audio response
 - Define privacy-conscious optional data adapters
 - Live wind / weather files (METAR, GRIB, APIs) would plug into the existing station list; the sim does not fetch them yet
+
+Status: driver **kinds** `mic`, `camera`, and `tilt` exist as stubs (sample `0.5`, no permissions). Real getUserMedia / orientation adapters stay here.
 
 ## Phase 6 — Expansion
 

@@ -1,5 +1,6 @@
 import { Engine } from "./app/engine";
-import { loadStoredConfig, mountDashboard } from "./app/dashboard";
+import { loadStoredConfig } from "./app/storage";
+import { mountDashboard } from "./ui/Dashboard";
 import { mountPerfHud } from "./app/perfHud";
 
 const canvas = document.querySelector("#view");

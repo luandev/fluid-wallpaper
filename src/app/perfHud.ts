@@ -1,3 +1,5 @@
+import { attachDraggablePanel, restorePanelPosition } from "./dragPanel";
+
 export type PerfSample = {
   fps: number;
   frameMs: number;
@@ -20,26 +22,33 @@ export function mountPerfHud(engine: PerfProvider, root: HTMLElement): () => voi
   root.dataset.open = loadOpen() ? "true" : "false";
 
   const title = el("div", "perf__title", "Perf");
+  title.title = "Drag to move";
   const fpsLine = el("div", "perf__line");
   const frameLine = el("div", "perf__line");
   const simLine = el("div", "perf__line");
   const dyeLine = el("div", "perf__line");
   root.append(title, fpsLine, frameLine, simLine, dyeLine);
+  const detachPerfDrag = attachDraggablePanel({ element: root, handle: title, id: "perf" });
+
+  const setOpen = (open: boolean): void => {
+    root.dataset.open = open ? "true" : "false";
+    saveOpen(open);
+    if (open) {
+      restorePanelPosition(root, "perf");
+    }
+  };
 
   const toggle = document.createElement("button");
   toggle.type = "button";
   toggle.className = "perf__fab";
   toggle.textContent = "Perf";
+  toggle.title = "Click to toggle, drag to move";
   toggle.setAttribute("aria-label", "Toggle performance HUD");
   toggle.addEventListener("click", () => setOpen(root.dataset.open !== "true"));
 
   const host = root.parentElement ?? document.body;
   host.append(toggle);
-
-  const setOpen = (open: boolean): void => {
-    root.dataset.open = open ? "true" : "false";
-    saveOpen(open);
-  };
+  const detachFabDrag = attachDraggablePanel({ element: toggle, handle: toggle, id: "perfFab" });
 
   const onKey = (event: KeyboardEvent): void => {
     if (event.code !== "KeyF" || event.repeat) {
@@ -73,6 +82,8 @@ export function mountPerfHud(engine: PerfProvider, root: HTMLElement): () => voi
   return () => {
     window.removeEventListener("keydown", onKey);
     cancelAnimationFrame(raf);
+    detachPerfDrag();
+    detachFabDrag();
     toggle.remove();
     root.replaceChildren();
     root.hidden = true;

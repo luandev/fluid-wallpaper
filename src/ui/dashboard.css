@@ -1,0 +1,255 @@
+.dash {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  width: min(420px, calc(100vw - 24px));
+  max-height: calc(100vh - 72px);
+  display: flex;
+  flex-direction: column;
+  color: #f4ecec;
+  background: rgba(12, 12, 14, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(10px);
+  font: 12px/1.4 system-ui, sans-serif;
+  overflow: hidden;
+}
+
+.dash[data-open="false"] {
+  display: none;
+}
+
+.dash__header {
+  padding: 12px 14px 8px;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.dash[data-dragging="true"] .dash__header {
+  cursor: grabbing;
+}
+
+.dash__title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+}
+
+.dash__hint {
+  margin: 4px 0 8px;
+  color: rgba(244, 236, 236, 0.55);
+}
+
+.dash__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 0 12px 8px;
+}
+
+.dash__tab {
+  border: 0;
+  border-radius: 8px;
+  padding: 6px 8px;
+  color: rgba(244, 236, 236, 0.7);
+  background: rgba(0, 0, 0, 0.28);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 650;
+}
+
+.dash__tab[data-active="true"] {
+  color: #140404;
+  background: #e80818;
+}
+
+.dash__body {
+  padding: 0 14px 8px;
+  overflow: auto;
+}
+
+.dash__group {
+  margin-bottom: 12px;
+}
+
+.dash__group-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.dash__group-head .dash__group-title {
+  margin: 0;
+}
+
+.dash__group-head .dash__btn {
+  flex: 0 0 auto;
+  padding: 4px 8px;
+}
+
+.dash__group-title {
+  margin: 0 0 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #e80818;
+}
+
+.dash__item {
+  margin-bottom: 10px;
+  padding: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.dash__item-head {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.dash__item-head .dash__text {
+  flex: 1;
+}
+
+.dash__item-head .dash__btn {
+  flex: 0 0 auto;
+  padding: 6px 8px;
+}
+
+.dash__row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.dash__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.dash__label {
+  min-width: 0;
+}
+
+.dash__value {
+  color: rgba(244, 236, 236, 0.65);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.dash__readouts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+  align-items: baseline;
+}
+
+.dash__live {
+  color: #f0b4b8;
+}
+
+.dash__chip {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 1px 7px;
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  color: #f4ecec;
+  background: rgba(232, 8, 24, 0.28);
+}
+
+.dash__wave {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.dash__wave-fill {
+  height: 100%;
+  background: #e80818;
+}
+
+.dash__input {
+  width: 100%;
+  accent-color: #e80818;
+}
+
+.dash__text,
+.dash__select {
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: #f4ecec;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.dash__select {
+  cursor: pointer;
+}
+
+.dash__preset-actions,
+.dash__inline-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.dash__preset-actions .dash__btn,
+.dash__inline-actions .dash__btn {
+  flex: 1;
+}
+
+.dash__actions {
+  display: flex;
+  gap: 8px;
+  padding: 8px 14px 12px;
+}
+
+.dash__btn,
+.dash__fab {
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: #f4ecec;
+  background: #2a1518;
+  cursor: pointer;
+}
+
+.dash__btn {
+  flex: 1;
+}
+
+.dash__btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.dash__fab {
+  position: fixed;
+  right: 12px;
+  bottom: 12px;
+  z-index: 3;
+  background: #e80818;
+  color: #140404;
+  font-weight: 700;
+  touch-action: none;
+}
+
+.dash__fab[data-dragging="true"] {
+  cursor: grabbing;
+}

@@ -4,7 +4,7 @@ A GPU-driven generative wallpaper that should feel fluid, material, intricate, a
 
 ## Current status
 
-Phase 0–1 baseline plus the start of Phase 3: a browser-runnable WebGL2 fluid (velocity + packed material concentrations, pressure projection, pointer stir) with a crimson / charcoal marble default. Up to four materials (glow, sheen, roughness, metal, viscosity weight) and multiple emitters. Audio, adaptive quality, and Wallpaper Engine properties remain later.
+Phase 0–1 baseline plus Phase 3 materials and a React product-shell dashboard: a browser-runnable WebGL2 fluid with packed material concentrations, multiple emitters, optional wind stations, and wave drivers for numeric knobs. Real mic/camera/tilt, adaptive quality, and Wallpaper Engine properties remain later.
 
 ## North star
 
@@ -17,7 +17,7 @@ yarn install
 yarn dev
 ```
 
-Opens a full-screen canvas with an in-page tuner. Multi-scale curl-noise runs without the mouse; drag still stirs if pointer is on. The tuner lists materials, emitters, and optional 2D wind stations (Scatter for random weather-like samples). Press **H** to hide the panel. Tunings persist in `localStorage`.
+Opens a full-screen canvas with a tabbed React dashboard (Scene, Materials, Emitters, Wind, Drivers, Presets). Multi-scale curl-noise runs without the mouse; drag still stirs if pointer is on. Value emitters can tween numeric knobs with waves. Press **H** to hide the panel. Drag a panel header (or a Panel/Perf button) to reposition; overlay positions persist in `localStorage`. Tunings persist there too.
 
 ```bash
 yarn test

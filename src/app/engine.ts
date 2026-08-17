@@ -6,6 +6,7 @@ import {
   mergeConfig,
   type FluidConfig,
 } from "./config";
+import { applyDrivers, copyConfigOnto } from "./drivers";
 import { tweenMaterials } from "./colorTween";
 import { dyeLooksAllBlack, dyeStatsFromRgba8, type DyeStats } from "./dyeMix";
 import { wiggleMotion } from "./wiggle";
@@ -37,7 +38,8 @@ export class Engine {
   private readonly passes: ShaderPasses;
   private readonly format: SimFormat;
   private solver: FluidSolver;
-  private config: FluidConfig;
+  private baseConfig: FluidConfig;
+  private liveConfig: FluidConfig;
   private raf = 0;
   private lastMs = 0;
   private elapsed = 0;
@@ -46,8 +48,10 @@ export class Engine {
   private fpsEma = 60;
 
   constructor(canvas: HTMLCanvasElement, config: FluidConfig = defaultConfig) {
-    this.config = clampConfig(cloneConfig(config));
-    assertConfig(this.config);
+    this.baseConfig = clampConfig(cloneConfig(config));
+    assertConfig(this.baseConfig);
+    this.liveConfig = cloneConfig(this.baseConfig);
+    this.syncLive(0);
     this.gl = createGl(canvas);
     this.platform = new BrowserPlatform(canvas, {
       onResize: () => this.handleResize(),
@@ -61,7 +65,7 @@ export class Engine {
       },
     });
     this.pointer = new PointerInput(canvas);
-    this.pointer.setEnabled(this.config.pointerEnabled);
+    this.pointer.setEnabled(this.baseConfig.pointerEnabled);
     this.gl.disable(this.gl.DEPTH_TEST);
     this.gl.disable(this.gl.BLEND);
     this.vao = createFullscreenVao(this.gl);
@@ -77,7 +81,15 @@ export class Engine {
   }
 
   getConfig(): FluidConfig {
-    return cloneConfig(this.config);
+    return cloneConfig(this.baseConfig);
+  }
+
+  getLiveConfig(): FluidConfig {
+    return cloneConfig(this.liveConfig);
+  }
+
+  getElapsed(): number {
+    return this.elapsed;
   }
 
   getPerfSample(): PerfSample {
@@ -93,10 +105,10 @@ export class Engine {
   }
 
   applyConfig(patch: Partial<FluidConfig>): FluidConfig {
-    const next = clampConfig(mergeConfig(this.config, patch));
-    assertConfig(next);
-    Object.assign(this.config, next);
-    this.pointer.setEnabled(this.config.pointerEnabled);
+    this.baseConfig = clampConfig(mergeConfig(this.baseConfig, patch));
+    assertConfig(this.baseConfig);
+    this.pointer.setEnabled(this.baseConfig.pointerEnabled);
+    this.syncLive(this.elapsed);
     return this.getConfig();
   }
 
@@ -104,6 +116,7 @@ export class Engine {
     if (this.disposed) {
       return;
     }
+    this.syncLive(this.elapsed);
     this.solver.dispose();
     this.solver = this.createSolver();
     this.bootSolver();
@@ -120,6 +133,10 @@ export class Engine {
     this.gl.deleteVertexArray(this.vao);
     this.pointer.dispose();
     this.platform.dispose();
+  }
+
+  private syncLive(elapsed: number): void {
+    copyConfigOnto(this.liveConfig, applyDrivers(this.baseConfig, elapsed));
   }
 
   private chooseFormat(): SimFormat {
@@ -156,12 +173,13 @@ export class Engine {
   private createSolver(): FluidSolver {
     this.gl.bindVertexArray(this.vao);
     const size = this.platform.getSize();
-    return new FluidSolver(this.gl, this.passes, this.format, this.config, size.aspect);
+    return new FluidSolver(this.gl, this.passes, this.format, this.liveConfig, size.aspect);
   }
 
   private bootSolver(): void {
     this.gl.bindVertexArray(this.vao);
-    this.solver.setLiveMotion(wiggleMotion(this.config, 0));
+    this.syncLive(0);
+    this.solver.setLiveMotion(wiggleMotion(this.liveConfig, 0));
     this.elapsed = this.solver.warmup(0);
     const stats = this.probeDyeStats();
     if (dyeLooksAllBlack(stats)) {
@@ -180,12 +198,12 @@ export class Engine {
     const width = 64;
     const height = 64;
     const probe = createByteFbo(gl, width, height);
-    const live = tweenMaterials(this.config, this.elapsed);
+    const live = tweenMaterials(this.liveConfig, this.elapsed);
     blitDye(
       gl,
       this.passes.display,
       this.solver.dyeRead,
-      this.config,
+      this.liveConfig,
       width,
       height,
       this.format.manualBilinear,
@@ -234,14 +252,15 @@ export class Engine {
     if (this.disposed || !this.platform.visible) {
       return;
     }
-    const dt = this.lastMs === 0 ? 1 / 60 : Math.min(this.config.maxDt, (now - this.lastMs) / 1000);
+    const dt = this.lastMs === 0 ? 1 / 60 : Math.min(this.baseConfig.maxDt, (now - this.lastMs) / 1000);
     this.frameMs = this.lastMs === 0 ? 16.67 : Math.max(0.01, now - this.lastMs);
     const instantFps = 1000 / this.frameMs;
     this.fpsEma = this.lastMs === 0 ? instantFps : this.fpsEma * 0.9 + instantFps * 0.1;
     this.lastMs = now;
-    const motion = wiggleMotion(this.config, this.elapsed);
+    this.syncLive(this.elapsed);
+    const motion = wiggleMotion(this.liveConfig, this.elapsed);
     this.elapsed += dt * motion.noiseTime;
-    const live = tweenMaterials(this.config, this.elapsed);
+    const live = tweenMaterials(this.liveConfig, this.elapsed);
 
     this.gl.bindVertexArray(this.vao);
     this.solver.setLiveMotion(motion);
@@ -251,7 +270,7 @@ export class Engine {
       this.gl,
       this.passes.display,
       this.solver.dyeRead,
-      this.config,
+      this.liveConfig,
       size.pixelWidth,
       size.pixelHeight,
       this.format.manualBilinear,
