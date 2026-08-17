@@ -3,6 +3,19 @@ import { CHARCOAL, CRIMSON } from "./colors";
 export const NOISE_TYPES = ["perlin", "simplex", "value", "worley"] as const;
 export type NoiseType = (typeof NOISE_TYPES)[number];
 
+export const EMITTER_KINDS = ["field", "point", "pointer"] as const;
+export type EmitterKind = (typeof EMITTER_KINDS)[number];
+
+export const MAX_MATERIALS = 4;
+export const MIN_MATERIALS = 1;
+export const MAX_EMITTERS = 8;
+export const MAX_WIND_STATIONS = 8;
+
+export const CRIMSON_MATERIAL_ID = "mat-crimson";
+export const CHARCOAL_MATERIAL_ID = "mat-charcoal";
+
+const HEX6 = /^#[0-9A-Fa-f]{6}$/;
+
 export function noiseTypeIndex(type: NoiseType): number {
   const index = NOISE_TYPES.indexOf(type);
   return index < 0 ? 0 : index;
@@ -14,6 +27,59 @@ export function sanitizeNoiseType(value: unknown): NoiseType {
   }
   return "perlin";
 }
+
+export function sanitizeEmitterKind(value: unknown): EmitterKind {
+  if (typeof value === "string" && (EMITTER_KINDS as readonly string[]).includes(value)) {
+    return value as EmitterKind;
+  }
+  return "field";
+}
+
+export function sanitizeHex(value: unknown, fallback: string): string {
+  if (typeof value === "string" && HEX6.test(value)) {
+    return value;
+  }
+  return fallback;
+}
+
+export type FluidMaterial = {
+  id: string;
+  name: string;
+  enabled: boolean;
+  color: string;
+  colorB: string;
+  viscosity: number;
+  roughness: number;
+  metallic: number;
+  sheen: number;
+  glow: number;
+};
+
+export type FluidEmitter = {
+  id: string;
+  name: string;
+  enabled: boolean;
+  materialId: string;
+  kind: EmitterKind;
+  rate: number;
+  radius: number;
+  uvX: number;
+  uvY: number;
+  noiseOffset: number;
+};
+
+/** Sparse 2D sample, like a weather station: stream (heading/speed) plus local spin. */
+export type WindStation = {
+  id: string;
+  name: string;
+  enabled: boolean;
+  uvX: number;
+  uvY: number;
+  heading: number;
+  speed: number;
+  spin: number;
+  radius: number;
+};
 
 export type FluidConfig = {
   simResolution: number;
@@ -39,13 +105,119 @@ export type FluidConfig = {
   contrast: number;
   pointerEnabled: boolean;
   maxDt: number;
-  crimson: string;
-  charcoal: string;
-  crimsonB: string;
-  charcoalB: string;
   colorTweenSpeed: number;
   wiggleAmount: number;
+  windStrength: number;
+  materials: FluidMaterial[];
+  emitters: FluidEmitter[];
+  windStations: WindStation[];
 };
+
+export function createItemId(prefix: string): string {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return `${prefix}-${crypto.randomUUID().slice(0, 8)}`;
+  }
+  return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+const EXTRA_MATERIAL_TEMPLATES: ReadonlyArray<Omit<FluidMaterial, "id">> = [
+  {
+    name: "Wine",
+    enabled: true,
+    color: "#6B1528",
+    colorB: "#4A0E18",
+    viscosity: 0.45,
+    roughness: 0.35,
+    metallic: 0.15,
+    sheen: 0.45,
+    glow: 0.2,
+  },
+  {
+    name: "Brass",
+    enabled: true,
+    color: "#C9A227",
+    colorB: "#8A6E12",
+    viscosity: 0.2,
+    roughness: 0.25,
+    metallic: 0.8,
+    sheen: 0.15,
+    glow: 0.1,
+  },
+];
+
+export function defaultMaterials(): FluidMaterial[] {
+  return [
+    {
+      id: CRIMSON_MATERIAL_ID,
+      name: "Crimson",
+      enabled: true,
+      color: CRIMSON,
+      colorB: "#8B1520",
+      viscosity: 0.1,
+      roughness: 0.45,
+      metallic: 0.05,
+      sheen: 0.3,
+      glow: 0.65,
+    },
+    {
+      id: CHARCOAL_MATERIAL_ID,
+      name: "Charcoal",
+      enabled: true,
+      color: CHARCOAL,
+      colorB: "#1A1214",
+      viscosity: 0.35,
+      roughness: 0.7,
+      metallic: 0,
+      sheen: 0.1,
+      glow: 0,
+    },
+  ];
+}
+
+export function defaultEmitters(): FluidEmitter[] {
+  return [
+    {
+      id: "emit-field-crimson",
+      name: "Crimson field",
+      enabled: true,
+      materialId: CRIMSON_MATERIAL_ID,
+      kind: "field",
+      rate: 1,
+      radius: 0.0009,
+      uvX: 0.5,
+      uvY: 0.5,
+      noiseOffset: 0,
+    },
+    {
+      id: "emit-field-charcoal",
+      name: "Charcoal field",
+      enabled: true,
+      materialId: CHARCOAL_MATERIAL_ID,
+      kind: "field",
+      rate: 1,
+      radius: 0.0009,
+      uvX: 0.5,
+      uvY: 0.5,
+      noiseOffset: 1,
+    },
+    {
+      id: "emit-pointer-crimson",
+      name: "Pointer",
+      enabled: true,
+      materialId: CRIMSON_MATERIAL_ID,
+      kind: "pointer",
+      rate: 1,
+      radius: 0.0009,
+      uvX: 0.5,
+      uvY: 0.5,
+      noiseOffset: 0,
+    },
+  ];
+}
+
+export function materialSlotIndex(materialId: string, materials: readonly FluidMaterial[]): number {
+  return materials.findIndex((material) => material.id === materialId);
+}
 
 export const defaultConfig: FluidConfig = {
   simResolution: 384,
@@ -71,12 +243,12 @@ export const defaultConfig: FluidConfig = {
   contrast: 0.75,
   pointerEnabled: true,
   maxDt: 1 / 30,
-  crimson: CRIMSON,
-  charcoal: CHARCOAL,
-  crimsonB: "#8B1520",
-  charcoalB: "#1A1214",
   colorTweenSpeed: 0.12,
   wiggleAmount: 0.28,
+  windStrength: 16,
+  materials: defaultMaterials(),
+  emitters: defaultEmitters(),
+  windStations: [],
 };
 
 export type ControlGroup = "Look" | "Flow" | "Composer" | "Quality" | "Input";
@@ -94,15 +266,12 @@ export type ControlDef = {
 };
 
 export const controlSchema: ControlDef[] = [
-  { key: "crimson", label: "Crimson", group: "Look", kind: "color" },
-  { key: "charcoal", label: "Charcoal", group: "Look", kind: "color" },
-  { key: "crimsonB", label: "Crimson B", group: "Look", kind: "color" },
-  { key: "charcoalB", label: "Charcoal B", group: "Look", kind: "color" },
   { key: "colorTweenSpeed", label: "Tween speed", group: "Look", kind: "range", min: 0, max: 1, step: 0.01 },
   { key: "contrast", label: "Contrast", group: "Look", kind: "range", min: 0.4, max: 3, step: 0.05 },
   { key: "viewZoom", label: "View zoom", group: "Look", kind: "range", min: 0.25, max: 2.5, step: 0.01, reseed: true },
   { key: "dyeDecay", label: "Dye decay", group: "Look", kind: "range", min: 0, max: 0.05, step: 0.001 },
   { key: "vorticity", label: "Vorticity", group: "Flow", kind: "range", min: 0, max: 40, step: 0.5 },
+  { key: "windStrength", label: "Wind", group: "Flow", kind: "range", min: 0, max: 80, step: 0.5 },
   { key: "velocityDecay", label: "Velocity decay", group: "Flow", kind: "range", min: 0, max: 2, step: 0.01 },
   { key: "seedVelocityScale", label: "Seed velocity", group: "Flow", kind: "range", min: 0, max: 80, step: 0.5, reseed: true },
   { key: "splatForce", label: "Splat force", group: "Flow", kind: "range", min: 0, max: 8000, step: 50 },
@@ -142,12 +311,49 @@ export function decayFactor(decayPerSecond: number, dt: number): number {
   return Math.exp(-Math.max(0, decayPerSecond) * Math.max(0, dt));
 }
 
+export function cloneMaterial(material: FluidMaterial): FluidMaterial {
+  return { ...material };
+}
+
+export function cloneEmitter(emitter: FluidEmitter): FluidEmitter {
+  return { ...emitter };
+}
+
+export function cloneWindStation(station: WindStation): WindStation {
+  return { ...station };
+}
+
 export function cloneConfig(config: FluidConfig): FluidConfig {
-  return { ...config };
+  return {
+    ...config,
+    materials: config.materials.map(cloneMaterial),
+    emitters: config.emitters.map(cloneEmitter),
+    windStations: config.windStations.map(cloneWindStation),
+  };
 }
 
 export function mergeConfig(base: FluidConfig, patch: Partial<FluidConfig>): FluidConfig {
-  return { ...base, ...patch };
+  const next = cloneConfig(base);
+  for (const key of Object.keys(patch) as (keyof FluidConfig)[]) {
+    const value = patch[key];
+    if (value === undefined) {
+      continue;
+    }
+    if (key === "materials") {
+      next.materials = (value as FluidMaterial[]).map(cloneMaterial);
+      continue;
+    }
+    if (key === "emitters") {
+      next.emitters = (value as FluidEmitter[]).map(cloneEmitter);
+      continue;
+    }
+    if (key === "windStations") {
+      next.windStations = (value as WindStation[]).map(cloneWindStation);
+      continue;
+    }
+    (next as unknown as Record<string, unknown>)[key] = value;
+  }
+  return next;
 }
 
 export function assertConfig(config: FluidConfig): void {
@@ -157,6 +363,248 @@ export function assertConfig(config: FluidConfig): void {
   if (config.pressureIterations < 20 || config.pressureIterations > 40) {
     throw new Error("Phase 1 pressureIterations must stay in 20–40");
   }
+}
+
+function clampNumber(value: unknown, fallback: number, min: number, max: number): number {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return fallback;
+  }
+  return Math.min(max, Math.max(min, value));
+}
+
+function sanitizeId(value: unknown, fallback: string): string {
+  if (typeof value === "string" && value.trim().length > 0) {
+    return value.trim();
+  }
+  return fallback;
+}
+
+function sanitizeName(value: unknown, fallback: string): string {
+  if (typeof value === "string") {
+    const name = value.trim().replace(/\s+/g, " ");
+    if (name.length > 0) {
+      return name.slice(0, 32);
+    }
+  }
+  return fallback;
+}
+
+export function sanitizeMaterial(raw: unknown, fallback: FluidMaterial, usedIds: Set<string>): FluidMaterial {
+  const input = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
+  let id = sanitizeId(input.id, fallback.id);
+  if (usedIds.has(id)) {
+    id = createItemId("mat");
+  }
+  usedIds.add(id);
+  return {
+    id,
+    name: sanitizeName(input.name, fallback.name),
+    enabled: typeof input.enabled === "boolean" ? input.enabled : fallback.enabled,
+    color: sanitizeHex(input.color, fallback.color),
+    colorB: sanitizeHex(input.colorB, fallback.colorB),
+    viscosity: clampNumber(input.viscosity, fallback.viscosity, 0, 1),
+    roughness: clampNumber(input.roughness, fallback.roughness, 0, 1),
+    metallic: clampNumber(input.metallic, fallback.metallic, 0, 1),
+    sheen: clampNumber(input.sheen, fallback.sheen, 0, 1),
+    glow: clampNumber(input.glow, fallback.glow, 0, 1),
+  };
+}
+
+export function sanitizeEmitter(
+  raw: unknown,
+  fallback: FluidEmitter,
+  materialIds: ReadonlySet<string>,
+  usedIds: Set<string>,
+): FluidEmitter {
+  const input = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
+  let id = sanitizeId(input.id, fallback.id);
+  if (usedIds.has(id)) {
+    id = createItemId("emit");
+  }
+  usedIds.add(id);
+  const requestedMaterial =
+    typeof input.materialId === "string" && materialIds.has(input.materialId)
+      ? input.materialId
+      : fallback.materialId;
+  const materialId = materialIds.has(requestedMaterial)
+    ? requestedMaterial
+    : [...materialIds][0] ?? CRIMSON_MATERIAL_ID;
+  return {
+    id,
+    name: sanitizeName(input.name, fallback.name),
+    enabled: typeof input.enabled === "boolean" ? input.enabled : fallback.enabled,
+    materialId,
+    kind: sanitizeEmitterKind(input.kind),
+    rate: clampNumber(input.rate, fallback.rate, 0, 1),
+    radius: clampNumber(input.radius, fallback.radius, 0.00005, 0.25),
+    uvX: clampNumber(input.uvX, fallback.uvX, 0, 1),
+    uvY: clampNumber(input.uvY, fallback.uvY, 0, 1),
+    noiseOffset: clampNumber(input.noiseOffset, fallback.noiseOffset, 0, 1),
+  };
+}
+
+function sanitizeMaterials(raw: unknown, legacy?: Record<string, unknown>): FluidMaterial[] {
+  const fallbacks = defaultMaterials();
+  if (!Array.isArray(raw)) {
+    const migrated = fallbacks.map(cloneMaterial);
+    if (legacy) {
+      migrated[0] = {
+        ...migrated[0],
+        color: sanitizeHex(legacy.crimson, migrated[0].color),
+        colorB: sanitizeHex(legacy.crimsonB, migrated[0].colorB),
+      };
+      migrated[1] = {
+        ...migrated[1],
+        color: sanitizeHex(legacy.charcoal, migrated[1].color),
+        colorB: sanitizeHex(legacy.charcoalB, migrated[1].colorB),
+      };
+    }
+    return migrated;
+  }
+  const usedIds = new Set<string>();
+  const out: FluidMaterial[] = [];
+  for (let i = 0; i < raw.length && out.length < MAX_MATERIALS; i += 1) {
+    const fallback = fallbacks[Math.min(i, fallbacks.length - 1)] ?? fallbacks[0];
+    out.push(sanitizeMaterial(raw[i], fallback, usedIds));
+  }
+  if (out.length < MIN_MATERIALS) {
+    return fallbacks.map(cloneMaterial);
+  }
+  return out;
+}
+
+function sanitizeEmitters(raw: unknown, materials: readonly FluidMaterial[]): FluidEmitter[] {
+  const fallbacks = defaultEmitters();
+  const materialIds = new Set(materials.map((material) => material.id));
+  if (!Array.isArray(raw)) {
+    return fallbacks.map((emitter) => ({
+      ...cloneEmitter(emitter),
+      materialId: materialIds.has(emitter.materialId) ? emitter.materialId : [...materialIds][0] ?? emitter.materialId,
+    }));
+  }
+  const usedIds = new Set<string>();
+  const out: FluidEmitter[] = [];
+  for (let i = 0; i < raw.length && out.length < MAX_EMITTERS; i += 1) {
+    const fallback = fallbacks[Math.min(i, fallbacks.length - 1)] ?? fallbacks[0];
+    out.push(sanitizeEmitter(raw[i], fallback, materialIds, usedIds));
+  }
+  return out;
+}
+
+export function createMaterial(existing: readonly FluidMaterial[]): FluidMaterial | undefined {
+  if (existing.length >= MAX_MATERIALS) {
+    return undefined;
+  }
+  const template = EXTRA_MATERIAL_TEMPLATES[existing.length - 2] ?? EXTRA_MATERIAL_TEMPLATES[1];
+  const usedIds = new Set(existing.map((material) => material.id));
+  return sanitizeMaterial({ ...template, id: createItemId("mat") }, { ...template, id: "mat-new" }, usedIds);
+}
+
+export function createEmitter(existing: readonly FluidEmitter[], materials: readonly FluidMaterial[]): FluidEmitter | undefined {
+  if (existing.length >= MAX_EMITTERS) {
+    return undefined;
+  }
+  const materialId = materials[0]?.id ?? CRIMSON_MATERIAL_ID;
+  const usedIds = new Set(existing.map((emitter) => emitter.id));
+  const fallback: FluidEmitter = {
+    id: "emit-new",
+    name: `Emitter ${existing.length + 1}`,
+    enabled: true,
+    materialId,
+    kind: "point",
+    rate: 0.45,
+    radius: 0.012,
+    uvX: 0.5,
+    uvY: 0.5,
+    noiseOffset: 0,
+  };
+  return sanitizeEmitter({ ...fallback, id: createItemId("emit") }, fallback, new Set(materials.map((m) => m.id)), usedIds);
+}
+
+const FALLBACK_WIND: WindStation = {
+  id: "wind-new",
+  name: "Station",
+  enabled: true,
+  uvX: 0.5,
+  uvY: 0.5,
+  heading: 0.12,
+  speed: 0.55,
+  spin: 0.35,
+  radius: 0.18,
+};
+
+export function sanitizeWindStation(raw: unknown, fallback: WindStation, usedIds: Set<string>): WindStation {
+  const input = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
+  let id = sanitizeId(input.id, fallback.id);
+  if (usedIds.has(id)) {
+    id = createItemId("wind");
+  }
+  usedIds.add(id);
+  return {
+    id,
+    name: sanitizeName(input.name, fallback.name),
+    enabled: typeof input.enabled === "boolean" ? input.enabled : fallback.enabled,
+    uvX: clampNumber(input.uvX, fallback.uvX, 0, 1),
+    uvY: clampNumber(input.uvY, fallback.uvY, 0, 1),
+    heading: clampNumber(input.heading, fallback.heading, 0, 1),
+    speed: clampNumber(input.speed, fallback.speed, 0, 1),
+    spin: clampNumber(input.spin, fallback.spin, -1, 1),
+    radius: clampNumber(input.radius, fallback.radius, 0.04, 0.45),
+  };
+}
+
+function sanitizeWindStations(raw: unknown): WindStation[] {
+  if (!Array.isArray(raw)) {
+    return [];
+  }
+  const usedIds = new Set<string>();
+  const out: WindStation[] = [];
+  for (let i = 0; i < raw.length && out.length < MAX_WIND_STATIONS; i += 1) {
+    out.push(sanitizeWindStation(raw[i], FALLBACK_WIND, usedIds));
+  }
+  return out;
+}
+
+export function createWindStation(existing: readonly WindStation[]): WindStation | undefined {
+  if (existing.length >= MAX_WIND_STATIONS) {
+    return undefined;
+  }
+  const usedIds = new Set(existing.map((station) => station.id));
+  return sanitizeWindStation(
+    {
+      ...FALLBACK_WIND,
+      id: createItemId("wind"),
+      name: `Station ${existing.length + 1}`,
+    },
+    FALLBACK_WIND,
+    usedIds,
+  );
+}
+
+export function scatterWindStations(count = 4, random: () => number = Math.random): WindStation[] {
+  const n = Math.min(MAX_WIND_STATIONS, Math.max(1, Math.round(count)));
+  const usedIds = new Set<string>();
+  const out: WindStation[] = [];
+  for (let i = 0; i < n; i += 1) {
+    out.push(
+      sanitizeWindStation(
+        {
+          id: createItemId("wind"),
+          name: `Station ${i + 1}`,
+          enabled: true,
+          uvX: 0.08 + random() * 0.84,
+          uvY: 0.08 + random() * 0.84,
+          heading: random(),
+          speed: 0.25 + random() * 0.6,
+          spin: random() * 1.6 - 0.8,
+          radius: 0.1 + random() * 0.2,
+        },
+        FALLBACK_WIND,
+        usedIds,
+      ),
+    );
+  }
+  return out;
 }
 
 export function clampConfig(config: FluidConfig): FluidConfig {
@@ -179,6 +627,22 @@ export function clampConfig(config: FluidConfig): FluidConfig {
   if (next.dyeResolution < next.simResolution) {
     next.dyeResolution = next.simResolution;
   }
+  const usedMaterialIds = new Set<string>();
+  next.materials = next.materials.slice(0, MAX_MATERIALS).map((material, index) =>
+    sanitizeMaterial(material, defaultMaterials()[Math.min(index, 1)], usedMaterialIds),
+  );
+  if (next.materials.length < MIN_MATERIALS) {
+    next.materials = defaultMaterials();
+  }
+  const materialIds = new Set(next.materials.map((material) => material.id));
+  const usedEmitterIds = new Set<string>();
+  next.emitters = next.emitters.slice(0, MAX_EMITTERS).map((emitter, index) =>
+    sanitizeEmitter(emitter, defaultEmitters()[Math.min(index, defaultEmitters().length - 1)], materialIds, usedEmitterIds),
+  );
+  const usedWindIds = new Set<string>();
+  next.windStations = (next.windStations ?? []).slice(0, MAX_WIND_STATIONS).map((station) =>
+    sanitizeWindStation(station, FALLBACK_WIND, usedWindIds),
+  );
   return next;
 }
 
@@ -189,6 +653,9 @@ export function sanitizeConfig(raw: unknown): FluidConfig {
   const input = raw as Record<string, unknown>;
   const next = cloneConfig(defaultConfig);
   for (const key of Object.keys(defaultConfig) as (keyof FluidConfig)[]) {
+    if (key === "materials" || key === "emitters" || key === "windStations") {
+      continue;
+    }
     const value = input[key];
     if (value === undefined) {
       continue;
@@ -201,9 +668,10 @@ export function sanitizeConfig(raw: unknown): FluidConfig {
       (next[key] as number) = value;
     } else if (typeof defaultConfig[key] === "boolean" && typeof value === "boolean") {
       (next[key] as boolean) = value;
-    } else if (typeof defaultConfig[key] === "string" && typeof value === "string") {
-      (next[key] as string) = value;
     }
   }
+  next.materials = sanitizeMaterials(input.materials, input);
+  next.emitters = sanitizeEmitters(input.emitters, next.materials);
+  next.windStations = sanitizeWindStations(input.windStations);
   return clampConfig(next);
 }

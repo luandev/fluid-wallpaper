@@ -3,10 +3,15 @@
  * Technique family: semi-Lagrangian advection, Jacobi pressure projection,
  * vorticity confinement. Not copied from any third-party source.
  */
-import { hexToRgb } from "../app/colors";
-import { tweenPrimaries, type LivePrimaries } from "../app/colorTween";
-import { noiseTypeIndex, type FluidConfig } from "../app/config";
-import { decayFactor } from "../app/config";
+import {
+  MAX_EMITTERS,
+  MAX_MATERIALS,
+  MAX_WIND_STATIONS,
+  decayFactor,
+  materialSlotIndex,
+  noiseTypeIndex,
+  type FluidConfig,
+} from "../app/config";
 import { wiggleMotion, type LiveMotion } from "../app/wiggle";
 import type { PointerSplat } from "../inputs/pointer";
 import type { SimFormat } from "./capabilities";
@@ -30,8 +35,6 @@ export class FluidSolver {
   private curl: FBO;
   private readonly simSize: { width: number; height: number };
   private readonly dyeSize: { width: number; height: number };
-  private liveCrimson: [number, number, number] = [0, 0, 0];
-  private liveCharcoal: [number, number, number] = [0, 0, 0];
   private liveNoiseTime = 0;
   private liveNoiseScale = 1;
 
@@ -49,16 +52,9 @@ export class FluidSolver {
     this.divergence = createFbo(gl, this.simSize.width, this.simSize.height, format);
     this.curl = createFbo(gl, this.simSize.width, this.simSize.height, format);
     this.dye = createDoubleFbo(gl, this.dyeSize.width, this.dyeSize.height, format);
-    this.liveCrimson = hexToRgb(config.crimson);
-    this.liveCharcoal = hexToRgb(config.charcoal);
     this.liveNoiseTime = config.noiseTime;
     this.liveNoiseScale = config.noiseScale;
     this.seed();
-  }
-
-  setLivePrimaries(primaries: LivePrimaries): void {
-    this.liveCrimson = [...primaries.crimson];
-    this.liveCharcoal = [...primaries.charcoal];
   }
 
   setLiveMotion(motion: LiveMotion): void {
@@ -96,10 +92,12 @@ export class FluidSolver {
     }
     if (simDt > 0) {
       this.applyComposer(simDt, time);
-      this.applyPerlinDye(time, this.config.dyeInject);
+      this.applyWind(simDt);
+      this.applyInject(time, this.config.dyeInject);
       this.applyVorticity(simDt);
       this.project();
-      this.advect(this.velocity, this.velocity, decayFactor(this.config.velocityDecay, simDt), simDt);
+      this.applyViscosity(simDt);
+      this.advect(this.velocity, this.velocity, 1, simDt);
       this.advect(this.dye, this.velocity, decayFactor(this.config.dyeDecay, simDt), simDt);
     }
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -112,7 +110,6 @@ export class FluidSolver {
       const motion = wiggleMotion(this.config, time);
       this.setLiveMotion(motion);
       time += dt * motion.noiseTime;
-      this.setLivePrimaries(tweenPrimaries(this.config, time));
       this.step(dt, time, null);
     }
     return time;
@@ -128,7 +125,7 @@ export class FluidSolver {
   }
 
   private seed(): void {
-    this.applyPerlinDye(0, 1);
+    this.applyInject(0, 1);
     this.copyDouble(this.dye);
 
     const vel = this.passes.marbleVelocity;
@@ -149,19 +146,29 @@ export class FluidSolver {
   private splatPointer(splat: PointerSplat): void {
     const forceX = splat.delta[0] * this.config.splatForce * this.simSize.width;
     const forceY = splat.delta[1] * this.config.splatForce * this.simSize.height;
-    this.splat(this.velocity, splat.uv, [forceX, forceY, 0], this.config.splatRadius);
-    this.splat(
-      this.dye,
-      splat.uv,
-      [this.liveCrimson[0], this.liveCrimson[1], this.liveCrimson[2]],
-      this.config.dyeSplatRadius,
-    );
+    this.splat(this.velocity, splat.uv, [forceX, forceY, 0, 0], this.config.splatRadius);
+    for (const emitter of this.config.emitters) {
+      if (!emitter.enabled || emitter.kind !== "pointer") {
+        continue;
+      }
+      const material = this.config.materials.find((item) => item.id === emitter.materialId);
+      if (!material?.enabled) {
+        continue;
+      }
+      const slot = materialSlotIndex(emitter.materialId, this.config.materials);
+      if (slot < 0 || slot >= MAX_MATERIALS) {
+        continue;
+      }
+      const color: [number, number, number, number] = [0, 0, 0, 0];
+      color[slot] = emitter.rate;
+      this.splat(this.dye, splat.uv, color, emitter.radius);
+    }
   }
 
   private splat(
     target: DoubleFBO,
     point: [number, number],
-    color: [number, number, number],
+    color: [number, number, number, number],
     radius: number,
   ): void {
     const pass = this.passes.splat;
@@ -170,14 +177,15 @@ export class FluidSolver {
     this.gl.bindTexture(this.gl.TEXTURE_2D, target.read.texture);
     this.gl.uniform1i(pass.uniforms.uTarget, 0);
     this.gl.uniform1f(pass.uniforms.uAspect, this.aspect);
-    this.gl.uniform3f(pass.uniforms.uColor, color[0], color[1], color[2]);
+    this.set4f(pass, "uColor", color[0], color[1], color[2], color[3]);
     this.gl.uniform2f(pass.uniforms.uPoint, point[0], point[1]);
     this.gl.uniform1f(pass.uniforms.uRadius, radius);
     this.drawTo(target.write, { width: target.write.width, height: target.write.height });
     target.swap();
   }
 
-  private applyPerlinDye(time: number, inject: number): void {
+  private applyInject(time: number, inject: number): void {
+    const packed = this.packInjectEmitters();
     const pass = this.passes.perlinDye;
     this.use(pass);
     this.bindField(pass, "uDye", this.dye.read.texture, 0);
@@ -190,10 +198,81 @@ export class FluidSolver {
     this.set1f(pass, "uFine", this.config.composerFine);
     this.set1f(pass, "uInject", inject);
     this.set1i(pass, "uNoiseType", noiseTypeIndex(this.config.noiseType));
-    this.set3f(pass, "uCrimson", this.liveCrimson[0], this.liveCrimson[1], this.liveCrimson[2]);
-    this.set3f(pass, "uCharcoal", this.liveCharcoal[0], this.liveCharcoal[1], this.liveCharcoal[2]);
+    this.set1i(pass, "uEmitterCount", packed.count);
+    this.set1iv(pass, "uEmitterKind", packed.kind);
+    this.set1iv(pass, "uEmitterMaterial", packed.material);
+    this.set1fv(pass, "uEmitterRate", packed.rate);
+    this.set2fv(pass, "uEmitterUv", packed.uv);
+    this.set1fv(pass, "uEmitterRadius", packed.radius);
+    this.set1fv(pass, "uEmitterNoiseOffset", packed.noiseOffset);
     this.drawTo(this.dye.write, this.dyeSize);
     this.dye.swap();
+  }
+
+  private packInjectEmitters(): {
+    count: number;
+    kind: Int32Array;
+    material: Int32Array;
+    rate: Float32Array;
+    uv: Float32Array;
+    radius: Float32Array;
+    noiseOffset: Float32Array;
+  } {
+    const kind = new Int32Array(MAX_EMITTERS);
+    const material = new Int32Array(MAX_EMITTERS);
+    const rate = new Float32Array(MAX_EMITTERS);
+    const uv = new Float32Array(MAX_EMITTERS * 2);
+    const radius = new Float32Array(MAX_EMITTERS);
+    const noiseOffset = new Float32Array(MAX_EMITTERS);
+    let count = 0;
+    for (const emitter of this.config.emitters) {
+      if (count >= MAX_EMITTERS || !emitter.enabled) {
+        continue;
+      }
+      if (emitter.kind !== "field" && emitter.kind !== "point") {
+        continue;
+      }
+      const mat = this.config.materials.find((item) => item.id === emitter.materialId);
+      if (!mat?.enabled) {
+        continue;
+      }
+      const slot = materialSlotIndex(emitter.materialId, this.config.materials);
+      if (slot < 0 || slot >= MAX_MATERIALS) {
+        continue;
+      }
+      kind[count] = emitter.kind === "field" ? 0 : 1;
+      material[count] = slot;
+      rate[count] = emitter.rate;
+      uv[count * 2] = emitter.uvX;
+      uv[count * 2 + 1] = emitter.uvY;
+      radius[count] = emitter.radius;
+      noiseOffset[count] = emitter.noiseOffset;
+      count += 1;
+    }
+    return { count, kind, material, rate, uv, radius, noiseOffset };
+  }
+
+  private applyViscosity(dt: number): void {
+    const pass = this.passes.viscosityWeight;
+    this.use(pass);
+    this.bindField(pass, "uVelocity", this.velocity.read.texture, 0);
+    this.bindField(pass, "uDye", this.dye.read.texture, 1);
+    const visc: [number, number, number, number] = [0, 0, 0, 0];
+    const enabled: [number, number, number, number] = [0, 0, 0, 0];
+    for (let i = 0; i < MAX_MATERIALS; i += 1) {
+      const material = this.config.materials[i];
+      if (!material) {
+        continue;
+      }
+      visc[i] = material.viscosity;
+      enabled[i] = material.enabled ? 1 : 0;
+    }
+    this.set4f(pass, "uViscosity", visc[0], visc[1], visc[2], visc[3]);
+    this.set4f(pass, "uEnabled", enabled[0], enabled[1], enabled[2], enabled[3]);
+    this.set1f(pass, "uBaseDecay", this.config.velocityDecay);
+    this.set1f(pass, "uDt", dt);
+    this.drawTo(this.velocity.write, this.simSize);
+    this.velocity.swap();
   }
 
   private applyComposer(dt: number, time: number): void {
@@ -212,6 +291,56 @@ export class FluidSolver {
     this.set1i(pass, "uNoiseType", noiseTypeIndex(this.config.noiseType));
     this.drawTo(this.velocity.write, this.simSize);
     this.velocity.swap();
+  }
+
+  private applyWind(dt: number): void {
+    const packed = this.packWindStations();
+    if (packed.count === 0 || this.config.windStrength <= 0) {
+      return;
+    }
+    const pass = this.passes.windForce;
+    this.use(pass);
+    this.bindField(pass, "uVelocity", this.velocity.read.texture, 0);
+    this.set1f(pass, "uAspect", this.aspect);
+    this.set1f(pass, "uDt", dt);
+    this.set1f(pass, "uStrength", this.config.windStrength);
+    this.set1i(pass, "uStationCount", packed.count);
+    this.set2fv(pass, "uStationUv", packed.uv);
+    this.set1fv(pass, "uStationHeading", packed.heading);
+    this.set1fv(pass, "uStationSpeed", packed.speed);
+    this.set1fv(pass, "uStationSpin", packed.spin);
+    this.set1fv(pass, "uStationRadius", packed.radius);
+    this.drawTo(this.velocity.write, this.simSize);
+    this.velocity.swap();
+  }
+
+  private packWindStations(): {
+    count: number;
+    uv: Float32Array;
+    heading: Float32Array;
+    speed: Float32Array;
+    spin: Float32Array;
+    radius: Float32Array;
+  } {
+    const uv = new Float32Array(MAX_WIND_STATIONS * 2);
+    const heading = new Float32Array(MAX_WIND_STATIONS);
+    const speed = new Float32Array(MAX_WIND_STATIONS);
+    const spin = new Float32Array(MAX_WIND_STATIONS);
+    const radius = new Float32Array(MAX_WIND_STATIONS);
+    let count = 0;
+    for (const station of this.config.windStations) {
+      if (count >= MAX_WIND_STATIONS || !station.enabled) {
+        continue;
+      }
+      uv[count * 2] = station.uvX;
+      uv[count * 2 + 1] = station.uvY;
+      heading[count] = station.heading;
+      speed[count] = station.speed;
+      spin[count] = station.spin;
+      radius[count] = station.radius;
+      count += 1;
+    }
+    return { count, uv, heading, speed, spin, radius };
   }
 
   private applyVorticity(dt: number): void {
@@ -288,7 +417,7 @@ export class FluidSolver {
     this.use(pass);
     this.bindField(pass, "uTarget", pair.read.texture, 0);
     this.set1f(pass, "uAspect", this.aspect);
-    this.set3f(pass, "uColor", 0, 0, 0);
+    this.set4f(pass, "uColor", 0, 0, 0, 0);
     this.set2f(pass, "uPoint", -10, -10);
     this.set1f(pass, "uRadius", 1e-8);
     this.drawTo(pair.write, { width: pair.write.width, height: pair.write.height });
@@ -302,40 +431,65 @@ export class FluidSolver {
     this.gl.useProgram(pass.program);
   }
 
+  private loc(pass: Pass, name: string): WebGLUniformLocation | undefined {
+    return pass.uniforms[name] ?? pass.uniforms[`${name}[0]`];
+  }
+
   private bindField(pass: Pass, name: string, texture: WebGLTexture, unit: number): void {
     this.gl.activeTexture(this.gl.TEXTURE0 + unit);
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
-    const loc = pass.uniforms[name];
+    const loc = this.loc(pass, name);
     if (loc) {
       this.gl.uniform1i(loc, unit);
     }
   }
 
   private set1f(pass: Pass, name: string, value: number): void {
-    const loc = pass.uniforms[name];
+    const loc = this.loc(pass, name);
     if (loc) {
       this.gl.uniform1f(loc, value);
     }
   }
 
   private set1i(pass: Pass, name: string, value: number): void {
-    const loc = pass.uniforms[name];
+    const loc = this.loc(pass, name);
     if (loc) {
       this.gl.uniform1i(loc, value);
     }
   }
 
   private set2f(pass: Pass, name: string, x: number, y: number): void {
-    const loc = pass.uniforms[name];
+    const loc = this.loc(pass, name);
     if (loc) {
       this.gl.uniform2f(loc, x, y);
     }
   }
 
-  private set3f(pass: Pass, name: string, x: number, y: number, z: number): void {
-    const loc = pass.uniforms[name];
+  private set4f(pass: Pass, name: string, x: number, y: number, z: number, w: number): void {
+    const loc = this.loc(pass, name);
     if (loc) {
-      this.gl.uniform3f(loc, x, y, z);
+      this.gl.uniform4f(loc, x, y, z, w);
+    }
+  }
+
+  private set1iv(pass: Pass, name: string, values: Int32Array): void {
+    const loc = this.loc(pass, name);
+    if (loc) {
+      this.gl.uniform1iv(loc, values);
+    }
+  }
+
+  private set1fv(pass: Pass, name: string, values: Float32Array): void {
+    const loc = this.loc(pass, name);
+    if (loc) {
+      this.gl.uniform1fv(loc, values);
+    }
+  }
+
+  private set2fv(pass: Pass, name: string, values: Float32Array): void {
+    const loc = this.loc(pass, name);
+    if (loc) {
+      this.gl.uniform2fv(loc, values);
     }
   }
 

@@ -60,3 +60,14 @@ Record durable decisions here. Do not record an option as decided until its evid
 - **Consequences:** Contributors run `yarn`, `yarn test`, and `yarn build`. npm install is rejected. Corepack can satisfy the pinned Yarn version.
 - **Evidence:** `package.json` `packageManager` / `engines`; `.npmrc`; `scripts/ensure-yarn.js`.
 - **Review trigger:** The project moves to Yarn Berry or a workspace that Corepack cannot pin.
+
+### DEC-005 — Packed material concentrations and 2.5D look
+
+- **Status:** Accepted
+- **Date:** 2026-08-17
+- **Context:** The Phase 1 dye field stored RGB pigment and a two-primary display grade. Artists need N colors with independent look (glow, sheen, roughness, metal) and several inject sources. A true multi-phase viscosity solver would bake appearance into transport and roughly double GPU cost per extra field. The open visual-state question asked how many independent pigment fields are useful before bandwidth dominates.
+- **Decision:** Keep one Stam velocity field. Store up to four material concentrations in the existing `RGBA16F` dye target (same bandwidth as today). Emitters (field, point, pointer; cap 8) write those channels. Display reconstructs a cheap 2.5D material response (gradient normals, Lambert, small GGX-like spec, Fresnel sheen, emissive glow). Viscosity is a derived thickness cue: extra velocity damping `exp(-(velocityDecay + Σ cᵢ·viscᵢ)·dt)` where the material is dense. Simulation still does not choose the painted look ([DEC-002](#dec-002--separate-simulation-from-appearance)).
+- **Alternatives:** RGB dye with look-only materials and one global viscosity; true multi-fluid / N velocity fields; a second dye texture for eight materials.
+- **Consequences:** Four simultaneous identities at current dye cost. Slight sim coupling through concentration-weighted damping, documented rather than silent. Eight materials would need another dye target and advect pass. Tuner lists (materials, emitters) live beside the flat `controlSchema`, not as flattened keys.
+- **Evidence:** `docs/ARCHITECTURE.md`; `src/app/config.ts` material/emitter caps; inject, viscosity-weight, and display passes.
+- **Review trigger:** Four packed channels visibly alias when mixed, or the weighted damping is too weak/strong to read as thickness.

@@ -26,7 +26,7 @@ Status: Phase 0–1 baseline implemented (Stam / GPU Gems ch. 38 family, origina
 - Create broad, medium, and fine motion scales
 - Establish palette behavior and non-looping evolution
 
-Status: multi-scale curl-noise composer plus in-page tuner. Pigment composition and non-looping palette evolution remain later.
+Status: multi-scale curl-noise composer plus in-page tuner. Optional sparse 2D wind stations stand in for weather samples (heading/speed stream, spin as vorticity). Non-looping palette evolution remains later. Pigment composition is four packed concentrations with named emitters ([DEC-005](DECISIONS.md#dec-005--packed-material-concentrations-and-25d-look)).
 
 ## Phase 3 — Material rendering
 
@@ -34,6 +34,8 @@ Status: multi-scale curl-noise composer plus in-page tuner. Pigment composition 
 - Add lighting and material controls
 - Produce clearly distinct initial material presets
 - Add restrained post-processing where it improves quality
+
+Status: in progress. Dye channels are material amounts; display mixes a 2.5D look (glow, sheen, roughness, metal) with fake normals. Four material slots and eight emitters are the current caps. Separate blur bloom, IBL, and extra dye targets remain later.
 
 ## Phase 4 — Productization
 
@@ -46,6 +48,7 @@ Status: multi-scale curl-noise composer plus in-page tuner. Pigment composition 
 
 - Add bounded audio response
 - Define privacy-conscious optional data adapters
+- Live wind / weather files (METAR, GRIB, APIs) would plug into the existing station list; the sim does not fetch them yet
 
 ## Phase 6 — Expansion
 

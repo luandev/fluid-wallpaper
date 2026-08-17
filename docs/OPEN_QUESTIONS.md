@@ -24,8 +24,12 @@ Phase 1 uses a fixed budget (see `src/quality/budgets.ts`). Adaptive quality is 
 
 ## Visual state
 
-- How many independent pigment or material fields are useful before memory bandwidth dominates?
-- Which derived fields best support depth and material response?
+Resolved by [DEC-005](DECISIONS.md#dec-005--packed-material-concentrations-and-25d-look) for this phase:
+
+- Independent pigment fields: **four concentrations packed in one `RGBA16F` dye texture** (same bandwidth as the previous RGB dye). Eight materials stay out of scope until a second dye target is justified.
+- Depth and material response: **height from concentration sum**, fake normals from that gradient, and a 2.5D mix of roughness / metallic / sheen / glow. Thickness in the solver is a **derived viscosity weight** from the same concentrations, not a second velocity field.
+
+Still open: which extra derived fields (curl, foam, depth peel) are worth a later pass.
 
 ## Technology choices
 

@@ -1,22 +1,25 @@
 import { describe, expect, it } from "vitest";
 import {
+  CHARCOAL_MATERIAL_ID,
+  CRIMSON_MATERIAL_ID,
+  MAX_EMITTERS,
+  MAX_MATERIALS,
+  MAX_WIND_STATIONS,
   assertConfig,
   clampConfig,
+  cloneConfig,
   controlSchema,
   decayFactor,
   defaultConfig,
   sanitizeConfig,
+  scatterWindStations,
 } from "../src/app/config";
 import { CHARCOAL, CRIMSON, hexToRgb, rgbToHex } from "../src/app/colors";
-import { triangleWave, tweenAmount, tweenPrimaries } from "../src/app/colorTween";
-import { dyeLooksAllBlack, dyeMix, dyeStatsFromRgba8 } from "../src/app/dyeMix";
-import {
-  blendWeights,
-  derivePalette,
-  gradePigment,
-  luma,
-  mixRgb,
-} from "../src/app/palette";
+import { padLiveMaterials, triangleWave, tweenAmount, tweenMaterials } from "../src/app/colorTween";
+import { dyeLooksAllBlack, dyeStatsFromRgba8, fieldMask } from "../src/app/dyeMix";
+import { luma, mixRgb } from "../src/app/palette";
+import { heightNormal, mixLooks, shadeLook, viscosityDamp, type MixedLook } from "../src/app/shade";
+import type { LiveMaterial } from "../src/app/colorTween";
 import { perlin3, wiggleMotion } from "../src/app/wiggle";
 import {
   deletePresetFromList,
@@ -26,6 +29,7 @@ import {
 } from "../src/app/presets";
 import { GL, selectSimTextureFormat, type GpuCaps } from "../src/sim/capabilities";
 import { phase1Budgets } from "../src/quality/budgets";
+import { windForceAt } from "../src/app/wind";
 
 function caps(overrides: Partial<GpuCaps> = {}): GpuCaps {
   return {
@@ -43,13 +47,23 @@ describe("defaultConfig", () => {
     expect(defaultConfig.dyeResolution).toBeGreaterThanOrEqual(defaultConfig.simResolution);
     expect(defaultConfig.pressureIterations).toBeGreaterThanOrEqual(20);
     expect(defaultConfig.pressureIterations).toBeLessThanOrEqual(40);
-    expect(defaultConfig.crimson).toBe(CRIMSON);
-    expect(defaultConfig.charcoal).toBe(CHARCOAL);
+    expect(defaultConfig.materials[0]?.color).toBe(CRIMSON);
+    expect(defaultConfig.materials[1]?.color).toBe(CHARCOAL);
+    expect(defaultConfig.materials).toHaveLength(2);
+    expect(defaultConfig.emitters.map((emitter) => emitter.id)).toEqual([
+      "emit-field-crimson",
+      "emit-field-charcoal",
+      "emit-pointer-crimson",
+    ]);
+    expect(defaultConfig.emitters[0]?.materialId).toBe(CRIMSON_MATERIAL_ID);
+    expect(defaultConfig.emitters[1]?.materialId).toBe(CHARCOAL_MATERIAL_ID);
+    expect(defaultConfig.emitters[1]?.noiseOffset).toBe(1);
     expect(defaultConfig.composerStrength).toBeGreaterThan(0);
     expect(defaultConfig.dyeInject).toBeGreaterThan(0);
     expect(defaultConfig.noiseTime).toBeLessThan(1);
     expect(defaultConfig.warmupSteps).toBeGreaterThan(0);
-    expect(defaultConfig.pointerEnabled).toBe(true);
+    expect(defaultConfig.windStations).toEqual([]);
+    expect(defaultConfig.windStrength).toBeGreaterThan(0);
     expect(() => assertConfig(defaultConfig)).not.toThrow();
   });
 
@@ -159,12 +173,65 @@ describe("sanitizeConfig", () => {
     });
     expect(next.dyeResolution).toBeGreaterThanOrEqual(next.simResolution);
     expect(next.vorticity).toBeLessThanOrEqual(40);
-    expect(next.crimson).toBe(defaultConfig.crimson);
+    expect(next.materials[0]?.color).toBe(defaultConfig.materials[0]?.color);
   });
 
   it("falls unknown noise types back to perlin", () => {
     expect(sanitizeConfig({ noiseType: "banana" }).noiseType).toBe("perlin");
     expect(sanitizeConfig({ noiseType: "worley" }).noiseType).toBe("worley");
+  });
+
+  it("caps material and emitter lists and deep-clones them", () => {
+    const nine = Array.from({ length: 9 }, (_, i) => ({
+      id: `mat-${i}`,
+      name: `M${i}`,
+      enabled: true,
+      color: "#112233",
+      colorB: "red",
+      viscosity: 4,
+      roughness: 0.2,
+      metallic: 0.2,
+      sheen: 0.2,
+      glow: 0.2,
+    }));
+    const next = sanitizeConfig({ materials: nine, emitters: nine.map((item) => ({ ...item, kind: "orb", materialId: item.id })) });
+    expect(next.materials).toHaveLength(MAX_MATERIALS);
+    expect(next.emitters.length).toBeLessThanOrEqual(MAX_EMITTERS);
+    expect(next.materials[0]?.colorB).toBe(defaultConfig.materials[0]?.colorB);
+    expect(next.materials.every((material) => material.viscosity <= 1)).toBe(true);
+    const cloned = cloneConfig(next);
+    expect(cloned.materials).not.toBe(next.materials);
+    expect(cloned.emitters).not.toBe(next.emitters);
+    cloned.materials[0] = { ...cloned.materials[0], glow: 0.9 };
+    expect(next.materials[0]?.glow).not.toBe(0.9);
+  });
+
+  it("migrates v7 crimson/charcoal keys into the first two materials", () => {
+    const next = sanitizeConfig({
+      crimson: "#FF0000",
+      charcoal: "#111111",
+      crimsonB: "#AA0000",
+      charcoalB: "#222222",
+    });
+    expect(next.materials[0]?.color.toLowerCase()).toBe("#ff0000");
+    expect(next.materials[0]?.colorB.toLowerCase()).toBe("#aa0000");
+    expect(next.materials[1]?.color.toLowerCase()).toBe("#111111");
+    expect(next.materials[1]?.colorB.toLowerCase()).toBe("#222222");
+    expect(next.emitters).toHaveLength(defaultConfig.emitters.length);
+    expect(next.windStations).toEqual([]);
+  });
+
+  it("caps wind stations at 8 and ignores missing lists", () => {
+    const many = Array.from({ length: 12 }, (_, i) => ({
+      id: `wind-${i}`,
+      uvX: 2,
+      spin: 9,
+    }));
+    const next = sanitizeConfig({ windStations: many });
+    expect(next.windStations).toHaveLength(MAX_WIND_STATIONS);
+    expect(next.windStations.every((station) => station.uvX <= 1)).toBe(true);
+    expect(next.windStations.every((station) => station.spin <= 1)).toBe(true);
+    expect(cloneConfig(next).windStations).not.toBe(next.windStations);
   });
 });
 
@@ -185,25 +252,22 @@ describe("phase1Budgets", () => {
 });
 
 describe("dyeMix", () => {
-  const charcoal = hexToRgb(CHARCOAL);
-  const crimson = hexToRgb(CRIMSON);
-
-  it("maps negative potential to charcoal and positive to crimson", () => {
-    expect(dyeMix(-1, charcoal, crimson)).toEqual(charcoal);
-    expect(dyeMix(-0.55, charcoal, crimson)).toEqual(charcoal);
-    expect(dyeMix(0.55, charcoal, crimson)).toEqual(crimson);
-    expect(dyeMix(1, charcoal, crimson)).toEqual(crimson);
+  it("maps positive potential to the 0-offset lobe and negative to the inverted lobe", () => {
+    expect(fieldMask(-1, 0)).toBe(0);
+    expect(fieldMask(-0.55, 0)).toBe(0);
+    expect(fieldMask(0.55, 0)).toBe(1);
+    expect(fieldMask(1, 0)).toBe(1);
+    expect(fieldMask(1, 1)).toBe(0);
+    expect(fieldMask(-1, 1)).toBe(1);
   });
 
-  it("blends around zero into maroon midtones instead of snapping", () => {
-    const mid = dyeMix(0, charcoal, crimson);
-    expect(mid[0]).toBeGreaterThan(charcoal[0]);
-    expect(mid[0]).toBeLessThan(crimson[0]);
-    expect(mid).not.toEqual(charcoal);
-    expect(mid).not.toEqual(crimson);
+  it("blends around zero instead of snapping", () => {
+    const mid = fieldMask(0, 0);
+    expect(mid).toBeGreaterThan(0);
+    expect(mid).toBeLessThan(1);
   });
 
-  it("flags an all-black readback and accepts mixed crimson/charcoal", () => {
+  it("flags an all-black readback and accepts mixed channel energy", () => {
     const black = new Uint8Array(16);
     expect(dyeLooksAllBlack(dyeStatsFromRgba8(black))).toBe(true);
 
@@ -211,56 +275,65 @@ describe("dyeMix", () => {
       232, 8, 24, 255, 232, 8, 24, 255, 5, 5, 6, 255, 5, 5, 6, 255,
     ]);
     const stats = dyeStatsFromRgba8(mixed);
-    expect(stats.crimsonFrac).toBeGreaterThan(0);
-    expect(stats.charcoalFrac).toBeGreaterThan(0);
+    expect(stats.filledFrac).toBeGreaterThan(0);
+    expect(stats.meanEnergy).toBeGreaterThan(0.05);
     expect(dyeLooksAllBlack(stats)).toBe(false);
   });
 });
 
-describe("palette", () => {
-  const charcoal = hexToRgb(CHARCOAL);
+describe("shade", () => {
   const crimson = hexToRgb(CRIMSON);
+  const charcoal = hexToRgb(CHARCOAL);
 
-  it("derives wine, ember, slate, and plum from the two primaries", () => {
-    const palette = derivePalette(charcoal, crimson);
-    expect(luma(palette.wine)).toBeLessThan(luma(palette.crimson));
-    expect(luma(palette.ember)).toBeGreaterThan(luma(palette.crimson) * 0.98);
-    expect(palette.ember[0]).toBeGreaterThan(palette.ember[1]);
-    expect(palette.ember[0]).toBeGreaterThan(palette.ember[2]);
-    expect(palette.wine[0]).toBeGreaterThan(palette.wine[1]);
-    expect(palette.slate[2]).toBeGreaterThan(palette.charcoal[2]);
-    expect(palette.plum[0]).toBeGreaterThan(palette.plum[2]);
+  function slot(overrides: Partial<LiveMaterial> = {}): LiveMaterial {
+    return {
+      id: "slot",
+      enabled: true,
+      albedo: crimson,
+      viscosity: 0.1,
+      roughness: 0.5,
+      metallic: 0,
+      sheen: 0,
+      glow: 0,
+      ...overrides,
+    };
+  }
+
+  function mixAt(conc: [number, number, number, number], looks: LiveMaterial[], contrast = 0.75): MixedLook {
+    return mixLooks(conc, padLiveMaterials(looks), contrast);
+  }
+
+  it("mixes albedo by concentration and ignores disabled slots", () => {
+    const mixed = mixAt([1, 1, 0, 0], [slot({ albedo: crimson }), slot({ albedo: charcoal, enabled: false })]);
+    expect(mixed.albedo).toEqual(crimson);
+    expect(mixed.height).toBe(1);
   });
 
-  it("shifts from additive to multiply to burn as concentration rises", () => {
-    const thin = blendWeights(0.12);
-    const mid = blendWeights(0.5);
-    const dense = blendWeights(0.9);
-    expect(thin.add).toBeGreaterThan(thin.mul);
-    expect(thin.add).toBeGreaterThan(thin.burn);
-    expect(mid.mul).toBeGreaterThan(mid.add);
-    expect(dense.burn).toBeGreaterThan(dense.add);
+  it("raises luma when glow is high", () => {
+    const looks = [slot({ albedo: crimson, glow: 0 })];
+    const dim = shadeLook(mixAt([1, 0, 0, 0], looks), [0, 0, 1]);
+    const bright = shadeLook(mixAt([1, 0, 0, 0], [slot({ albedo: crimson, glow: 1 })]), [0, 0, 1]);
+    expect(luma(bright)).toBeGreaterThan(luma(dim));
   });
 
-  it("keeps extreme filaments and overshoot inside the family", () => {
-    const thin = gradePigment(0.12, 0, charcoal, crimson);
-    const pooled = gradePigment(0.9, 0, charcoal, crimson);
-    const bloom = gradePigment(1.4, 0, charcoal, crimson);
-    const filament = gradePigment(0.18, 0.4, charcoal, crimson);
-    expect(luma(thin)).toBeGreaterThan(luma(charcoal));
-    expect(luma(pooled)).toBeLessThan(luma(crimson));
-    expect(luma(bloom)).toBeGreaterThan(luma(gradePigment(1, 0, charcoal, crimson)));
-    expect(filament[2]).toBeGreaterThan(thin[2]);
-    expect(bloom[0]).toBeGreaterThan(bloom[1]);
-    expect(gradePigment(1, 0.08, charcoal, crimson)[0]).toBeGreaterThan(0.35);
+  it("raises spec vs Lambert when metallic is high", () => {
+    const lambert = shadeLook(mixAt([1, 0, 0, 0], [slot({ albedo: [0.5, 0.5, 0.5], metallic: 0, roughness: 0.1 })]), [0, 0, 1]);
+    const metal = shadeLook(mixAt([1, 0, 0, 0], [slot({ albedo: [0.5, 0.5, 0.5], metallic: 1, roughness: 0.1 })]), [0, 0, 1]);
+    expect(luma(metal)).toBeGreaterThan(luma(lambert));
   });
 
-  it("grades mid concentration as wine rather than a binary snap", () => {
-    const mid = gradePigment(0.45, 0.08, charcoal, crimson);
-    expect(mid[0]).toBeGreaterThan(charcoal[0]);
-    expect(mid[0]).toBeLessThan(crimson[0]);
-    expect(luma(mid)).toBeLessThan(luma(crimson));
-    expect(luma(mid)).toBeGreaterThan(luma(charcoal));
+  it("tilts the fake normal toward the lower neighbor", () => {
+    const n = heightNormal(1, 0.2, 1);
+    expect(n[0]).toBeGreaterThan(0);
+    expect(n[2]).toBeGreaterThan(0);
+  });
+
+  it("damps faster where viscous concentration is high", () => {
+    const looks = padLiveMaterials([slot({ viscosity: 0.8 })]);
+    const thin = viscosityDamp([0, 0, 0, 0], looks, 0.5, 0.1);
+    const thick = viscosityDamp([1, 0, 0, 0], looks, 0.5, 0.1);
+    expect(thick).toBeLessThan(thin);
+    expect(thin).toBeLessThan(1);
   });
 });
 
@@ -275,25 +348,50 @@ describe("colorTween", () => {
 
   it("speed 0 freezes at endpoint A", () => {
     expect(tweenAmount(10, 0)).toBe(0);
-    const live = tweenPrimaries({ ...defaultConfig, colorTweenSpeed: 0 }, 100);
+    const live = tweenMaterials({ ...defaultConfig, colorTweenSpeed: 0 }, 100);
     expect(live.t).toBe(0);
-    expect(live.crimsonHex.toLowerCase()).toBe(defaultConfig.crimson.toLowerCase());
-    expect(live.charcoalHex.toLowerCase()).toBe(defaultConfig.charcoal.toLowerCase());
+    expect(live.slots[0]?.albedo).toEqual(hexToRgb(defaultConfig.materials[0]?.color ?? CRIMSON));
+    expect(live.slots[1]?.albedo).toEqual(hexToRgb(defaultConfig.materials[1]?.color ?? CHARCOAL));
   });
 
   it("mixes A and B at the midpoint of the ping-pong", () => {
-    const config = {
-      ...defaultConfig,
-      colorTweenSpeed: 1,
-      crimson: "#000000",
-      crimsonB: "#FFFFFF",
-      charcoal: "#000000",
-      charcoalB: "#808080",
-    };
-    const mid = tweenPrimaries(config, 0.5);
+    const config = cloneConfig(defaultConfig);
+    config.colorTweenSpeed = 1;
+    config.materials[0] = { ...config.materials[0], color: "#000000", colorB: "#FFFFFF" };
+    config.materials[1] = { ...config.materials[1], color: "#000000", colorB: "#808080" };
+    const mid = tweenMaterials(config, 0.5);
     expect(mid.t).toBeCloseTo(0.5);
-    expect(mid.crimson).toEqual(mixRgb(hexToRgb("#000000"), hexToRgb("#FFFFFF"), 0.5));
-    expect(mid.charcoal).toEqual(mixRgb(hexToRgb("#000000"), hexToRgb("#808080"), 0.5));
+    expect(mid.slots[0]?.albedo).toEqual(mixRgb(hexToRgb("#000000"), hexToRgb("#FFFFFF"), 0.5));
+    expect(mid.slots[1]?.albedo).toEqual(mixRgb(hexToRgb("#000000"), hexToRgb("#808080"), 0.5));
+  });
+});
+
+describe("windForce", () => {
+  it("streams east from a heading-0 station at its own location", () => {
+    const force = windForceAt(0.5, 0.5, 1, [
+      { uvX: 0.5, uvY: 0.5, heading: 0, speed: 1, spin: 0, radius: 0.2 },
+    ], 1);
+    expect(force[0]).toBeGreaterThan(0.9);
+    expect(Math.abs(force[1])).toBeLessThan(0.05);
+  });
+
+  it("spins counterclockwise for positive vorticity at a point to the east", () => {
+    const force = windForceAt(0.6, 0.5, 1, [
+      { uvX: 0.5, uvY: 0.5, heading: 0, speed: 0, spin: 1, radius: 0.25 },
+    ], 1);
+    expect(force[1]).toBeGreaterThan(0);
+  });
+
+  it("scatters a bounded random field", () => {
+    let t = 0;
+    const random = () => {
+      t += 0.173;
+      return (t * 1.19) % 1;
+    };
+    const stations = scatterWindStations(9, random);
+    expect(stations).toHaveLength(MAX_WIND_STATIONS);
+    expect(stations.every((station) => station.uvX >= 0 && station.uvX <= 1)).toBe(true);
+    expect(new Set(stations.map((station) => station.id)).size).toBe(stations.length);
   });
 });
 
@@ -346,7 +444,7 @@ describe("presets", () => {
     expect(cleaned).toHaveLength(1);
     expect(cleaned[0]?.name).toBe("Ok");
     expect(cleaned[0]?.config.vorticity).toBeLessThanOrEqual(40);
-    expect(cleaned[0]?.config.crimson).toBe(defaultConfig.crimson);
+    expect(cleaned[0]?.config.materials[0]?.color).toBe(defaultConfig.materials[0]?.color);
   });
 
   it("deletes by id", () => {

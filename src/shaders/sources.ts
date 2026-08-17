@@ -13,6 +13,8 @@ import marbleSeedFrag from "./marbleSeed.frag.glsl?raw";
 import marbleVelocityFrag from "./marbleVelocity.frag.glsl?raw";
 import curlNoiseForceFrag from "./curlNoiseForce.frag.glsl?raw";
 import perlinDyeFrag from "./perlinDye.frag.glsl?raw";
+import viscosityWeightFrag from "./viscosityWeight.frag.glsl?raw";
+import windForceFrag from "./windForce.frag.glsl?raw";
 import displayFrag from "./display.frag.glsl?raw";
 
 function includeMarker(src: string, marker: string, chunk: string): string {
@@ -36,5 +38,7 @@ export const shaders = {
   marbleVelocity: includeMarker(marbleVelocityFrag, "// #include perlin", perlinGlsl),
   curlNoiseForce: includeMarker(curlNoiseForceFrag, "// #include perlin", perlinGlsl),
   perlinDye: includeMarker(perlinDyeFrag, "// #include perlin", perlinGlsl),
+  viscosityWeight: viscosityWeightFrag,
+  windForce: windForceFrag,
   display: displayFrag,
 } as const;

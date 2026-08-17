@@ -5,49 +5,41 @@ export function dyeMixT(n: number): number {
   return x * x * (3 - 2 * x);
 }
 
-export function dyeMix(
-  n: number,
-  charcoal: readonly [number, number, number],
-  crimson: readonly [number, number, number],
-): [number, number, number] {
+/** 0 = positive composer lobe, 1 = complementary negative lobe. */
+export function fieldMask(n: number, noiseOffset: number): number {
   const t = dyeMixT(n);
-  return [
-    charcoal[0] + (crimson[0] - charcoal[0]) * t,
-    charcoal[1] + (crimson[1] - charcoal[1]) * t,
-    charcoal[2] + (crimson[2] - charcoal[2]) * t,
-  ];
+  const w = Math.min(1, Math.max(0, noiseOffset));
+  return t * (1 - w) + (1 - t) * w;
 }
 
 export type DyeStats = {
-  meanRed: number;
-  crimsonFrac: number;
-  charcoalFrac: number;
+  meanEnergy: number;
+  filledFrac: number;
 };
 
 export function dyeStatsFromRgba8(pixels: Uint8Array): DyeStats {
   const count = Math.floor(pixels.length / 4);
   if (count === 0) {
-    return { meanRed: 0, crimsonFrac: 0, charcoalFrac: 1 };
+    return { meanEnergy: 0, filledFrac: 0 };
   }
-  let redSum = 0;
-  let crimson = 0;
-  let charcoal = 0;
+  let energySum = 0;
+  let filled = 0;
   for (let i = 0; i < count; i += 1) {
     const r = pixels[i * 4] / 255;
-    redSum += r;
-    if (r > 0.35) {
-      crimson += 1;
-    } else if (r < 0.12) {
-      charcoal += 1;
+    const g = pixels[i * 4 + 1] / 255;
+    const b = pixels[i * 4 + 2] / 255;
+    const energy = Math.max(r, g, b);
+    energySum += energy;
+    if (energy > 0.08) {
+      filled += 1;
     }
   }
   return {
-    meanRed: redSum / count,
-    crimsonFrac: crimson / count,
-    charcoalFrac: charcoal / count,
+    meanEnergy: energySum / count,
+    filledFrac: filled / count,
   };
 }
 
 export function dyeLooksAllBlack(stats: DyeStats): boolean {
-  return stats.meanRed < 0.05 && stats.crimsonFrac < 0.05;
+  return stats.meanEnergy < 0.04 && stats.filledFrac < 0.05;
 }

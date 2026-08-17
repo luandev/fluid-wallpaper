@@ -19,6 +19,8 @@ export type ShaderPasses = {
   marbleVelocity: Pass;
   curlNoiseForce: Pass;
   perlinDye: Pass;
+  viscosityWeight: Pass;
+  windForce: Pass;
   display: Pass;
 };
 
@@ -40,6 +42,8 @@ export function createPasses(gl: WebGL2RenderingContext): ShaderPasses {
     marbleVelocity: make(shaders.marbleVelocity, "marbleVelocity"),
     curlNoiseForce: make(shaders.curlNoiseForce, "curlNoiseForce"),
     perlinDye: make(shaders.perlinDye, "perlinDye"),
+    viscosityWeight: make(shaders.viscosityWeight, "viscosityWeight"),
+    windForce: make(shaders.windForce, "windForce"),
     display: make(shaders.display, "display"),
   };
 }

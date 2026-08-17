@@ -6,7 +6,7 @@ import {
   mergeConfig,
   type FluidConfig,
 } from "./config";
-import { tweenPrimaries } from "./colorTween";
+import { tweenMaterials } from "./colorTween";
 import { dyeLooksAllBlack, dyeStatsFromRgba8, type DyeStats } from "./dyeMix";
 import { wiggleMotion } from "./wiggle";
 import { PointerInput } from "../inputs/pointer";
@@ -162,13 +162,12 @@ export class Engine {
   private bootSolver(): void {
     this.gl.bindVertexArray(this.vao);
     this.solver.setLiveMotion(wiggleMotion(this.config, 0));
-    this.solver.setLivePrimaries(tweenPrimaries(this.config, 0));
     this.elapsed = this.solver.warmup(0);
     const stats = this.probeDyeStats();
     if (dyeLooksAllBlack(stats)) {
       const message =
-        `Dye probe failed after warmup: meanRed=${stats.meanRed.toFixed(4)} ` +
-        `crimsonFrac=${stats.crimsonFrac.toFixed(4)} charcoalFrac=${stats.charcoalFrac.toFixed(4)}`;
+        `Dye probe failed after warmup: meanEnergy=${stats.meanEnergy.toFixed(4)} ` +
+        `filledFrac=${stats.filledFrac.toFixed(4)}`;
       console.error(message, stats);
       if (import.meta.env.DEV) {
         throw new Error(message);
@@ -181,7 +180,7 @@ export class Engine {
     const width = 64;
     const height = 64;
     const probe = createByteFbo(gl, width, height);
-    const primaries = tweenPrimaries(this.config, this.elapsed);
+    const live = tweenMaterials(this.config, this.elapsed);
     blitDye(
       gl,
       this.passes.display,
@@ -191,7 +190,7 @@ export class Engine {
       height,
       this.format.manualBilinear,
       probe,
-      primaries,
+      live,
     );
     gl.bindFramebuffer(gl.FRAMEBUFFER, probe.framebuffer);
     const pixels = new Uint8Array(width * height * 4);
@@ -242,11 +241,10 @@ export class Engine {
     this.lastMs = now;
     const motion = wiggleMotion(this.config, this.elapsed);
     this.elapsed += dt * motion.noiseTime;
-    const primaries = tweenPrimaries(this.config, this.elapsed);
+    const live = tweenMaterials(this.config, this.elapsed);
 
     this.gl.bindVertexArray(this.vao);
     this.solver.setLiveMotion(motion);
-    this.solver.setLivePrimaries(primaries);
     this.solver.step(dt, this.elapsed, this.pointer.consume());
     const size = this.platform.getSize();
     blitDye(
@@ -258,7 +256,7 @@ export class Engine {
       size.pixelHeight,
       this.format.manualBilinear,
       null,
-      primaries,
+      live,
     );
     this.gl.bindVertexArray(null);
     this.loop();

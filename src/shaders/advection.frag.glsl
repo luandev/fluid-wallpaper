@@ -32,5 +32,5 @@ void main() {
   vec4 sampled = uManualBilinear > 0.5
     ? sampleManual(uSource, coord, uSourceRes)
     : texture(uSource, coord);
-  fragColor = vec4(sampled.xyz * uDecay, 1.0);
+  fragColor = sampled * uDecay;
 }
