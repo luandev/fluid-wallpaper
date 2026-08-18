@@ -22,6 +22,7 @@ flowchart TD
 - [PROJECT.md](PROJECT.md) — vision and first-release bar
 - [ARCHITECTURE.md](ARCHITECTURE.md) — system map and boundaries
 - [DECISIONS.md](DECISIONS.md) — accepted tradeoffs with evidence
+- [Landing README](../src/landing/README.md) — public showcase page
 - [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md) — unresolved; do not implement as if decided
 - [ROADMAP.md](ROADMAP.md) — phase outcomes
 - [AI_ASSISTED_DEVELOPMENT.md](AI_ASSISTED_DEVELOPMENT.md) — how agents should read `AGENTS.md`
@@ -39,7 +40,7 @@ Folder READMEs under `src/` are local architecture; they must not contradict thi
 - Do not silently settle an open question in a README or a PR description — add a DEC or leave it open.
 - Update this folder when scope, interfaces, or assumptions change (`AGENTS.md`).
 - Do not commit secrets. Do not treat agent instructions as a security boundary.
-- Keep Wallpaper Engine packaging guidance: import `dist/`, never the Git tree, until Phase 4 says otherwise.
+- Keep Wallpaper Engine packaging guidance: import `dist/play.html` for the tuner, never the Git tree, until Phase 4 says otherwise. `dist/index.html` is the GitHub Pages landing.
 
 ## Key files
 

@@ -3,96 +3,79 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Generative Fluid Wallpaper</title>
-    <style>
-      html,
-      body {
-        margin: 0;
-        height: 100%;
-        background: #141414;
-        overflow: hidden;
-      }
-      canvas {
-        display: block;
-        width: 100%;
-        height: 100%;
-        touch-action: none;
-      }
-      #fatal {
-        display: none;
-        box-sizing: border-box;
-        position: absolute;
-        inset: 0;
-        margin: 0;
-        padding: 2rem;
-        color: #f2eaea;
-        font: 16px/1.5 system-ui, sans-serif;
-        background: #1a1a1a;
-      }
-      #fatal[data-show="true"] {
-        display: block;
-      }
-      .perf {
-        position: fixed;
-        left: 12px;
-        bottom: 12px;
-        z-index: 2;
-        min-width: 148px;
-        padding: 10px 12px;
-        color: #f4ecec;
-        background: rgba(12, 12, 14, 0.88);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 12px;
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
-        backdrop-filter: blur(10px);
-        font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      }
-      .perf[data-open="false"] {
-        display: none;
-      }
-      .perf__title {
-        margin: 0 0 6px;
-        font-size: 10px;
-        font-weight: 700;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: #e80818;
-        cursor: grab;
-        touch-action: none;
-        user-select: none;
-      }
-      .perf[data-dragging="true"] .perf__title {
-        cursor: grabbing;
-      }
-      .perf__line {
-        color: rgba(244, 236, 236, 0.85);
-        font-variant-numeric: tabular-nums;
-      }
-      .perf__fab {
-        position: fixed;
-        right: 84px;
-        bottom: 12px;
-        z-index: 3;
-        border: 0;
-        border-radius: 8px;
-        padding: 8px 10px;
-        color: #f4ecec;
-        background: #2a1518;
-        cursor: pointer;
-        font: 12px/1.4 system-ui, sans-serif;
-        font-weight: 700;
-        touch-action: none;
-      }
-      .perf__fab[data-dragging="true"] {
-        cursor: grabbing;
-      }
-    </style>
+    <title>Fluid Wallpaper — living GPU art</title>
+    <meta
+      name="description"
+      content="A WebGL2 generative fluid that refuses to loop. Packed material concentrations, 2.5D look, and a browser tuner for Wallpaper Engine."
+    />
+    <meta name="theme-color" content="#0a0a0c" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <canvas id="view"></canvas>
-    <aside id="dash" hidden></aside>
-    <aside id="perf" hidden></aside>
+    <div class="grain" aria-hidden="true"></div>
+    <div class="vignette" aria-hidden="true"></div>
+
+    <div class="shell">
+      <header class="top">
+        <span class="mark">FW</span>
+        <nav class="top__nav">
+          <a href="./play.html">Tuner</a>
+          <a href="https://github.com/luandev/fluid-wallpaper">GitHub</a>
+        </nav>
+      </header>
+
+      <main class="hero">
+        <p class="eyebrow">WebGL2 · Stam family · not a loop</p>
+        <h1>
+          Fluid that
+          <em>refuses</em>
+          to repeat.
+        </h1>
+        <p class="lede">
+          Living desktop art: packed concentrations, cheap 2.5D metal and glow, wave-driven knobs.
+          Drag the field. Then open the tuner.
+        </p>
+        <div class="cta">
+          <a class="btn btn--solid" href="./play.html">Launch the field</a>
+          <a class="btn btn--ghost" href="https://github.com/luandev/fluid-wallpaper">View source</a>
+        </div>
+      </main>
+
+      <section class="bento" aria-label="What it is">
+        <article class="card">
+          <span class="card__k">01</span>
+          <h2>Transport, not a clip</h2>
+          <p>Original GPU Stam / GPU Gems ch. 38 passes. One velocity field. Dye is four identities, not RGB paint.</p>
+        </article>
+        <article class="card">
+          <span class="card__k">02</span>
+          <h2>Look is a grade</h2>
+          <p>Display reconstructs sheen, roughness, metal, and glow from concentration weight. Simulation does not pick the brand.</p>
+        </article>
+        <article class="card">
+          <span class="card__k">03</span>
+          <h2>Knobs that breathe</h2>
+          <p>Sine and friends drive numeric parameters. Mic, camera, and tilt stay stubs — the art works with every driver empty.</p>
+        </article>
+      </section>
+    </div>
+
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee__track">
+        <span>vorticity</span><span>dye inject</span><span>sheen</span><span>wind stations</span>
+        <span>value emitters</span><span>RGBA16F</span><span>Yarn</span><span>base './'</span>
+        <span>vorticity</span><span>dye inject</span><span>sheen</span><span>wind stations</span>
+        <span>value emitters</span><span>RGBA16F</span><span>Yarn</span><span>base './'</span>
+      </div>
+    </div>
+
     <p id="fatal" role="alert"></p>
-    <script type="module" src="/src/main.ts"></script>
+    <script type="module" src="/src/landing/main.ts"></script>
   </body>
 </html>

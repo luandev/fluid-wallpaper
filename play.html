@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fluid Wallpaper — Tuner</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #141414;
+        overflow: hidden;
+      }
+      canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        touch-action: none;
+      }
+      #fatal {
+        display: none;
+        box-sizing: border-box;
+        position: absolute;
+        inset: 0;
+        margin: 0;
+        padding: 2rem;
+        color: #f2eaea;
+        font: 16px/1.5 system-ui, sans-serif;
+        background: #1a1a1a;
+      }
+      #fatal[data-show="true"] {
+        display: block;
+      }
+      .perf {
+        position: fixed;
+        left: 12px;
+        bottom: 12px;
+        z-index: 2;
+        min-width: 148px;
+        padding: 10px 12px;
+        color: #f4ecec;
+        background: rgba(12, 12, 14, 0.88);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+        backdrop-filter: blur(10px);
+        font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+      .perf[data-open="false"] {
+        display: none;
+      }
+      .perf__title {
+        margin: 0 0 6px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #e80818;
+        cursor: grab;
+        touch-action: none;
+        user-select: none;
+      }
+      .perf[data-dragging="true"] .perf__title {
+        cursor: grabbing;
+      }
+      .perf__line {
+        color: rgba(244, 236, 236, 0.85);
+        font-variant-numeric: tabular-nums;
+      }
+      .perf__fab {
+        position: fixed;
+        right: 84px;
+        bottom: 12px;
+        z-index: 3;
+        border: 0;
+        border-radius: 8px;
+        padding: 8px 10px;
+        color: #f4ecec;
+        background: #2a1518;
+        cursor: pointer;
+        font: 12px/1.4 system-ui, sans-serif;
+        font-weight: 700;
+        touch-action: none;
+      }
+      .perf__fab[data-dragging="true"] {
+        cursor: grabbing;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="view"></canvas>
+    <aside id="dash" hidden></aside>
+    <aside id="perf" hidden></aside>
+    <p id="fatal" role="alert"></p>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

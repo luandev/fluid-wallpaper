@@ -82,3 +82,14 @@ Record durable decisions here. Do not record an option as decided until its evid
 - **Consequences:** Yarn installs `react` / `react-dom`. The artwork still runs with the panel closed and with an empty driver list. Real sensor adapters can later replace stub `sample()` without touching the solver.
 - **Evidence:** `src/ui/Dashboard.tsx`; `src/app/drivers.ts`; `src/app/engine.ts` base vs live split.
 - **Review trigger:** React overlay cost is visible on the target Wallpaper Engine CEF class, or artists need to bind colors / reseed keys.
+
+### DEC-007 — GitHub Pages showcase
+
+- **Status:** Accepted
+- **Date:** 2026-08-18
+- **Context:** The wallpaper needs a public, shareable demo. Wallpaper Engine still loads a local `dist/` folder. Vite `base` must stay `'./'` for that path and for GitHub project pages.
+- **Decision:** Ship a two-page static site from `yarn build`: `index.html` is a live-fluid landing page (no React dashboard); `play.html` is the tuner. GitHub Actions deploys `dist/` to GitHub Pages. Workshop packaging remains later.
+- **Alternatives:** User-site root only; `base: '/fluid-wallpaper/'` (breaks local/WE relative loads); screenshot landing with no GPU.
+- **Consequences:** Visitors need WebGL2. The same origin shares `localStorage` between landing and tuner. Pages must be switched to the GitHub Actions source in repo settings once. Wallpaper Engine should load `play.html`, not the marketing landing.
+- **Evidence:** `src/landing/`; `play.html`; `.github/workflows/pages.yml`; Vite `base: './'`.
+- **Review trigger:** GitHub project-page URLs fail to load chunks, or the landing overlay hides the field on the target GPU class.

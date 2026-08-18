@@ -75,6 +75,7 @@ Source today: `src/quality` (fixed Phase 1 budgets). Adaptive quality is later.
 
 - `src/app` — lifecycle, config, drivers, storage, presets, overlay layout
 - `src/ui` — React product-shell overlay only
+- `src/landing` — public live-fluid showcase (`index.html`)
 - `src/sim` — WebGL2 resources and Stam solver
 - `src/render` — look from concentrations
 - `src/inputs` — optional pointer

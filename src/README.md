@@ -2,19 +2,23 @@
 
 ## Purpose
 
-`src/` is the runnable wallpaper: a WebGL2 fluid field, a TypeScript engine, and a React overlay for artists. `main.ts` boots the canvas, loads stored **base** config, starts the engine, then mounts the dashboard and perf HUD.
+`src/` is the runnable wallpaper: WebGL2 fluid, TypeScript engine, React tuner overlay, and a dashboard-free landing showcase.
 
 ## Architecture overview
+
+`main.ts` boots the **tuner** (`play.html`): canvas, stored base config, engine, dashboard, perf HUD. `landing/main.ts` boots the **showcase** (`index.html`): same engine, no React overlay.
 
 ```mermaid
 flowchart TD
   main[main.ts]
+  landing[landing/main.ts]
   engine[app/Engine]
   ui[ui/Dashboard]
   solver[sim/FluidSolver]
   display[render/blitDye]
   main --> engine
   main --> ui
+  landing --> engine
   engine --> solver
   engine --> display
 ```
@@ -40,4 +44,5 @@ System map: [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md).
 ## Key files
 
 - `main.ts` — boot, HMR dispose
+- [landing/README.md](landing/README.md) — GitHub Pages showcase, no dashboard
 - [app/README.md](app/README.md), [ui/README.md](ui/README.md), [sim/README.md](sim/README.md), [render/README.md](render/README.md), [inputs/README.md](inputs/README.md), [platform/README.md](platform/README.md), [quality/README.md](quality/README.md), [shaders/README.md](shaders/README.md)
