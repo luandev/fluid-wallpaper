@@ -2,41 +2,66 @@
 
 ## Purpose
 
-The in-page **product-shell overlay**: tabbed dashboard, crimson glass styling, and JSON preset file pickers. Artists edit **base** looks here. The canvas artwork must still run with the panel closed.
+The in-page **product-shell overlay**: tabbed dashboard, crimson glass styling, on-canvas UV markers, a driver node graph, and JSON preset file pickers. Artists edit **base** looks here. The canvas artwork must still run with the panel closed.
 
 ## Architecture overview
 
 ```mermaid
-flowchart LR
-  dash[Dashboard]
+flowchart TB
+  dash[Dashboard shell]
+  rows[rows]
+  scene[tabs/Scene]
+  mats[tabs/Materials]
+  emit[tabs/Emitters]
+  wind[tabs/Wind]
+  drivers[tabs/Drivers]
+  presets[tabs/Presets]
+  graph[graph]
+  spatial[spatial]
+  keys[shortcuts]
   engine[Engine]
   store[saveStoredConfig]
-  files[presetJSON]
+  dash --> rows
+  dash --> scene
+  dash --> mats
+  dash --> emit
+  dash --> wind
+  dash --> drivers
+  dash --> presets
+  drivers --> graph
+  emit --> spatial
+  wind --> spatial
+  dash --> keys
   dash -->|applyConfig base| engine
   dash --> store
-  dash --> files
-  engine -->|getLiveConfig readouts| dash
 ```
 
-`main.ts` mounts React on `#dash`. Pointer on the canvas is `src/inputs`, not this folder. Perf HUD stays vanilla DOM in `src/app/perfHud.ts` but shares drag/layout helpers.
+`main.ts` mounts React on `#dash`. Pointer on the canvas is `src/inputs`, not this folder. While Emitters or Wind is open, an HTML overlay captures pointer over the field so stir does not fight UV placement. Perf HUD stays vanilla DOM in `src/app/perfHud.ts` but shares drag/layout helpers and shortcut mapping.
 
 ## Paradigms
 
 - React is shell only ([DEC-006](../../docs/DECISIONS.md#dec-006--react-product-shell-dashboard-and-value-drivers)). No solver steps, no shader strings, no WebGL.
 - Controlled rows show **base**; **live** is a readout when a driver is bound.
-- Hide with **H**; dragging the header (or Panel button) persists position.
+- One concern per file: tabs, rows, graph math, UV math, shortcuts. Logic that can run without `document` lives in `.ts` next to the view.
+- Hide with **H**; **P** toggles perf; **F** fullscreen on `#view`; **Esc** exits fullscreen. Dragging the header (or Panel button) persists position.
 
 ## Enforced patterns
 
-- No MUI/shadcn or other component libraries.
+- No MUI/shadcn, React Flow, or other component libraries.
 - Persist on user edits, never on the rAF live poll.
 - Import presets through `parsePresetJson` → `mergeImportedPresets` → `savePresets`. Fail closed (`console.warn`); do not throw into the engine.
 - Do not call `getUserMedia`. Stub driver kinds stay labeled “later”.
+- Do not pick GPU pixels for placement; map `#view.getBoundingClientRect()` through `clientToUv`.
 - Keep Vite-relative assets; this overlay is part of `dist/`.
+- Do not mount this overlay from the landing page.
 
 ## Key files
 
-- `Dashboard.tsx` — dock, tabs, H-to-hide, preset IO
-- `rows.tsx` / `format.ts` — numeric/color/select rows
-- `dashboard.css` — glass look, ~420px dock
+- `Dashboard.tsx` — shell, tabs, commit, H/F/Esc, spatial wiring
+- `tabs/` — Scene, Materials, Emitters, Wind, Drivers, Presets
+- `rows.tsx` / `rangeMath.ts` / `format.ts` — slider + number field, Shift fine step, help
+- `graph/` — SVG node graph over `valueBindings`
+- `spatial/` — UV markers for point emitters and wind stations
+- `shortcuts.ts` — H/P/F/Esc mapping (shared with perf HUD)
+- `dashboard.css` — centered ~960px glass panel
 - `presetFile.ts` — download JSON

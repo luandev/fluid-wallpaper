@@ -21,7 +21,7 @@ export type ViewportSize = {
 export type PanelLayout = Partial<Record<PanelId, PanelPos>>;
 
 export const PANEL_SIZE_FALLBACK: Record<PanelId, PanelSize> = {
-  dash: { width: 420, height: 480 },
+  dash: { width: 960, height: 640 },
   perf: { width: 160, height: 108 },
   dashFab: { width: 68, height: 36 },
   perfFab: { width: 52, height: 36 },

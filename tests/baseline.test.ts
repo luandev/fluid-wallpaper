@@ -278,6 +278,7 @@ describe("sanitizeConfig", () => {
     });
     expect(next.valueEmitters).toHaveLength(MAX_VALUE_EMITTERS);
     expect(next.valueEmitters[0]?.kind).toBe("sine");
+    expect(next.valueEmitters.every((emitter) => emitter.scale === 1)).toBe(true);
     expect(next.valueBindings).toHaveLength(MAX_VALUE_BINDINGS);
     expect(next.valueBindings.every((binding) => binding.emitterId === "wave-0")).toBe(true);
     expect(next.valueBindings.some((binding) => binding.path === "simResolution")).toBe(false);
@@ -311,6 +312,7 @@ describe("mergeConfig", () => {
         phase: 0,
         from: 0,
         to: 1,
+        scale: 1,
       },
     ];
     base.valueBindings = [{ id: "bind-1", emitterId: "wave-1", path: "vorticity", amount: 1 }];
@@ -534,6 +536,7 @@ describe("drivers", () => {
       phase: 0.25,
       from: 2,
       to: 8,
+      scale: 1,
     };
     expect(evaluateEmitter(emitter, 0)).toBeCloseTo(8, 5);
     expect(evaluateEmitter({ ...emitter, enabled: false }, 0)).toBe(2);
@@ -575,6 +578,7 @@ describe("drivers", () => {
         phase: 0.25,
         from: 0,
         to: 20,
+        scale: 1,
       },
     ];
     base.valueBindings = [{ id: "bind-1", emitterId: "wave-1", path: "vorticity", amount: 1 }];
@@ -597,6 +601,7 @@ describe("drivers", () => {
         phase: 0.25,
         from: 0,
         to: 20,
+        scale: 1,
       },
     ];
     base.valueBindings = [{ id: "bind-1", emitterId: "wave-1", path: "vorticity", amount: 0.5 }];
@@ -617,6 +622,7 @@ describe("drivers", () => {
         phase: 0.25,
         from: 0,
         to: 20,
+        scale: 1,
       },
     ];
     base.valueBindings = [{ id: "bind-1", emitterId: "wave-1", path: "vorticity", amount: 1 }];
@@ -659,6 +665,7 @@ describe("presets", () => {
         phase: 0.1,
         from: 0,
         to: 12,
+        scale: 1,
       },
     ];
     config.valueBindings = [{ id: "bind-1", emitterId: "wave-1", path: "vorticity", amount: 0.4 }];
@@ -703,6 +710,7 @@ describe("presets", () => {
         phase: 0,
         from: 1,
         to: 8,
+        scale: 1,
       },
     ];
     config.valueBindings = [{ id: "bind-1", emitterId: "wave-1", path: "dyeInject", amount: 0.75 }];

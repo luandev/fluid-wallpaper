@@ -15,7 +15,7 @@ flowchart LR
   engine --> solver
 ```
 
-Wind stations and value emitters are authored on `FluidConfig` (`src/app`), not as platform device APIs. Real mic/camera/tilt adapters stay Phase 5 stubs in drivers.
+Wind stations and value emitters are authored on `FluidConfig` (`src/app`), not as platform device APIs. Real mic/camera/tilt adapters stay Phase 5 stubs in drivers. While the tuner’s Emitters or Wind tab is placing UV markers, an HTML overlay in `src/ui/spatial` sits over `#view` and captures pointer so stir does not fire under the gizmo.
 
 ## Paradigms
 
@@ -29,6 +29,7 @@ Wind stations and value emitters are authored on `FluidConfig` (`src/app`), not 
 - Do not import React.
 - Do not call Wallpaper Engine input APIs until a platform adapter exists.
 - Keep pointer enablement on **base** config (`pointerEnabled`); the engine applies it.
+- Placement overlays must not import this folder’s React; they only cover the canvas so events never reach `PointerInput`.
 
 ## Key files
 

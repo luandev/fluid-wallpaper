@@ -115,7 +115,9 @@ export function evaluateEmitter(emitter: ValueEmitter, elapsed: number): number 
   }
   const t = elapsed * Math.max(0, emitter.rate) + emitter.phase;
   const w = wave01(emitter.kind, t);
-  return emitter.from + (emitter.to - emitter.from) * w;
+  const scale = typeof emitter.scale === "number" && Number.isFinite(emitter.scale) ? emitter.scale : 1;
+  const mix = 0.5 + (w - 0.5) * scale;
+  return emitter.from + (emitter.to - emitter.from) * mix;
 }
 
 function parsePath(path: string): string[] {

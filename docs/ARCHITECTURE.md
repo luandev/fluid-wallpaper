@@ -29,13 +29,14 @@ flowchart LR
 - **Base config** is what the dashboard, `localStorage`, and portable presets store (including the driver graph).
 - **Live config** is `applyDrivers(base, elapsed)` each tick. The solver holds that object identity.
 - Overlay drag positions (`fluid-wallpaper.panels.v1`) are shell chrome, not look data.
+- The React tuner is split modules under `src/ui` (shell, tabs, graph, spatial overlay), not a single `Dashboard.tsx`.
 - Portable presets use `kind: "fluid-wallpaper.preset.v1"` and the same `sanitizeConfig` path as localStorage.
 
 ## Product shell
 
 Owns settings, presets, lifecycle events, user-facing state, the **React dashboard overlay**, and platform coordination. Overlay positions persist in `localStorage` separately from look config. React does not own simulation or the renderer ([DEC-006](DECISIONS.md#dec-006--react-product-shell-dashboard-and-value-drivers)).
 
-Source: `src/app` (engine, config, storage, presets, drivers) and `src/ui` (React overlay).
+Source: `src/app` (engine, config, storage, presets, drivers) and `src/ui` (React overlay modules: shell, tabs, graph, spatial markers).
 
 ## Simulation
 

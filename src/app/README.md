@@ -27,7 +27,7 @@ flowchart LR
 
 - Sanitize at every boundary (`clampConfig` / `sanitizeConfig`).
 - Deep-clone arrays (materials, emitters, wind, value emitters, bindings) so storage cannot alias live.
-- Drivers mix `base → driven` by `amount`; stubs (`mic`, `camera`, `tilt`) sample `0.5` and request no permissions.
+- Drivers mix `base → driven` by `amount`. Each value emitter has `scale` (default 1): mix is `from↔to` around the midpoint, so scale 1 is today’s A↔B tween. Stubs (`mic`, `camera`, `tilt`) sample `0.5` and request no permissions.
 - Overlay positions are chrome (`fluid-wallpaper.panels.v1`), not part of a look.
 
 ## Enforced patterns
@@ -41,9 +41,11 @@ flowchart LR
 ## Key files
 
 - `config.ts` — `FluidConfig`, schema, sanitize, bindable paths
+- `fieldHelp.ts` — copy for material / emitter / wind / driver fields
 - `engine.ts` — base vs live, frame loop
-- `drivers.ts` — waves, `applyDrivers`
+- `drivers.ts` — waves, `scale`, `applyDrivers`
 - `storage.ts` — look config `v9`
 - `presets.ts` — localStorage + serialize/parse/merge
 - `panelLayout.ts` / `dragPanel.ts` — overlay positions
-- `perfHud.ts`, `wind.ts`, `colorTween.ts`, `shade.ts`
+- `perfHud.ts` — P toggles; uses `src/ui/shortcuts.ts`
+- `wind.ts`, `colorTween.ts`, `shade.ts`

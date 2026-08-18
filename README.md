@@ -19,7 +19,7 @@ yarn install
 yarn dev
 ```
 
-`yarn dev` opens the **landing** (`index.html`) — live fluid with editorial chrome. Open `/play.html` for the tabbed tuner (Scene, Materials, Emitters, Wind, Drivers, Presets). Multi-scale curl-noise runs without the mouse; drag still stirs if pointer is on. Value emitters can tween numeric knobs with waves. Press **H** to hide the panel. Drag a panel header (or a Panel/Perf button) to reposition; overlay positions persist in `localStorage`. Tunings persist there too. Presets can be exported and imported as versioned JSON (`fluid-wallpaper.preset.v1`); import merges by name.
+`yarn dev` opens the **landing** (`index.html`) — live fluid with editorial chrome. Open `/play.html` for the tabbed tuner (Scene, Materials, Emitters, Wind, Drivers, Presets). Multi-scale curl-noise runs without the mouse; drag still stirs if pointer is on. Value emitters can tween numeric knobs with waves. **H** hides the panel, **P** toggles the perf HUD, **F** fullscreen on the canvas, **Esc** exits fullscreen. Drag a panel header (or a Panel/Perf button) to reposition; overlay positions persist in `localStorage`. Tunings persist there too. Presets can be exported and imported as versioned JSON (`fluid-wallpaper.preset.v1`); import merges by name.
 
 ```bash
 yarn test

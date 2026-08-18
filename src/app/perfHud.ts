@@ -1,4 +1,5 @@
 import { attachDraggablePanel, restorePanelPosition } from "./dragPanel";
+import { shortcutFromKey } from "../ui/shortcuts";
 
 export type PerfSample = {
   fps: number;
@@ -51,14 +52,7 @@ export function mountPerfHud(engine: PerfProvider, root: HTMLElement): () => voi
   const detachFabDrag = attachDraggablePanel({ element: toggle, handle: toggle, id: "perfFab" });
 
   const onKey = (event: KeyboardEvent): void => {
-    if (event.code !== "KeyF" || event.repeat) {
-      return;
-    }
-    const target = event.target;
-    if (
-      target instanceof HTMLElement &&
-      (target.tagName === "INPUT" || target.tagName === "SELECT" || target.isContentEditable)
-    ) {
+    if (shortcutFromKey(event, event.target) !== "togglePerf") {
       return;
     }
     setOpen(root.dataset.open !== "true");

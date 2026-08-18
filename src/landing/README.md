@@ -29,7 +29,7 @@ Vite is a two-page app (`index.html`, `play.html`) with `base: './'`. GitHub Pag
 ## Enforced patterns
 
 - Keep Vite `base: './'` so Pages, local `dist/`, and Wallpaper Engine all resolve assets ([DEC-007](../../docs/DECISIONS.md#dec-007--github-pages-showcase)).
-- Do not mount `#dash` / perf HUD here.
+- Do not mount `#dash` / perf HUD / spatial markers here.
 - Do not add MUI, analytics SDKs, or getUserMedia.
 - Yarn only for the Pages workflow (`yarn test`, `yarn build`).
 - Google Fonts are decorative; the field must still run if they fail to load.

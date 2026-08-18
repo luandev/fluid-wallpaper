@@ -23,7 +23,7 @@ flowchart TD
   engine --> display
 ```
 
-Child folders are contracts, not a junk drawer. The engine owns the frame loop. React never steps the solver. Shaders stay original Stam / GPU Gems ch. 38 family work, not a copied demo.
+Child folders are contracts, not a junk drawer. The engine owns the frame loop. React never steps the solver. The tuner overlay is split modules under `src/ui`. Shaders stay original Stam / GPU Gems ch. 38 family work, not a copied demo.
 
 System map: [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md).
 
