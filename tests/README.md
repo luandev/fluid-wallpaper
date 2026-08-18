@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Lock **deterministic CPU** behavior: config sanitize, colors, drivers (including emitter `scale`), presets, panel layout math, format selection, and UI helpers (range step, UV mapping, graph connect, shortcuts). GPU frames and React renders are not asserted here.
+Lock **deterministic CPU** behavior: config sanitize, colors, drivers (including emitter `scale`), presets, panel layout math, format selection, UI helpers (range step, UV mapping, graph connect, shortcuts), and `FluidField` option/config merge. GPU frames and React renders are not asserted here.
 
 ## Architecture overview
 
@@ -34,4 +34,5 @@ flowchart LR
 - `drivers-scale.test.ts` — value-emitter `scale` mix and sanitize default
 - `field-help.test.ts` — every `controlSchema` row has help
 - `ui-range.test.ts` / `ui-uv.test.ts` / `ui-graph.test.ts` / `ui-shortcuts.test.ts` / `ui-duplicate.test.ts` — dashboard helpers
+- `react-field.test.ts` — `FluidField` flag/config merge
 - `ensure-yarn.test.ts` — package-manager guard

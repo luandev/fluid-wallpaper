@@ -11,14 +11,16 @@ flowchart LR
   push[push main or PR]
   test[yarn test]
   build[yarn build]
+  docsCheck[USAGE headings]
+  pagesCheck[dist index play embed]
   artifact[pages artifact]
   pages[GitHub Pages]
-  push --> test --> build
-  build --> artifact
+  push --> test --> build --> docsCheck --> pagesCheck
+  pagesCheck --> artifact
   artifact --> pages
 ```
 
-`pages.yml` runs on pull requests (test + build only) and on `main` (also upload + deploy). Enable **Settings → Pages → GitHub Actions** once on the GitHub repo. Site URL: `https://luandev.github.io/fluid-wallpaper/`.
+`pages.yml` runs on pull requests (test + build + usage-doc and usage-page checks) and on `main` (also upload + deploy). Enable **Settings → Pages → GitHub Actions** once on the GitHub repo. Site URL: `https://luandev.github.io/fluid-wallpaper/`. Recipes: [docs/USAGE.md](../../docs/USAGE.md).
 
 ## Paradigms
 

@@ -9,6 +9,19 @@
     "yarn": ">=1.22.0",
     "npm": "please-use-yarn"
   },
+  "exports": {
+    ".": "./src/react/index.ts",
+    "./engine": "./src/app/engine.ts",
+    "./config": "./src/app/config.ts"
+  },
+  "files": [
+    "src",
+    "docs/USAGE.md"
+  ],
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
   "scripts": {
     "preinstall": "node ./scripts/ensure-yarn.js",
     "dev": "vite",

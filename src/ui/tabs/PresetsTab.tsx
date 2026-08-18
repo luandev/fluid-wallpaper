@@ -17,9 +17,11 @@ import { downloadPresets } from "../presetFile";
 export function PresetsTab({
   engine,
   setConfig,
+  persist = true,
 }: {
   engine: Engine;
   setConfig: (config: FluidConfig) => void;
+  persist?: boolean;
 }): ReactNode {
   const [name, setName] = useState("");
   const [presets, setPresets] = useState<FluidPreset[]>(() => loadPresets());
@@ -91,7 +93,9 @@ export function PresetsTab({
               return;
             }
             const next = engine.applyConfig(cloneConfig(preset.config));
-            saveStoredConfig(next);
+            if (persist) {
+              saveStoredConfig(next);
+            }
             engine.reseed();
             setConfig(next);
             setName(preset.name);

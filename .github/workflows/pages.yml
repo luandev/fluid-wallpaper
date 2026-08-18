@@ -31,6 +31,21 @@ jobs:
         run: yarn test
       - name: Build
         run: yarn build
+      - name: Assert usage docs
+        run: |
+          grep -F -q "## Landing page" docs/USAGE.md
+          grep -F -q "## Tuner" docs/USAGE.md
+          grep -F -q "## React embed demo" docs/USAGE.md
+          grep -F -q "## React component" docs/USAGE.md
+          grep -F -q "## Vanilla Engine" docs/USAGE.md
+          grep -F -q "## Wallpaper Engine" docs/USAGE.md
+          grep -F -q "<FluidField" docs/USAGE.md
+          grep -F -q "new Engine" docs/USAGE.md
+      - name: Assert usage pages
+        run: |
+          test -f dist/index.html
+          test -f dist/play.html
+          test -f dist/embed.html
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3

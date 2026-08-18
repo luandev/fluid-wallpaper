@@ -35,3 +35,60 @@
 .fluid-field__perf .perf__fab {
   pointer-events: auto;
 }
+
+.fluid-field .perf {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  z-index: 2;
+  min-width: 148px;
+  padding: 10px 12px;
+  color: #f4ecec;
+  background: rgba(12, 12, 14, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(10px);
+  font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.fluid-field .perf[data-open="false"] {
+  display: none;
+}
+
+.fluid-field .perf__title {
+  margin: 0 0 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #e80818;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.fluid-field .perf[data-dragging="true"] .perf__title {
+  cursor: grabbing;
+}
+
+.fluid-field .perf__line {
+  color: rgba(244, 236, 236, 0.85);
+  font-variant-numeric: tabular-nums;
+}
+
+.fluid-field .perf__fab {
+  position: absolute;
+  right: 84px;
+  bottom: 12px;
+  z-index: 3;
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: #f4ecec;
+  background: #2a1518;
+  cursor: pointer;
+  font: 12px/1.4 system-ui, sans-serif;
+  font-weight: 700;
+  touch-action: none;
+}

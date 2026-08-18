@@ -90,6 +90,17 @@ Record durable decisions here. Do not record an option as decided until its evid
 - **Context:** The wallpaper needs a public, shareable demo. Wallpaper Engine still loads a local `dist/` folder. Vite `base` must stay `'./'` for that path and for GitHub project pages.
 - **Decision:** Ship a two-page static site from `yarn build`: `index.html` is a live-fluid landing page (no React dashboard); `play.html` is the tuner. GitHub Actions deploys `dist/` to GitHub Pages. Workshop packaging remains later.
 - **Alternatives:** User-site root only; `base: '/fluid-wallpaper/'` (breaks local/WE relative loads); screenshot landing with no GPU.
-- **Consequences:** Visitors need WebGL2. The same origin shares `localStorage` between landing and tuner. Pages must be switched to the GitHub Actions source in repo settings once. Wallpaper Engine should load `play.html`, not the marketing landing.
+- **Consequences:** Visitors need WebGL2. The same origin shares `localStorage` between landing and tuner. Pages must be switched to the GitHub Actions source in repo settings once. Wallpaper Engine should load `play.html`, not the marketing landing. A third static entry, `embed.html`, is added by [DEC-008](#dec-008--react-fluidfield-embed).
 - **Evidence:** `src/landing/`; `play.html`; `.github/workflows/pages.yml`; Vite `base: './'`.
 - **Review trigger:** GitHub project-page URLs fail to load chunks, or the landing overlay hides the field on the target GPU class.
+
+### DEC-008 — React FluidField embed
+
+- **Status:** Accepted
+- **Date:** 2026-08-18
+- **Context:** Other React apps should mount the living field without copying shaders. The wallpaper app already uses React for the tuner. Publishing to the npm registry and Workshop packaging are still open ([OPEN_QUESTIONS.md](OPEN_QUESTIONS.md)).
+- **Decision:** Export `FluidField` from `src/react` via package `exports` (source TypeScript). Ship `embed.html` as a third Vite/Pages entry that demonstrates canvas-only and dashboard hosts. Keep `private: true`. Consumers need a bundler that compiles this package and GLSL `?raw` imports (Vite). `persist` defaults off so embeds do not share the tuner `localStorage`. The solver stays in `Engine`.
+- **Alternatives:** npm registry package with a prebundled IIFE; iframe-only embed of `index.html`; copy shaders into the consumer.
+- **Consequences:** Git/Yarn install works; a plain script tag does not. Two WebGL2 instances on one page are not a supported recipe. `config` is initial-only; later patches use `Engine.applyConfig`.
+- **Evidence:** `src/react/`; `embed.html`; `docs/USAGE.md`; package `exports`; `.github/workflows/pages.yml` usage-doc and usage-page checks.
+- **Review trigger:** Consumers need a no-bundler build, or shader `?raw` cannot be compiled outside this Vite app.

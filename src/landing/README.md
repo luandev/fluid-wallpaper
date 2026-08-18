@@ -12,13 +12,16 @@ flowchart LR
   landing[landing/main.ts]
   engine[Engine]
   play[play.html]
+  embed[embed.html]
   dash[ui/Dashboard]
+  field[react/FluidField]
   index --> landing --> engine
   play --> dash
   play --> engine
+  embed --> field --> engine
 ```
 
-Vite is a two-page app (`index.html`, `play.html`) with `base: './'`. GitHub Pages deploys `dist/`. The landing starts `Engine` with stored **base** config (or defaults) and does **not** mount the React dashboard. Pointer stir still works on the canvas; the glass copy uses `pointer-events: none` except links.
+Vite is a multi-page app (`index.html`, `play.html`, `embed.html`) with `base: './'`. GitHub Pages deploys `dist/`. The landing starts `Engine` with stored **base** config (or defaults) and does **not** mount the React dashboard. Pointer stir still works on the canvas; the glass copy uses `pointer-events: none` except links. React usage lives on `embed.html` ([DEC-008](../../docs/DECISIONS.md)).
 
 ## Paradigms
 
@@ -40,4 +43,5 @@ Vite is a two-page app (`index.html`, `play.html`) with `base: './'`. GitHub Pag
 - `landing.css` — shell, bento, marquee
 - `../../index.html` — markup
 - `../../play.html` — tuner entry
+- `../../embed.html` — React `FluidField` demo
 - `../../.github/workflows/pages.yml` — CI/CD

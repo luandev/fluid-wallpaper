@@ -1,11 +1,15 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { Engine } from "../app/engine";
 import { mountPerfHud } from "../app/perfHud";
-import { CONFIG_STORAGE_KEY, loadStoredConfig } from "../app/storage";
+import { hasStoredConfig, loadStoredConfig } from "../app/storage";
 import type { FluidConfig } from "../app/config";
-import { Dashboard } from "../ui/Dashboard";
 import { resolveFieldConfig, resolveFieldOptions } from "./resolveFieldOptions";
 import "./fluidField.css";
+
+const Dashboard = lazy(async () => {
+  const mod = await import("../ui/Dashboard");
+  return { default: mod.Dashboard };
+});
 
 export type FluidFieldProps = {
   className?: string;
@@ -49,9 +53,8 @@ export function FluidField({
       return;
     }
     setCanvas(node);
-    const initial = options.persist
-      ? loadStoredConfigIfPresent() ?? resolveFieldConfig(config)
-      : resolveFieldConfig(config);
+    const initial =
+      options.persist && hasStoredConfig() ? loadStoredConfig() : resolveFieldConfig(config);
     let instance: Engine;
     try {
       instance = new Engine(node, initial);
@@ -89,20 +92,11 @@ export function FluidField({
         </p>
       ) : null}
       {engine && options.dashboard ? (
-        <Dashboard engine={engine} canvas={canvas} persist={options.persist} />
+        <Suspense fallback={null}>
+          <Dashboard engine={engine} canvas={canvas} persist={options.persist} />
+        </Suspense>
       ) : null}
-      {options.perf ? <div ref={perfRef} className="fluid-field__perf" hidden /> : null}
+      {options.perf ? <div ref={perfRef} className="fluid-field__perf" /> : null}
     </div>
   );
-}
-
-function loadStoredConfigIfPresent(): FluidConfig | undefined {
-  try {
-    if (!localStorage.getItem(CONFIG_STORAGE_KEY)) {
-      return undefined;
-    }
-    return loadStoredConfig();
-  } catch {
-    return undefined;
-  }
 }

@@ -30,7 +30,7 @@ try {
   engine.start();
   if (dashRoot instanceof HTMLElement) {
     dashRoot.hidden = false;
-    unmountDash = mountDashboard(engine, dashRoot);
+    unmountDash = mountDashboard(engine, dashRoot, { canvas });
   }
   if (perfRoot instanceof HTMLElement) {
     unmountPerf = mountPerfHud(engine, perfRoot);

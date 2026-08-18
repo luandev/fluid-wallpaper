@@ -44,7 +44,7 @@ flowchart LR
 - `fieldHelp.ts` — copy for material / emitter / wind / driver fields
 - `engine.ts` — base vs live, frame loop
 - `drivers.ts` — waves, `scale`, `applyDrivers`
-- `storage.ts` — look config `v9`
+- `storage.ts` — look config `v9`; `hasStoredConfig` for embeds
 - `presets.ts` — localStorage + serialize/parse/merge
 - `panelLayout.ts` / `dragPanel.ts` — overlay positions
 - `perfHud.ts` — P toggles; uses `src/ui/shortcuts.ts`

@@ -17,6 +17,7 @@ export default defineConfig({
       input: {
         index: resolve(root, "index.html"),
         play: resolve(root, "play.html"),
+        embed: resolve(root, "embed.html"),
       },
     },
   },

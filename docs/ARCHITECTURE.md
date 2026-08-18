@@ -36,7 +36,7 @@ flowchart LR
 
 Owns settings, presets, lifecycle events, user-facing state, the **React dashboard overlay**, and platform coordination. Overlay positions persist in `localStorage` separately from look config. React does not own simulation or the renderer ([DEC-006](DECISIONS.md#dec-006--react-product-shell-dashboard-and-value-drivers)).
 
-Source: `src/app` (engine, config, storage, presets, drivers) and `src/ui` (React overlay modules: shell, tabs, graph, spatial markers).
+Source: `src/app` (engine, config, storage, presets, drivers), `src/ui` (React overlay modules: shell, tabs, graph, spatial markers), and `src/react` (`FluidField` host).
 
 ## Simulation
 
@@ -76,6 +76,7 @@ Source today: `src/quality` (fixed Phase 1 budgets). Adaptive quality is later.
 
 - `src/app` — lifecycle, config, drivers, storage, presets, overlay layout
 - `src/ui` — React product-shell overlay only
+- `src/react` — optional `FluidField` host and Pages embed demo ([DEC-008](DECISIONS.md#dec-008--react-fluidfield-embed))
 - `src/landing` — public live-fluid showcase (`index.html`)
 - `src/sim` — WebGL2 resources and Stam solver
 - `src/render` — look from concentrations
@@ -98,4 +99,4 @@ Source today: `src/quality` (fixed Phase 1 budgets). Adaptive quality is later.
 
 ## Leading technical direction
 
-Confirmed in [DEC-003](DECISIONS.md#dec-003--typescript-vite-webgl2-and-glsl): TypeScript application logic, Vite for development and static builds, WebGL2 + GLSL ES 3.00 for simulation and display. The in-page tuner is a React overlay ([DEC-006](DECISIONS.md#dec-006--react-product-shell-dashboard-and-value-drivers)). The browser adapter lives in `src/platform`; Wallpaper Engine integration remains a later platform module. Simulation transports concentrations and may apply derived thickness; the renderer owns look ([DEC-002](DECISIONS.md#dec-002--separate-simulation-from-appearance), [DEC-005](DECISIONS.md#dec-005--packed-material-concentrations-and-25d-look)). Yarn only ([DEC-004](DECISIONS.md#dec-004--yarn-only)). Vite `base` stays `'./'`.
+Confirmed in [DEC-003](DECISIONS.md#dec-003--typescript-vite-webgl2-and-glsl): TypeScript application logic, Vite for development and static builds, WebGL2 + GLSL ES 3.00 for simulation and display. The in-page tuner is a React overlay ([DEC-006](DECISIONS.md#dec-006--react-product-shell-dashboard-and-value-drivers)). Other React apps can mount the same field through `FluidField` ([DEC-008](DECISIONS.md#dec-008--react-fluidfield-embed)). The browser adapter lives in `src/platform`; Wallpaper Engine integration remains a later platform module. Simulation transports concentrations and may apply derived thickness; the renderer owns look ([DEC-002](DECISIONS.md#dec-002--separate-simulation-from-appearance), [DEC-005](DECISIONS.md#dec-005--packed-material-concentrations-and-25d-look)). Yarn only ([DEC-004](DECISIONS.md#dec-004--yarn-only)). Vite `base` stays `'./'`.

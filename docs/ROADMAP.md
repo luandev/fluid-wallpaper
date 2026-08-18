@@ -44,7 +44,7 @@ Status: in progress. Dye channels are material amounts; display mixes a 2.5D loo
 - Add adaptive quality and frame-rate controls
 - Validate packaging and release flow
 
-Status: in progress for the in-page product shell. A tabbed React dashboard edits looks, materials, emitters, wind, and presets. Looks can be shared as versioned JSON preset files (merge on import). Value emitters can drive numeric knobs ([DEC-006](DECISIONS.md#dec-006--react-product-shell-dashboard-and-value-drivers)). A GitHub Pages site hosts the live landing + tuner from `dist/` ([DEC-007](DECISIONS.md#dec-007--github-pages-showcase)). Wallpaper Engine properties, pause lifecycle, and adaptive quality remain later.
+Status: in progress for the in-page product shell. A tabbed React dashboard edits looks, materials, emitters, wind, and presets. Looks can be shared as versioned JSON preset files (merge on import). Value emitters can drive numeric knobs ([DEC-006](DECISIONS.md#dec-006--react-product-shell-dashboard-and-value-drivers)). A GitHub Pages site hosts the live landing, tuner, and React embed from `dist/` ([DEC-007](DECISIONS.md#dec-007--github-pages-showcase), [DEC-008](DECISIONS.md#dec-008--react-fluidfield-embed)). Wallpaper Engine properties, pause lifecycle, and adaptive quality remain later.
 
 ## Phase 5 — Expressive inputs
 

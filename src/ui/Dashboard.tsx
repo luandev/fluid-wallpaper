@@ -21,9 +21,11 @@ type Tab = (typeof TABS)[number];
 
 type DashboardProps = {
   engine: Engine;
+  canvas?: HTMLCanvasElement | null;
+  persist?: boolean;
 };
 
-export function Dashboard({ engine }: DashboardProps): ReactNode {
+export function Dashboard({ engine, canvas, persist = true }: DashboardProps): ReactNode {
   const [open, setOpen] = useState(true);
   const [tab, setTab] = useState<Tab>("Scene");
   const [config, setConfig] = useState<FluidConfig>(() => engine.getConfig());
@@ -36,8 +38,7 @@ export function Dashboard({ engine }: DashboardProps): ReactNode {
   const dashRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLElement>(null);
   const fabRef = useRef<HTMLButtonElement>(null);
-  const canvas = typeof document !== "undefined" ? document.querySelector("#view") : null;
-  const view = canvas instanceof HTMLCanvasElement ? canvas : null;
+  const view = resolveViewCanvas(canvas);
 
   useEffect(() => {
     if (!open) {
@@ -100,14 +101,16 @@ export function Dashboard({ engine }: DashboardProps): ReactNode {
   const commit = useCallback(
     (patch: Partial<FluidConfig>, reseed = false): FluidConfig => {
       const next = engine.applyConfig(patch);
-      saveStoredConfig(next);
+      if (persist) {
+        saveStoredConfig(next);
+      }
       if (reseed) {
         engine.reseed();
       }
       setConfig(next);
       return next;
     },
-    [engine],
+    [engine, persist],
   );
 
   const patchFrom: PatchFrom = useCallback(
@@ -199,7 +202,9 @@ export function Dashboard({ engine }: DashboardProps): ReactNode {
               patchFrom={patchFrom}
             />
           ) : null}
-          {tab === "Presets" ? <PresetsTab engine={engine} setConfig={setConfig} /> : null}
+          {tab === "Presets" ? (
+            <PresetsTab engine={engine} setConfig={setConfig} persist={persist} />
+          ) : null}
         </div>
         <div className="dash__actions">
           <button type="button" className="dash__btn" onClick={() => engine.reseed()}>
@@ -256,13 +261,30 @@ export function Dashboard({ engine }: DashboardProps): ReactNode {
   );
 }
 
-export function mountDashboard(engine: Engine, root: HTMLElement): () => void {
+export function mountDashboard(
+  engine: Engine,
+  root: HTMLElement,
+  options?: { canvas?: HTMLCanvasElement | null; persist?: boolean },
+): () => void {
   root.hidden = false;
   let reactRoot: Root | null = createRoot(root);
-  reactRoot.render(<Dashboard engine={engine} />);
+  reactRoot.render(
+    <Dashboard engine={engine} canvas={options?.canvas} persist={options?.persist ?? true} />,
+  );
   return () => {
     reactRoot?.unmount();
     reactRoot = null;
     root.replaceChildren();
   };
+}
+
+function resolveViewCanvas(canvas?: HTMLCanvasElement | null): HTMLCanvasElement | null {
+  if (canvas) {
+    return canvas;
+  }
+  if (typeof document === "undefined") {
+    return null;
+  }
+  const node = document.querySelector("#view");
+  return node instanceof HTMLCanvasElement ? node : null;
 }

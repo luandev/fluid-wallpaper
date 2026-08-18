@@ -46,4 +46,4 @@ Resolved by [DEC-003](DECISIONS.md#dec-003--typescript-vite-webgl2-and-glsl):
 - What reproducible packaging process best maps source releases to Workshop releases?
 - Which assets, licenses, and attribution records are required before publishing?
 
-Until Phase 4, Wallpaper Engine testing means importing `dist/play.html` from a Vite production build, never the Git working tree. `dist/index.html` is the public landing page.
+Until Phase 4, Wallpaper Engine testing means importing `dist/play.html` from a Vite production build, never the Git working tree. `dist/index.html` is the public landing page. Git/Yarn source install of `<FluidField />` is [DEC-008](DECISIONS.md#dec-008--react-fluidfield-embed); npm registry publish and Workshop packaging remain open.

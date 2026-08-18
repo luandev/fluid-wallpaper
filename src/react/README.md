@@ -33,7 +33,7 @@ flowchart LR
 
 ## Key files
 
-- `FluidField.tsx` — canvas, engine lifecycle, optional dashboard/perf
+- `FluidField.tsx` — canvas, engine lifecycle, optional lazy dashboard/perf
 - `resolveFieldOptions.ts` — CPU defaults for flags and config merge
 - `index.ts` — public exports
 - `embed.tsx` / `../../embed.html` — Pages demo of React usage
