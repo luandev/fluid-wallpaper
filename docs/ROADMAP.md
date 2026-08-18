@@ -44,7 +44,7 @@ Status: in progress. Dye channels are material amounts; display mixes a 2.5D loo
 - Add adaptive quality and frame-rate controls
 - Validate packaging and release flow
 
-Status: in progress for the in-page product shell. A tabbed React dashboard edits looks, materials, emitters, wind, and presets. Value emitters can drive numeric knobs ([DEC-006](DECISIONS.md#dec-006--react-product-shell-dashboard-and-value-drivers)). Wallpaper Engine properties, pause lifecycle, and adaptive quality remain later.
+Status: in progress for the in-page product shell. A tabbed React dashboard edits looks, materials, emitters, wind, and presets. Looks can be shared as versioned JSON preset files (merge on import). Value emitters can drive numeric knobs ([DEC-006](DECISIONS.md#dec-006--react-product-shell-dashboard-and-value-drivers)). Wallpaper Engine properties, pause lifecycle, and adaptive quality remain later.
 
 ## Phase 5 — Expressive inputs
 

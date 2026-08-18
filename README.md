@@ -17,7 +17,7 @@ yarn install
 yarn dev
 ```
 
-Opens a full-screen canvas with a tabbed React dashboard (Scene, Materials, Emitters, Wind, Drivers, Presets). Multi-scale curl-noise runs without the mouse; drag still stirs if pointer is on. Value emitters can tween numeric knobs with waves. Press **H** to hide the panel. Drag a panel header (or a Panel/Perf button) to reposition; overlay positions persist in `localStorage`. Tunings persist there too.
+Opens a full-screen canvas with a tabbed React dashboard (Scene, Materials, Emitters, Wind, Drivers, Presets). Multi-scale curl-noise runs without the mouse; drag still stirs if pointer is on. Value emitters can tween numeric knobs with waves. Press **H** to hide the panel. Drag a panel header (or a Panel/Perf button) to reposition; overlay positions persist in `localStorage`. Tunings persist there too. Presets can be exported and imported as versioned JSON (`fluid-wallpaper.preset.v1`); import merges by name.
 
 ```bash
 yarn test
@@ -35,7 +35,9 @@ Do not import this Git repository into Wallpaper Engine (it would pull `node_mod
 ## Start here
 
 - [Project definition](docs/PROJECT.md)
-- [Architecture boundaries](docs/ARCHITECTURE.md)
+- [Architecture overview](docs/ARCHITECTURE.md) (system map)
+- [Source tree](src/README.md) (folder contracts)
+- [Docs index](docs/README.md)
 - [Roadmap](docs/ROADMAP.md)
 - [Open questions](docs/OPEN_QUESTIONS.md)
 - [Decision log](docs/DECISIONS.md)
@@ -44,7 +46,8 @@ Do not import this Git repository into Wallpaper Engine (it would pull `node_mod
 
 ## Repository areas
 
-- `docs/` — product, architecture, decisions, and research
-- `src/` — TypeScript application, simulation, rendering, inputs, platform, shaders
-- `tests/` — Vitest CPU utility tests
-- `assets/` — project-owned visual and reference assets (not shipped in `dist/`)
+- `docs/` — product, architecture, decisions, and research ([docs/README.md](docs/README.md))
+- `src/` — TypeScript application, simulation, rendering, inputs, platform, shaders ([src/README.md](src/README.md))
+- `tests/` — Vitest CPU utility tests ([tests/README.md](tests/README.md))
+- `scripts/` — Yarn-only install guard ([scripts/README.md](scripts/README.md))
+- `assets/` — project-owned visual and reference assets, not shipped in `dist/` ([assets/README.md](assets/README.md))

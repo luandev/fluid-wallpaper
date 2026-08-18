@@ -13,6 +13,8 @@ import {
   controlSchema,
   decayFactor,
   defaultConfig,
+  isBindablePath,
+  mergeConfig,
   sanitizeConfig,
   scatterWindStations,
 } from "../src/app/config";
@@ -27,7 +29,13 @@ import { perlin3, wiggleMotion } from "../src/app/wiggle";
 import {
   deletePresetFromList,
   getPresetFromList,
+  MAX_PRESETS,
+  mergeImportedPresets,
+  parsePresetDocument,
+  parsePresetJson,
+  PRESET_DOCUMENT_KIND,
   sanitizePresetList,
+  serializePresetDocument,
   upsertPresetInList,
 } from "../src/app/presets";
 import { GL, selectSimTextureFormat, type GpuCaps } from "../src/sim/capabilities";
@@ -290,6 +298,44 @@ describe("clampConfig", () => {
   });
 });
 
+describe("mergeConfig", () => {
+  it("deep-clones value emitters and bindings", () => {
+    const base = cloneConfig(defaultConfig);
+    base.valueEmitters = [
+      {
+        id: "wave-1",
+        name: "Pulse",
+        enabled: true,
+        kind: "sine",
+        rate: 0.2,
+        phase: 0,
+        from: 0,
+        to: 1,
+      },
+    ];
+    base.valueBindings = [{ id: "bind-1", emitterId: "wave-1", path: "vorticity", amount: 1 }];
+    const next = mergeConfig(base, {
+      valueEmitters: base.valueEmitters,
+      valueBindings: base.valueBindings,
+    });
+    expect(next.valueEmitters).not.toBe(base.valueEmitters);
+    expect(next.valueBindings).not.toBe(base.valueBindings);
+    next.valueEmitters[0] = { ...next.valueEmitters[0], rate: 7 };
+    next.valueBindings[0] = { ...next.valueBindings[0], amount: 0.1 };
+    expect(base.valueEmitters[0]?.rate).toBe(0.2);
+    expect(base.valueBindings[0]?.amount).toBe(1);
+  });
+});
+
+describe("isBindablePath", () => {
+  it("rejects reseed keys and hex color paths", () => {
+    expect(isBindablePath(defaultConfig, "vorticity")).toBe(true);
+    expect(isBindablePath(defaultConfig, "simResolution")).toBe(false);
+    expect(isBindablePath(defaultConfig, `materials.${CRIMSON_MATERIAL_ID}.color`)).toBe(false);
+    expect(isBindablePath(defaultConfig, `materials.${CRIMSON_MATERIAL_ID}.glow`)).toBe(true);
+  });
+});
+
 describe("phase1Budgets", () => {
   it("mirrors config", () => {
     const budgets = phase1Budgets();
@@ -537,6 +583,48 @@ describe("drivers", () => {
     expect(base.vorticity).toBe(4);
     expect(live.valueEmitters).not.toBe(base.valueEmitters);
   });
+
+  it("mixes by binding amount instead of replacing the base", () => {
+    const base = cloneConfig(defaultConfig);
+    base.vorticity = 4;
+    base.valueEmitters = [
+      {
+        id: "wave-1",
+        name: "Pulse",
+        enabled: true,
+        kind: "sine",
+        rate: 1,
+        phase: 0.25,
+        from: 0,
+        to: 20,
+      },
+    ];
+    base.valueBindings = [{ id: "bind-1", emitterId: "wave-1", path: "vorticity", amount: 0.5 }];
+    expect(applyDrivers(base, 0).vorticity).toBeCloseTo(12, 5);
+  });
+
+  it("leaves base unchanged when the emitter is disabled or the path is not bindable", () => {
+    const base = cloneConfig(defaultConfig);
+    base.vorticity = 4;
+    base.simResolution = 384;
+    base.valueEmitters = [
+      {
+        id: "wave-1",
+        name: "Pulse",
+        enabled: false,
+        kind: "sine",
+        rate: 1,
+        phase: 0.25,
+        from: 0,
+        to: 20,
+      },
+    ];
+    base.valueBindings = [{ id: "bind-1", emitterId: "wave-1", path: "vorticity", amount: 1 }];
+    expect(applyDrivers(base, 0).vorticity).toBe(4);
+    base.valueEmitters[0] = { ...base.valueEmitters[0], enabled: true };
+    base.valueBindings = [{ id: "bind-2", emitterId: "wave-1", path: "simResolution", amount: 1 }];
+    expect(applyDrivers(base, 0).simResolution).toBe(384);
+  });
 });
 
 describe("presets", () => {
@@ -601,6 +689,69 @@ describe("presets", () => {
     const next = deletePresetFromList(withTwo.list, "p1");
     expect(next.map((preset) => preset.id)).toEqual(["p2"]);
     expect(getPresetFromList(next, "p1")).toBeUndefined();
+  });
+
+  it("round-trips a pack through serialize and parse, keeping the driver graph", () => {
+    const config = cloneConfig(defaultConfig);
+    config.valueEmitters = [
+      {
+        id: "wave-1",
+        name: "Pulse",
+        enabled: true,
+        kind: "saw",
+        rate: 0.2,
+        phase: 0,
+        from: 1,
+        to: 8,
+      },
+    ];
+    config.valueBindings = [{ id: "bind-1", emitterId: "wave-1", path: "dyeInject", amount: 0.75 }];
+    const saved = upsertPresetInList([], "Pack", config, 1, () => "p-pack");
+    const document = serializePresetDocument(saved.list);
+    expect(document.kind).toBe(PRESET_DOCUMENT_KIND);
+    const parsed = parsePresetDocument(document);
+    expect(parsed.ok).toBe(true);
+    if (parsed.ok) {
+      expect(parsed.presets).toHaveLength(1);
+      expect(parsed.presets[0]?.config.valueEmitters[0]?.kind).toBe("saw");
+      expect(parsed.presets[0]?.config.valueBindings[0]?.path).toBe("dyeInject");
+    }
+  });
+
+  it("rejects unknown kinds, non-objects, and truncated JSON", () => {
+    expect(parsePresetDocument(null).ok).toBe(false);
+    expect(parsePresetDocument({ kind: "other", presets: [] }).ok).toBe(false);
+    const truncated = parsePresetJson('{"kind":"fluid-wallpaper.preset.v1","presets":');
+    expect(truncated.ok).toBe(false);
+  });
+
+  it("merges imported presets by name, keeps ids, and caps the library", () => {
+    const first = upsertPresetInList([], "Calm", { ...defaultConfig, vorticity: 3 }, 1, () => "keep-me");
+    const incoming = upsertPresetInList([], "Calm", { ...defaultConfig, vorticity: 9 }, 2, () => "ignored");
+    const second = upsertPresetInList([], "Other", defaultConfig, 3, () => "p-other");
+    const merged = mergeImportedPresets(first.list, [...incoming.list, ...second.list], 4);
+    expect(merged.find((preset) => preset.name === "Calm")?.id).toBe("keep-me");
+    expect(merged.find((preset) => preset.name === "Calm")?.config.vorticity).toBe(9);
+    expect(merged.some((preset) => preset.id === "p-other")).toBe(true);
+    const many = Array.from({ length: 40 }, (_, i) => ({
+      id: `p-${i}`,
+      name: `Look ${i}`,
+      updatedAt: i,
+      config: defaultConfig,
+    }));
+    expect(mergeImportedPresets([], many)).toHaveLength(MAX_PRESETS);
+  });
+
+  it("clamps garbage config fields on import the same as sanitizeConfig", () => {
+    const parsed = parsePresetDocument({
+      kind: PRESET_DOCUMENT_KIND,
+      presets: [{ id: "x", name: "Wild", config: { vorticity: 999, simResolution: 12 } }],
+    });
+    expect(parsed.ok).toBe(true);
+    if (parsed.ok) {
+      expect(parsed.presets[0]?.config.vorticity).toBeLessThanOrEqual(40);
+      expect(parsed.presets[0]?.config.simResolution).toBeGreaterThanOrEqual(128);
+    }
   });
 });
 

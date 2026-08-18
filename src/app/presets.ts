@@ -5,6 +5,7 @@ import {
 } from "./config";
 
 export const PRESETS_STORAGE_KEY = "fluid-wallpaper.presets.v1";
+export const PRESET_DOCUMENT_KIND = "fluid-wallpaper.preset.v1";
 export const MAX_PRESETS = 32;
 
 export type FluidPreset = {
@@ -13,6 +14,15 @@ export type FluidPreset = {
   updatedAt: number;
   config: FluidConfig;
 };
+
+export type PresetDocument = {
+  kind: typeof PRESET_DOCUMENT_KIND;
+  presets: FluidPreset[];
+};
+
+export type PresetDocumentResult =
+  | { ok: true; presets: FluidPreset[] }
+  | { ok: false; reason: string };
 
 export function normalizePresetName(name: string): string {
   return name.trim().replace(/\s+/g, " ");
@@ -118,4 +128,60 @@ export function deletePreset(id: string): FluidPreset[] {
   const next = deletePresetFromList(loadPresets(), id);
   savePresets(next);
   return next;
+}
+
+export function serializePresetDocument(list: readonly FluidPreset[]): PresetDocument {
+  return {
+    kind: PRESET_DOCUMENT_KIND,
+    presets: sanitizePresetList(list),
+  };
+}
+
+export function parsePresetDocument(raw: unknown): PresetDocumentResult {
+  if (!raw || typeof raw !== "object") {
+    return { ok: false, reason: "Preset file is not an object" };
+  }
+  const input = raw as Record<string, unknown>;
+  if (input.kind !== PRESET_DOCUMENT_KIND) {
+    return { ok: false, reason: "Unknown preset document kind" };
+  }
+  return { ok: true, presets: sanitizePresetList(input.presets) };
+}
+
+export function parsePresetJson(text: string): PresetDocumentResult {
+  try {
+    return parsePresetDocument(JSON.parse(text) as unknown);
+  } catch {
+    return { ok: false, reason: "Preset file is not valid JSON" };
+  }
+}
+
+export function mergeImportedPresets(
+  existing: readonly FluidPreset[],
+  incoming: readonly FluidPreset[],
+  now = Date.now(),
+): FluidPreset[] {
+  let list = sanitizePresetList(existing);
+  for (const preset of incoming) {
+    const used = new Set(list.map((item) => item.id));
+    const result = upsertPresetInList(list, preset.name, preset.config, now, () => {
+      if (preset.id && !used.has(preset.id)) {
+        return preset.id;
+      }
+      if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+        return crypto.randomUUID();
+      }
+      return `import-${Math.random().toString(36).slice(2, 10)}`;
+    });
+    list = result.list;
+  }
+  return list;
+}
+
+export function presetFilename(name: string): string {
+  const slug = normalizePresetName(name)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return `${slug || "preset"}.json`;
 }

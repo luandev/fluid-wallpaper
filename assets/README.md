@@ -1,14 +1,35 @@
 # Assets
 
-Store only project-owned or properly licensed source assets here.
+## Purpose
 
-For every external asset, record:
+Store **project-owned or properly licensed** source assets used during development. This folder is not the Wallpaper Engine package and is not copied into the Vite `dist/` bundle.
 
-- origin and author;
-- license and attribution requirements;
-- whether modification and redistribution are permitted;
-- the date the terms were checked.
+## Architecture overview
 
-Do not commit generated binaries, large captures, personal data, or unlicensed references.
+```mermaid
+flowchart LR
+  assets[assets/]
+  dist[dist/]
+  refs[references/]
+  assets -.->|not shipped| dist
+  refs --> assets
+```
 
-Reference stills used during development live in `references/` and are **not** copied into the Vite `dist/` bundle.
+Runtime chrome (dashboard CSS, canvas) lives in `src/` and `index.html`. Stills and licensed references live under `references/` for humans and agents, not for the solver.
+
+## Paradigms
+
+- Provenance first: an asset without license notes is not done.
+- Keep binaries and personal captures out of git.
+
+## Enforced patterns
+
+For every external asset, record origin and author, license and attribution, whether modification and redistribution are permitted, and the date terms were checked.
+
+- Do not commit generated binaries, large captures, personal data, or unlicensed references.
+- Do not place Workshop packages or `project.json` here.
+- Do not import these files from shaders unless a later task adds a licensed, documented texture pipeline.
+
+## Key files
+
+- `references/README.md` — stills used while developing looks

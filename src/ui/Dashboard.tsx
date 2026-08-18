@@ -29,9 +29,19 @@ import {
 } from "../app/config";
 import { BINDABLE_PATHS, driverNameForPath, evaluateEmitter, getPath, wave01 } from "../app/drivers";
 import type { Engine } from "../app/engine";
-import { deletePreset, loadPresets, upsertPreset, type FluidPreset } from "../app/presets";
+import {
+  deletePreset,
+  loadPresets,
+  mergeImportedPresets,
+  parsePresetJson,
+  presetFilename,
+  savePresets,
+  upsertPreset,
+  type FluidPreset,
+} from "../app/presets";
 import { saveStoredConfig } from "../app/storage";
 import { attachDraggablePanel, restorePanelPosition } from "../app/dragPanel";
+import { downloadPresets } from "./presetFile";
 import { ColorRow, RangeRow, SelectRow, ToggleRow } from "./rows";
 import "./dashboard.css";
 
@@ -1004,6 +1014,7 @@ function PresetsTab({
   const [name, setName] = useState("");
   const [presets, setPresets] = useState<FluidPreset[]>(() => loadPresets());
   const [selectedId, setSelectedId] = useState(presets[0]?.id ?? "");
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const refresh = (id?: string): void => {
     const next = loadPresets();
@@ -1015,7 +1026,7 @@ function PresetsTab({
   return (
     <section className="dash__group">
       <h3 className="dash__group-title">Presets</h3>
-      <p className="dash__hint">Saves base config, including the driver graph. Load reseeds the solver.</p>
+      <p className="dash__hint">Saves base config, including the driver graph. Load reseeds. Export/import JSON merges by name.</p>
       <label className="dash__row">
         <span className="dash__label">Name</span>
         <input
@@ -1093,6 +1104,58 @@ function PresetsTab({
         >
           Delete
         </button>
+      </div>
+      <div className="dash__preset-actions">
+        <button
+          type="button"
+          className="dash__btn"
+          disabled={!selectedId}
+          onClick={() => {
+            const preset = presets.find((item) => item.id === selectedId);
+            if (!preset) {
+              refresh();
+              return;
+            }
+            downloadPresets([preset], presetFilename(preset.name));
+          }}
+        >
+          Export
+        </button>
+        <button
+          type="button"
+          className="dash__btn"
+          disabled={presets.length === 0}
+          onClick={() => downloadPresets(presets, "fluid-wallpaper-presets.json")}
+        >
+          Export all
+        </button>
+        <button type="button" className="dash__btn" onClick={() => fileRef.current?.click()}>
+          Import
+        </button>
+        <input
+          ref={fileRef}
+          className="dash__file"
+          type="file"
+          accept="application/json,.json"
+          hidden
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            event.target.value = "";
+            if (!file) {
+              return;
+            }
+            void file.text().then((text) => {
+              const parsed = parsePresetJson(text);
+              if (!parsed.ok) {
+                console.warn(parsed.reason);
+                return;
+              }
+              const merged = mergeImportedPresets(loadPresets(), parsed.presets);
+              savePresets(merged);
+              refresh(merged[0]?.id);
+            });
+          }}
+        />
       </div>
     </section>
   );
