@@ -21,3 +21,14 @@ export function clampNumberField(raw: string, min: number, max: number, fallback
   }
   return clampNumber(parsed, min, max);
 }
+
+export function nudgeNumber(
+  value: number,
+  direction: 1 | -1,
+  step: number,
+  min: number,
+  max: number,
+): number {
+  const size = Number.isFinite(step) && step > 0 ? step : FINE_EPSILON;
+  return clampNumber(value + direction * size, min, max);
+}

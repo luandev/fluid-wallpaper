@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { formatNumber } from "./format";
-import { clampNumber, clampNumberField, fineStep } from "./rangeMath";
+import { clampNumberField, fineStep, nudgeNumber } from "./rangeMath";
 
 function useShiftHeld(): boolean {
   const [held, setHeld] = useState(false);
@@ -67,12 +67,35 @@ export function RangeRow({
   const usedStep = shift ? fineStep(step) : step;
   const [draft, setDraft] = useState(() => formatNumber(value, step));
   const focused = useRef(false);
+  const controlsRef = useRef<HTMLDivElement>(null);
+  const valueRef = useRef(value);
+  valueRef.current = value;
 
   useEffect(() => {
     if (!focused.current) {
       setDraft(formatNumber(value, step));
     }
   }, [value, step]);
+
+  const bump = (direction: 1 | -1, fine: boolean): void => {
+    const size = fine ? fineStep(step) : step;
+    onChange(nudgeNumber(valueRef.current, direction, size, min, max));
+  };
+  const bumpRef = useRef(bump);
+  bumpRef.current = bump;
+
+  useEffect(() => {
+    const el = controlsRef.current;
+    if (!el) {
+      return;
+    }
+    const onWheel = (event: WheelEvent): void => {
+      event.preventDefault();
+      bumpRef.current(event.deltaY < 0 ? 1 : -1, event.shiftKey);
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, []);
 
   const commitDraft = (): void => {
     onChange(clampNumberField(draft, min, max, value));
@@ -87,8 +110,7 @@ export function RangeRow({
       return;
     }
     event.preventDefault();
-    const delta = (event.key === "ArrowUp" ? 1 : -1) * (event.shiftKey ? fineStep(step) : step);
-    onChange(clampNumber(value + delta, min, max));
+    bump(event.key === "ArrowUp" ? 1 : -1, event.shiftKey);
   };
 
   return (
@@ -102,7 +124,7 @@ export function RangeRow({
           {driverName ? <span className="dash__chip">driven by {driverName}</span> : null}
         </span>
       </div>
-      <div className="dash__range-controls">
+      <div className="dash__range-controls" ref={controlsRef}>
         <input
           className="dash__input"
           type="range"
@@ -112,25 +134,48 @@ export function RangeRow({
           value={value}
           title={help}
           aria-label={label}
+          tabIndex={-1}
           onChange={(event) => onChange(Number(event.target.value))}
         />
-        <input
-          className="dash__input dash__text dash__number"
-          type="text"
-          inputMode="decimal"
-          value={draft}
-          title={help}
-          aria-label={`${label} value`}
-          onFocus={() => {
-            focused.current = true;
-          }}
-          onBlur={() => {
-            focused.current = false;
-            commitDraft();
-          }}
-          onChange={(event) => setDraft(event.target.value)}
-          onKeyDown={onNumberKey}
-        />
+        <div className="dash__stepper">
+          <input
+            className="dash__input dash__text dash__number"
+            type="text"
+            inputMode="decimal"
+            value={draft}
+            title={help}
+            aria-label={`${label} value`}
+            onFocus={() => {
+              focused.current = true;
+            }}
+            onBlur={() => {
+              focused.current = false;
+              commitDraft();
+            }}
+            onChange={(event) => setDraft(event.target.value)}
+            onKeyDown={onNumberKey}
+          />
+          <div className="dash__stepper-btns">
+            <button
+              type="button"
+              className="dash__stepper-btn"
+              tabIndex={-1}
+              aria-label={`Increase ${label}`}
+              onClick={() => bump(1, shift)}
+            >
+              ▲
+            </button>
+            <button
+              type="button"
+              className="dash__stepper-btn"
+              tabIndex={-1}
+              aria-label={`Decrease ${label}`}
+              onClick={() => bump(-1, shift)}
+            >
+              ▼
+            </button>
+          </div>
+        </div>
       </div>
       <HelpText help={help} />
     </div>

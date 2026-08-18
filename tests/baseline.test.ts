@@ -70,11 +70,16 @@ describe("defaultConfig", () => {
     expect(defaultConfig.emitters[0]?.materialId).toBe(CRIMSON_MATERIAL_ID);
     expect(defaultConfig.emitters[1]?.materialId).toBe(CHARCOAL_MATERIAL_ID);
     expect(defaultConfig.emitters[1]?.noiseOffset).toBe(1);
+    expect(defaultConfig.emitters[0]?.kind).toBe("point");
+    expect(defaultConfig.emitters[0]?.uvY).toBeGreaterThan(0.9);
+    expect(defaultConfig.emitters[1]?.kind).toBe("point");
+    expect(defaultConfig.emitters[1]?.uvY).toBeGreaterThan(0.9);
+    expect(defaultConfig.emitters[2]?.kind).toBe("pointer");
     expect(defaultConfig.composerStrength).toBeGreaterThan(0);
     expect(defaultConfig.dyeInject).toBeGreaterThan(0);
     expect(defaultConfig.noiseTime).toBeLessThan(1);
     expect(defaultConfig.warmupSteps).toBeGreaterThan(0);
-    expect(defaultConfig.windStations).toEqual([]);
+    expect(defaultConfig.windStations).toHaveLength(4);
     expect(defaultConfig.valueEmitters).toEqual([]);
     expect(defaultConfig.valueBindings).toEqual([]);
     expect(defaultConfig.windStrength).toBeGreaterThan(0);
