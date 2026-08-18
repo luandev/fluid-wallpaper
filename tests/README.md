@@ -33,5 +33,5 @@ flowchart LR
 - `baseline.test.ts` — config, colors, sim format, drivers, presets, panel layout
 - `drivers-scale.test.ts` — value-emitter `scale` mix and sanitize default
 - `field-help.test.ts` — every `controlSchema` row has help
-- `ui-range.test.ts` / `ui-uv.test.ts` / `ui-graph.test.ts` / `ui-shortcuts.test.ts` — dashboard helpers
+- `ui-range.test.ts` / `ui-uv.test.ts` / `ui-graph.test.ts` / `ui-shortcuts.test.ts` / `ui-duplicate.test.ts` — dashboard helpers
 - `ensure-yarn.test.ts` — package-manager guard

@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { type ReactNode } from "react";
 import {
   MAX_WIND_STATIONS,
   createWindStation,
@@ -8,8 +8,11 @@ import {
 } from "../../app/config";
 import { WIND_FIELD_HELP } from "../../app/fieldHelp";
 import { driverNameForPath } from "../../app/drivers";
+import { duplicateById } from "../duplicateItem";
+import { ItemCard } from "../ItemCard";
 import { RangeRow, ToggleRow } from "../rows";
 import type { PatchFrom } from "../types";
+import { useCollapsedIds } from "../useCollapsedIds";
 
 export function WindTab({
   config,
@@ -24,6 +27,7 @@ export function WindTab({
   onSelect: (id: string) => void;
   patchFrom: PatchFrom;
 }): ReactNode {
+  const collapsed = useCollapsedIds();
   return (
     <section className="dash__group">
       <div className="dash__group-head">
@@ -51,13 +55,29 @@ export function WindTab({
       {config.windStations.map((station) => {
         const liveStation = live.windStations.find((item) => item.id === station.id) ?? station;
         return (
-          <article
+          <ItemCard
             key={station.id}
-            className="dash__item"
-            data-selected={selectedId === station.id ? "true" : "false"}
-            onClick={() => onSelect(station.id)}
-          >
-            <div className="dash__item-head">
+            selected={selectedId === station.id}
+            collapsed={collapsed.isCollapsed(station.id)}
+            canDuplicate={config.windStations.length < MAX_WIND_STATIONS}
+            onToggleCollapse={() => collapsed.toggle(station.id)}
+            onSelect={() => onSelect(station.id)}
+            onDuplicate={() =>
+              patchFrom((current) => {
+                const next = duplicateById(current.windStations, station.id, "wind", MAX_WIND_STATIONS);
+                if (!next) {
+                  return {};
+                }
+                onSelect(next.copy.id);
+                return { windStations: next.items };
+              })
+            }
+            onRemove={() =>
+              patchFrom((current) => ({
+                windStations: current.windStations.filter((item) => item.id !== station.id),
+              }))
+            }
+            nameSlot={
               <input
                 className="dash__input dash__text"
                 type="text"
@@ -71,19 +91,8 @@ export function WindTab({
                   }))
                 }
               />
-              <button
-                type="button"
-                className="dash__btn"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  patchFrom((current) => ({
-                    windStations: current.windStations.filter((item) => item.id !== station.id),
-                  }));
-                }}
-              >
-                Remove
-              </button>
-            </div>
+            }
+          >
             <ToggleRow
               label="Enabled"
               help={WIND_FIELD_HELP.enabled}
@@ -162,7 +171,7 @@ export function WindTab({
               step={0.01}
               patchFrom={patchFrom}
             />
-          </article>
+          </ItemCard>
         );
       })}
     </section>

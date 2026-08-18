@@ -1,0 +1,55 @@
+html,
+body,
+#root,
+.embed {
+  margin: 0;
+  height: 100%;
+  background: #070708;
+  color: #f4ecec;
+  font: 13px/1.4 system-ui, sans-serif;
+}
+
+.embed {
+  display: flex;
+  flex-direction: column;
+}
+
+.embed__nav {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  align-items: center;
+  padding: 10px 14px;
+  background: rgba(8, 8, 10, 0.72);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.embed__mark {
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #e80818;
+}
+
+.embed a,
+.embed button {
+  color: #f4ecec;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.embed button[data-active="true"],
+.embed a:hover,
+.embed button:hover {
+  color: #e80818;
+}
+
+.embed .fluid-field {
+  flex: 1;
+  min-height: 0;
+}

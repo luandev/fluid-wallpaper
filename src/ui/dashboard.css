@@ -159,17 +159,29 @@
 
 .dash__item-head {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   margin-bottom: 8px;
+  align-items: center;
+}
+
+.dash__item[data-collapsed="true"] .dash__item-head {
+  margin-bottom: 0;
 }
 
 .dash__item-head .dash__text {
   flex: 1;
+  min-width: 6rem;
 }
 
 .dash__item-head .dash__btn {
   flex: 0 0 auto;
   padding: 6px 8px;
+}
+
+.dash__collapse {
+  width: 28px;
+  padding: 6px 0;
 }
 
 .dash__row {

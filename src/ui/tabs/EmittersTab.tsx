@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { type ReactNode } from "react";
 import {
   MAX_EMITTERS,
   createEmitter,
@@ -8,8 +8,11 @@ import {
 } from "../../app/config";
 import { EMITTER_FIELD_HELP } from "../../app/fieldHelp";
 import { driverNameForPath } from "../../app/drivers";
+import { duplicateById } from "../duplicateItem";
+import { ItemCard } from "../ItemCard";
 import { RangeRow, SelectRow, ToggleRow } from "../rows";
 import type { PatchFrom } from "../types";
+import { useCollapsedIds } from "../useCollapsedIds";
 
 export function EmittersTab({
   config,
@@ -24,6 +27,7 @@ export function EmittersTab({
   onSelect: (id: string) => void;
   patchFrom: PatchFrom;
 }): ReactNode {
+  const collapsed = useCollapsedIds();
   return (
     <section className="dash__group">
       <div className="dash__group-head">
@@ -45,13 +49,29 @@ export function EmittersTab({
       {config.emitters.map((emitter) => {
         const liveEmitter = live.emitters.find((item) => item.id === emitter.id) ?? emitter;
         return (
-          <article
+          <ItemCard
             key={emitter.id}
-            className="dash__item"
-            data-selected={selectedId === emitter.id ? "true" : "false"}
-            onClick={() => onSelect(emitter.id)}
-          >
-            <div className="dash__item-head">
+            selected={selectedId === emitter.id}
+            collapsed={collapsed.isCollapsed(emitter.id)}
+            canDuplicate={config.emitters.length < MAX_EMITTERS}
+            onToggleCollapse={() => collapsed.toggle(emitter.id)}
+            onSelect={() => onSelect(emitter.id)}
+            onDuplicate={() =>
+              patchFrom((current) => {
+                const next = duplicateById(current.emitters, emitter.id, "emit", MAX_EMITTERS);
+                if (!next) {
+                  return {};
+                }
+                onSelect(next.copy.id);
+                return { emitters: next.items };
+              })
+            }
+            onRemove={() =>
+              patchFrom((current) => ({
+                emitters: current.emitters.filter((item) => item.id !== emitter.id),
+              }))
+            }
+            nameSlot={
               <input
                 className="dash__input dash__text"
                 type="text"
@@ -65,19 +85,8 @@ export function EmittersTab({
                   }))
                 }
               />
-              <button
-                type="button"
-                className="dash__btn"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  patchFrom((current) => ({
-                    emitters: current.emitters.filter((item) => item.id !== emitter.id),
-                  }));
-                }}
-              >
-                Remove
-              </button>
-            </div>
+            }
+          >
             <ToggleRow
               label="Enabled"
               help={EMITTER_FIELD_HELP.enabled}
@@ -170,7 +179,7 @@ export function EmittersTab({
                 patchFrom={patchFrom}
               />
             ) : null}
-          </article>
+          </ItemCard>
         );
       })}
     </section>

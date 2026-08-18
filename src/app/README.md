@@ -21,7 +21,7 @@ flowchart LR
   live --> solver
 ```
 
-`Engine.getConfig()` returns **base**. `getLiveConfig()` is for readouts. `applyConfig` patches base only. Each tick copies `applyDrivers(base, elapsed)` onto the solver’s live object. Portable JSON presets use the same sanitize path as `fluid-wallpaper.presets.v1`. Fresh installs use the crimson base look: two point emitters at the bottom of the field, a pointer emitter, and four wind stations.
+`Engine.getConfig()` returns **base**. `getLiveConfig()` is for readouts. `applyConfig` patches base only. Each tick copies `applyDrivers(base, elapsed)` onto the solver’s live object. Portable JSON presets use the same sanitize path as `fluid-wallpaper.presets.v1`. Fresh installs use the hard-mix look: four corner point emitters, four wind stations, and a triangle wave on `noiseTime`.
 
 ## Paradigms
 

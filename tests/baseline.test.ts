@@ -59,29 +59,35 @@ describe("defaultConfig", () => {
     expect(defaultConfig.dyeResolution).toBeGreaterThanOrEqual(defaultConfig.simResolution);
     expect(defaultConfig.pressureIterations).toBeGreaterThanOrEqual(20);
     expect(defaultConfig.pressureIterations).toBeLessThanOrEqual(40);
-    expect(defaultConfig.materials[0]?.color).toBe(CRIMSON);
+    expect(defaultConfig.materials[0]?.color).toBe("#FF0000");
     expect(defaultConfig.materials[1]?.color).toBe(CHARCOAL);
     expect(defaultConfig.materials).toHaveLength(2);
     expect(defaultConfig.emitters.map((emitter) => emitter.id)).toEqual([
       "emit-field-crimson",
       "emit-field-charcoal",
-      "emit-pointer-crimson",
+      "emit-corner-crimson",
+      "emit-corner-charcoal",
     ]);
     expect(defaultConfig.emitters[0]?.materialId).toBe(CRIMSON_MATERIAL_ID);
     expect(defaultConfig.emitters[1]?.materialId).toBe(CHARCOAL_MATERIAL_ID);
     expect(defaultConfig.emitters[1]?.noiseOffset).toBe(1);
-    expect(defaultConfig.emitters[0]?.kind).toBe("point");
-    expect(defaultConfig.emitters[0]?.uvY).toBeGreaterThan(0.9);
-    expect(defaultConfig.emitters[1]?.kind).toBe("point");
-    expect(defaultConfig.emitters[1]?.uvY).toBeGreaterThan(0.9);
-    expect(defaultConfig.emitters[2]?.kind).toBe("pointer");
+    expect(defaultConfig.emitters.every((emitter) => emitter.kind === "point")).toBe(true);
+    expect(defaultConfig.emitters.map((emitter) => [emitter.uvX, emitter.uvY])).toEqual([
+      [0, 1],
+      [1, 1],
+      [1, 0],
+      [0, 0],
+    ]);
     expect(defaultConfig.composerStrength).toBeGreaterThan(0);
     expect(defaultConfig.dyeInject).toBeGreaterThan(0);
     expect(defaultConfig.noiseTime).toBeLessThan(1);
     expect(defaultConfig.warmupSteps).toBeGreaterThan(0);
     expect(defaultConfig.windStations).toHaveLength(4);
-    expect(defaultConfig.valueEmitters).toEqual([]);
-    expect(defaultConfig.valueBindings).toEqual([]);
+    expect(defaultConfig.valueEmitters).toHaveLength(1);
+    expect(defaultConfig.valueEmitters[0]?.kind).toBe("triangle");
+    expect(defaultConfig.valueBindings).toEqual([
+      { id: "bind-1", emitterId: "wave-1", path: "noiseTime", amount: 0.87 },
+    ]);
     expect(defaultConfig.windStrength).toBeGreaterThan(0);
     expect(() => assertConfig(defaultConfig)).not.toThrow();
   });

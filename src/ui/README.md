@@ -45,6 +45,7 @@ flowchart TB
 - One concern per file: tabs, rows, graph math, UV math, shortcuts. Logic that can run without `document` lives in `.ts` next to the view.
 - Hide with **H**; **P** toggles perf; **F** fullscreen on `#view`; **Esc** exits fullscreen. Dragging the header (or Panel button) persists position.
 - Numeric rows: Tab focuses the typed value (crimson outline); mouse wheel and stepper arrows nudge by `step` (Shift for fine). Dashboard chrome is not text-selectable; fields still are.
+- Item cards (materials, emitters, wind, value emitters) collapse and duplicate. Duplicate is a new id under the same cap; collapse is session-only, not stored in the look.
 
 ## Enforced patterns
 
@@ -60,6 +61,7 @@ flowchart TB
 
 - `Dashboard.tsx` — shell, tabs, commit, H/F/Esc, spatial wiring
 - `tabs/` — Scene, Materials, Emitters, Wind, Drivers, Presets
+- `ItemCard.tsx` / `duplicateItem.ts` — collapse + duplicate for list cards
 - `rows.tsx` / `rangeMath.ts` / `format.ts` — slider + number field, Shift fine step, stepper arrows, wheel nudge, help
 - `graph/` — SVG node graph over `valueBindings`
 - `spatial/` — UV markers for point emitters and wind stations

@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useCallback, type ReactNode } from "react";
 import {
   MAX_MATERIALS,
   MIN_MATERIALS,
@@ -8,8 +8,11 @@ import {
 } from "../../app/config";
 import { MATERIAL_FIELD_HELP } from "../../app/fieldHelp";
 import { driverNameForPath } from "../../app/drivers";
+import { duplicateById } from "../duplicateItem";
+import { ItemCard } from "../ItemCard";
 import { ColorRow, RangeRow, ToggleRow } from "../rows";
 import type { PatchFrom } from "../types";
+import { useCollapsedIds } from "../useCollapsedIds";
 
 export function MaterialsTab({
   config,
@@ -20,6 +23,16 @@ export function MaterialsTab({
   live: FluidConfig;
   patchFrom: PatchFrom;
 }): ReactNode {
+  const collapsed = useCollapsedIds();
+  const duplicate = useCallback(
+    (id: string) => {
+      patchFrom((current) => {
+        const next = duplicateById(current.materials, id, "mat", MAX_MATERIALS);
+        return next ? { materials: next.items } : {};
+      });
+    },
+    [patchFrom],
+  );
   return (
     <section className="dash__group">
       <div className="dash__group-head">
@@ -41,8 +54,27 @@ export function MaterialsTab({
       {config.materials.map((material) => {
         const liveMaterial = live.materials.find((item) => item.id === material.id) ?? material;
         return (
-          <article key={material.id} className="dash__item">
-            <div className="dash__item-head">
+          <ItemCard
+            key={material.id}
+            collapsed={collapsed.isCollapsed(material.id)}
+            canDuplicate={config.materials.length < MAX_MATERIALS}
+            removeDisabled={config.materials.length <= MIN_MATERIALS}
+            onToggleCollapse={() => collapsed.toggle(material.id)}
+            onDuplicate={() => duplicate(material.id)}
+            onRemove={() =>
+              patchFrom((current) => {
+                if (current.materials.length <= MIN_MATERIALS) {
+                  return {};
+                }
+                const materials = current.materials.filter((item) => item.id !== material.id);
+                const fallback = materials[0]?.id ?? material.id;
+                const emitters = current.emitters.map((emitter) =>
+                  emitter.materialId === material.id ? { ...emitter, materialId: fallback } : emitter,
+                );
+                return { materials, emitters };
+              })
+            }
+            nameSlot={
               <input
                 className="dash__input dash__text"
                 type="text"
@@ -56,27 +88,8 @@ export function MaterialsTab({
                   }))
                 }
               />
-              <button
-                type="button"
-                className="dash__btn"
-                disabled={config.materials.length <= MIN_MATERIALS}
-                onClick={() =>
-                  patchFrom((current) => {
-                    if (current.materials.length <= MIN_MATERIALS) {
-                      return {};
-                    }
-                    const materials = current.materials.filter((item) => item.id !== material.id);
-                    const fallback = materials[0]?.id ?? material.id;
-                    const emitters = current.emitters.map((emitter) =>
-                      emitter.materialId === material.id ? { ...emitter, materialId: fallback } : emitter,
-                    );
-                    return { materials, emitters };
-                  })
-                }
-              >
-                Remove
-              </button>
-            </div>
+            }
+          >
             <ToggleRow
               label="Enabled"
               help={MATERIAL_FIELD_HELP.enabled}
@@ -140,7 +153,7 @@ export function MaterialsTab({
               help={MATERIAL_FIELD_HELP.glow}
               patchFrom={patchFrom}
             />
-          </article>
+          </ItemCard>
         );
       })}
     </section>

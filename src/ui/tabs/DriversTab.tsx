@@ -11,9 +11,12 @@ import { VALUE_EMITTER_FIELD_HELP } from "../../app/fieldHelp";
 import { evaluateEmitter, getPath, wave01 } from "../../app/drivers";
 import { connectPorts, latestBindings, removeBinding } from "../graph/connect";
 import { DriverGraph } from "../graph/DriverGraph";
+import { duplicateById } from "../duplicateItem";
+import { ItemCard } from "../ItemCard";
 import { kindLabel } from "../driverLabels";
 import { RangeRow, SelectRow, ToggleRow } from "../rows";
 import type { PatchFrom } from "../types";
+import { useCollapsedIds } from "../useCollapsedIds";
 
 export function DriversTab({
   config,
@@ -34,6 +37,7 @@ export function DriversTab({
   onSelectBinding: (id: string | null) => void;
   patchFrom: PatchFrom;
 }): ReactNode {
+  const collapsed = useCollapsedIds();
   const emitter =
     config.valueEmitters.find((item) => item.id === selectedEmitterId) ?? config.valueEmitters[0] ?? null;
   const connected = useMemo(
@@ -93,6 +97,19 @@ export function DriversTab({
             live={live}
             elapsed={elapsed}
             connected={connected}
+            collapsed={collapsed.isCollapsed(emitter.id)}
+            canDuplicate={config.valueEmitters.length < MAX_VALUE_EMITTERS}
+            onToggleCollapse={() => collapsed.toggle(emitter.id)}
+            onDuplicate={() =>
+              patchFrom((current) => {
+                const next = duplicateById(current.valueEmitters, emitter.id, "wave", MAX_VALUE_EMITTERS);
+                if (!next) {
+                  return {};
+                }
+                onSelectEmitter(next.copy.id);
+                return { valueEmitters: next.items };
+              })
+            }
             patchFrom={patchFrom}
             onRemove={() =>
               patchFrom((current) => {
@@ -137,6 +154,10 @@ function EmitterInspector({
   live,
   elapsed,
   connected,
+  collapsed,
+  canDuplicate,
+  onToggleCollapse,
+  onDuplicate,
   patchFrom,
   onRemove,
   onPatch,
@@ -147,6 +168,10 @@ function EmitterInspector({
   live: FluidConfig;
   elapsed: number;
   connected: ReturnType<typeof latestBindings>;
+  collapsed: boolean;
+  canDuplicate: boolean;
+  onToggleCollapse: () => void;
+  onDuplicate: () => void;
   patchFrom: PatchFrom;
   onRemove: () => void;
   onPatch: (patch: Partial<ValueEmitter>) => void;
@@ -156,8 +181,13 @@ function EmitterInspector({
   const sample = evaluateEmitter(emitter, elapsed);
   const preview = wave01(emitter.kind, elapsed * Math.max(0, emitter.rate) + emitter.phase);
   return (
-    <article className="dash__item">
-      <div className="dash__item-head">
+    <ItemCard
+      collapsed={collapsed}
+      canDuplicate={canDuplicate}
+      onToggleCollapse={onToggleCollapse}
+      onDuplicate={onDuplicate}
+      onRemove={onRemove}
+      nameSlot={
         <input
           className="dash__input dash__text"
           type="text"
@@ -172,10 +202,8 @@ function EmitterInspector({
             }))
           }
         />
-        <button type="button" className="dash__btn" onClick={onRemove}>
-          Remove
-        </button>
-      </div>
+      }
+    >
       <ToggleRow
         label="Enabled"
         help={VALUE_EMITTER_FIELD_HELP.enabled}
@@ -265,6 +293,6 @@ function EmitterInspector({
           </div>
         );
       })}
-    </article>
+    </ItemCard>
   );
 }
