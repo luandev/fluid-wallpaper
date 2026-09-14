@@ -2,6 +2,7 @@ import {
   EMITTER_DRIVE_FIELDS,
   MATERIAL_DRIVE_FIELDS,
   RESEED_KEYS,
+  VALUE_EMITTER_AUDIO_KINDS,
   VALUE_EMITTER_STUB_KINDS,
   WIND_DRIVE_FIELDS,
   cloneConfig,
@@ -13,6 +14,7 @@ import {
   type ValueEmitterKind,
   type WindStation,
 } from "./config";
+import { sampleLogBand, type AudioFrame } from "../inputs/audioMath";
 
 export type BindablePath = {
   path: string;
@@ -88,6 +90,9 @@ export function wave01(kind: ValueEmitterKind, t: number): number {
   if ((VALUE_EMITTER_STUB_KINDS as readonly string[]).includes(kind)) {
     return 0.5;
   }
+  if ((VALUE_EMITTER_AUDIO_KINDS as readonly string[]).includes(kind)) {
+    return 0;
+  }
   const u = fract(t);
   if (kind === "sine") {
     return 0.5 + 0.5 * Math.sin(u * Math.PI * 2);
@@ -109,15 +114,31 @@ export function wave01(kind: ValueEmitterKind, t: number): number {
   return a + (b - a) * s;
 }
 
-export function evaluateEmitter(emitter: ValueEmitter, elapsed: number): number {
+export function evaluateEmitter(emitter: ValueEmitter, elapsed: number, audio?: AudioFrame): number {
   if (!emitter.enabled) {
     return emitter.from;
   }
-  const t = elapsed * Math.max(0, emitter.rate) + emitter.phase;
-  const w = wave01(emitter.kind, t);
+  const w = audio01(emitter, audio) ?? wave01FromElapsed(emitter, elapsed);
   const scale = typeof emitter.scale === "number" && Number.isFinite(emitter.scale) ? emitter.scale : 1;
   const mix = 0.5 + (w - 0.5) * scale;
   return emitter.from + (emitter.to - emitter.from) * mix;
+}
+
+function wave01FromElapsed(emitter: ValueEmitter, elapsed: number): number {
+  const t = elapsed * Math.max(0, emitter.rate) + emitter.phase;
+  return wave01(emitter.kind, t);
+}
+
+function audio01(emitter: ValueEmitter, audio?: AudioFrame): number | undefined {
+  if (!(VALUE_EMITTER_AUDIO_KINDS as readonly string[]).includes(emitter.kind)) {
+    return undefined;
+  }
+  const band = typeof emitter.band === "number" && Number.isFinite(emitter.band) ? emitter.band : 0.15;
+  if (!audio) {
+    return 0;
+  }
+  const values = emitter.kind === "audioPulse" ? audio.pulses : audio.bands;
+  return sampleLogBand(values, band);
 }
 
 function parsePath(path: string): string[] {
@@ -209,7 +230,7 @@ export function driverNameForPath(config: FluidConfig, path: string): string | u
   return undefined;
 }
 
-export function applyDrivers(base: FluidConfig, elapsed: number): FluidConfig {
+export function applyDrivers(base: FluidConfig, elapsed: number, audio?: AudioFrame): FluidConfig {
   const live = cloneConfig(base);
   if (base.valueBindings.length === 0 || base.valueEmitters.length === 0) {
     return live;
@@ -230,7 +251,7 @@ export function applyDrivers(base: FluidConfig, elapsed: number): FluidConfig {
     if (baseValue === undefined) {
       continue;
     }
-    const driven = evaluateEmitter(emitter, elapsed);
+    const driven = evaluateEmitter(emitter, elapsed, audio);
     const mixed = baseValue + (driven - baseValue) * binding.amount;
     const clamped = Math.min(spec.max, Math.max(spec.min, mixed));
     setPath(live, binding.path, clamped);

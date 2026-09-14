@@ -86,18 +86,19 @@ export class FluidSolver {
 
   step(dt: number, time: number, splat: PointerSplat | null): void {
     const gl = this.gl;
-    const simDt = Math.max(0, dt * this.liveNoiseTime);
+    const realDt = Math.max(0, dt);
+    const simDt = realDt * Math.max(0, this.liveNoiseTime);
     if (splat) {
       this.splatPointer(splat);
     }
     if (simDt > 0) {
       this.applyComposer(simDt, time);
       this.applyWind(simDt);
-      this.applyInject(time, this.config.dyeInject);
+      this.applyInject(time, this.config.dyeInject, realDt);
       this.applyVorticity(simDt);
-      this.project();
       this.applyViscosity(simDt);
       this.advect(this.velocity, this.velocity, 1, simDt);
+      this.project();
       this.advect(this.dye, this.velocity, decayFactor(this.config.dyeDecay, simDt), simDt);
     }
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -125,7 +126,7 @@ export class FluidSolver {
   }
 
   private seed(): void {
-    this.applyInject(0, 1);
+    this.applyInject(0, 1, 1 / 60);
     this.copyDouble(this.dye);
 
     const vel = this.passes.marbleVelocity;
@@ -184,7 +185,7 @@ export class FluidSolver {
     target.swap();
   }
 
-  private applyInject(time: number, inject: number): void {
+  private applyInject(time: number, inject: number, dt: number): void {
     const packed = this.packInjectEmitters();
     const pass = this.passes.perlinDye;
     this.use(pass);
@@ -197,6 +198,7 @@ export class FluidSolver {
     this.set1f(pass, "uMedium", this.config.composerMedium);
     this.set1f(pass, "uFine", this.config.composerFine);
     this.set1f(pass, "uInject", inject);
+    this.set1f(pass, "uDt", Math.max(0, dt));
     this.set1i(pass, "uNoiseType", noiseTypeIndex(this.config.noiseType));
     this.set1i(pass, "uEmitterCount", packed.count);
     this.set1iv(pass, "uEmitterKind", packed.kind);

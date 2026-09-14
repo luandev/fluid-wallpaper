@@ -21,6 +21,7 @@ function wave(id: string): ValueEmitter {
     from: 0,
     to: 1,
     scale: 1,
+    band: 0.15,
   };
 }
 

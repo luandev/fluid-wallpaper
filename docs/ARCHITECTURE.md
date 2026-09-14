@@ -4,6 +4,8 @@ This document is the **system** map. Folder READMEs under `src/`, `tests/`, `doc
 
 ## Direction
 
+This maps current implementation boundaries. [CONTEXT_MAP.md](CONTEXT_MAP.md) links scoped agent guidance; [ENGINEERING_GUIDE.md](ENGINEERING_GUIDE.md) records actual call paths and known gaps. The native element exists under DEC-012. DEC-013 adds an opt-in scene path: `FluidInkElement → LiquidEngine → LiquidSolver/LiquidDisplay`, with `LiquidQualityController` and `GpuTiming` observing runtime cost. [TWO_LIQUID.md](TWO_LIQUID.md) owns its numerical contract and unfinished acceptance. A compiled package layout/release remains separate.
+
 The wallpaper is a living fluid field, not a baked loop. Simulation **transports concentrations**. Rendering **interprets look**. The product shell **edits base settings** and must not write 60fps live values into storage. Optional inputs may disappear without breaking the artwork.
 
 ```mermaid
@@ -50,15 +52,15 @@ Source: `src/sim` plus simulation passes in `src/shaders`.
 
 Owns color interpretation, surface detail, normals, lighting, material response, tone mapping, glow, and final presentation.
 
-The same concentration field should support multiple visual identities (glow, sheen, roughness, metal) mixed by channel weight.
+The same concentration field should support multiple visual identities (glow, sheen, roughness, metal) mixed by channel weight. Canvas alpha can reveal a video underlay when `videoReveal` is raised ([DEC-009](DECISIONS.md#dec-009--optional-youtube-music-and-web-audio-drivers)).
 
 Source: `src/render` plus `display.frag.glsl`.
 
 ## Inputs
 
-Owns optional pointer, **sparse 2D wind stations**, **value emitters** (waves now; mic / camera / tilt as stubs), audio, sensor, or external-data adapters. Wind stations are procedural stand-ins for weather-sample points (heading, speed, spin). Live METAR/GRIB/API feeds stay a later optional adapter. Every input must be bounded, optional, and able to disappear without breaking the artwork.
+Owns optional pointer, **sparse 2D wind stations**, **value emitters** (waves plus optional Web Audio pulse/spectrum; camera / tilt as stubs), YouTube music id, sensor, or external-data adapters. Wind stations are procedural stand-ins for weather-sample points (heading, speed, spin). Live METAR/GRIB/API feeds stay a later optional adapter. Every input must be bounded, optional, and able to disappear without breaking the artwork.
 
-Source: `src/inputs` for pointer; wind stations and value emitters live on config in `src/app`.
+Source: `src/inputs` for pointer, YouTube id parse, and the Web Audio analyser; wind stations and value emitters live on config in `src/app`. The compact YouTube player is product-shell UI (`src/ui`), not the solver.
 
 ## Platform integration
 
@@ -80,7 +82,7 @@ Source today: `src/quality` (fixed Phase 1 budgets). Adaptive quality is later.
 - `src/landing` — public live-fluid showcase (`index.html`)
 - `src/sim` — WebGL2 resources and Stam solver
 - `src/render` — look from concentrations
-- `src/inputs` — optional pointer
+- `src/inputs` — optional pointer, YouTube id parse, Web Audio analyser
 - `src/platform` — browser canvas/visibility
 - `src/quality` — documented budgets
 - `src/shaders` — GLSL ES 3.00 sources (`?raw`)

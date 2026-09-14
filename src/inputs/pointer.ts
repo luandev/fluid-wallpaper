@@ -9,7 +9,8 @@ export class PointerInput {
   private y = 0;
   private prevX = 0;
   private prevY = 0;
-  private moved = false;
+  private pendingDeltaX = 0;
+  private pendingDeltaY = 0;
   private enabled = true;
   private readonly canvas: HTMLCanvasElement;
 
@@ -23,14 +24,18 @@ export class PointerInput {
   }
 
   consume(): PointerSplat | null {
-    if (!this.enabled || !this.moved) {
-      this.moved = false;
+    if (!this.enabled || Math.abs(this.pendingDeltaX) + Math.abs(this.pendingDeltaY) <= 1e-6) {
+      this.pendingDeltaX = 0;
+      this.pendingDeltaY = 0;
       return null;
     }
-    this.moved = false;
+    const deltaX = this.pendingDeltaX;
+    const deltaY = this.pendingDeltaY;
+    this.pendingDeltaX = 0;
+    this.pendingDeltaY = 0;
     return {
       uv: [this.x, this.y],
-      delta: [this.x - this.prevX, this.y - this.prevY],
+      delta: [deltaX, deltaY],
     };
   }
 
@@ -38,7 +43,8 @@ export class PointerInput {
     this.enabled = enabled;
     if (!enabled) {
       this.down = false;
-      this.moved = false;
+      this.pendingDeltaX = 0;
+      this.pendingDeltaY = 0;
     }
   }
 
@@ -68,6 +74,8 @@ export class PointerInput {
     this.y = y;
     this.prevX = x;
     this.prevY = y;
+    this.pendingDeltaX = 0;
+    this.pendingDeltaY = 0;
   };
 
   private readonly onMove = (event: PointerEvent): void => {
@@ -85,7 +93,8 @@ export class PointerInput {
     this.x = x;
     this.y = y;
     if (Math.abs(x - this.prevX) + Math.abs(y - this.prevY) > 1e-6) {
-      this.moved = true;
+      this.pendingDeltaX += x - this.prevX;
+      this.pendingDeltaY += y - this.prevY;
     }
   };
 
@@ -94,6 +103,5 @@ export class PointerInput {
       this.canvas.releasePointerCapture(event.pointerId);
     }
     this.down = false;
-    this.moved = false;
   };
 }

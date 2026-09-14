@@ -2,6 +2,24 @@
 
 Each question should be resolved through a research issue before it becomes an implementation constraint.
 
+## Ink and component release
+
+[DEC-013](DECISIONS.md#dec-013--opt-in-two-liquid-scene-and-numerical-prototype) now selects an opt-in equal-density two-phase scene, four carrier-bound pigment slots, closed free-slip walls, linear RGB absorption against an explicit substrate, and the plan's adaptive runtime direction. [TWO_LIQUID.md](TWO_LIQUID.md) distinguishes implementation from unfinished acceptance. The questions below still apply to release scope, calibration and support; they no longer imply that the scene model and optical direction are wholly undecided.
+
+The product priority is recorded in [DEC-010](DECISIONS.md#dec-010--ink-first-web-component-product-direction). The [review](REVIEW_INK_COMPONENT.md) proposes options and experiments; it does not resolve these questions:
+
+- Which medium is the first release: ink in water, ink on paper, or a deliberately stylized mixture? Which licensed/project-owned references establish the visual bar?
+- Does the first component release require the original three-material catalog, or one thoroughly validated ink scene as the review recommends?
+- Which optical model and color-space contract are justified by that medium? How are ink coefficients calibrated?
+- What units define dose, brush radius, flow, diffusion, and lifetime? How will old presets migrate?
+- How should source/sink behavior preserve interest during long ambient runs without hiding resets or losing material identity?
+- Which mobile browsers/devices, memory limits, frame-time budgets, and thermal-duration tests define support?
+- What custom-element API, registration, CSS/fallback, persistence, multi-instance, and lifecycle guarantees should ship?
+- Which package artifacts, exports, registry/name, and consumer fixtures define an installable release?
+- What browser/GPU validation should be added beyond current CPU-only tests, and under what tooling decision?
+
+Stable slot allocation, time-independent injection, filtering, projection, and other source findings are recorded in [ENGINEERING_GUIDE.md](ENGINEERING_GUIDE.md) and the review. Proposed remedies have not been implemented by documentation work.
+
 ## Platform
 
 - Which Wallpaper Engine APIs should handle properties, visibility, pause state, audio, and performance signals?
@@ -20,7 +38,7 @@ Phase 0–1 detects `EXT_color_buffer_float` / `EXT_color_buffer_half_float` at 
 - Which settings should reduce first under frame-time pressure?
 - How should update rate and display frame rate be separated?
 
-Phase 1 uses a fixed budget (see `src/quality/budgets.ts`). Adaptive quality is Phase 4.
+The legacy path uses a fixed budget (see `src/quality/budgets.ts`). The opt-in path has an experimental controller; complete multi-instance budgets and named-device validation remain open as tracked in [TWO_LIQUID.md](TWO_LIQUID.md).
 
 ## Visual state
 
@@ -46,4 +64,4 @@ Resolved by [DEC-003](DECISIONS.md#dec-003--typescript-vite-webgl2-and-glsl):
 - What reproducible packaging process best maps source releases to Workshop releases?
 - Which assets, licenses, and attribution records are required before publishing?
 
-Until Phase 4, Wallpaper Engine testing means importing `dist/play.html` from a Vite production build, never the Git working tree. `dist/index.html` is the public landing page. Git/Yarn source install of `<FluidField />` is [DEC-008](DECISIONS.md#dec-008--react-fluidfield-embed); npm registry publish and Workshop packaging remain open.
+Until Phase 4, Wallpaper Engine testing means importing `dist/play.html` from a Vite production build, never the Git working tree. `dist/index.html` is the public landing page. Git/Yarn source install of `<FluidField />` is [DEC-008](DECISIONS.md#dec-008--react-fluidfield-embed); npm registry publish and Workshop packaging remain open. Browser audio uses Web Audio + mic/tab capture ([DEC-009](DECISIONS.md#dec-009--optional-youtube-music-and-web-audio-drivers)); Wallpaper Engine audio listeners stay open.

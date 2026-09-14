@@ -13,6 +13,7 @@ uniform float uBroad;
 uniform float uMedium;
 uniform float uFine;
 uniform float uInject;
+uniform float uDt;
 uniform int uNoiseType;
 uniform int uEmitterCount;
 uniform int uEmitterKind[8];
@@ -61,12 +62,13 @@ void main() {
       float rate = max(uEmitterRate[i], 0.0);
       if (kind == 0) {
         float mask = mix(t, 1.0 - t, clamp(uEmitterNoiseOffset[i], 0.0, 1.0));
-        lerpChannel(conc, mat, mask, rate * uInject);
+        float approach = 1.0 - exp(-rate * uInject * max(uDt, 0.0));
+        lerpChannel(conc, mat, mask, approach);
       } else {
         vec2 p = vUv - uEmitterUv[i];
         p.x *= uAspect;
         float splat = exp(-dot(p, p) / max(uEmitterRadius[i], 1e-6));
-        addChannel(conc, mat, splat * rate);
+        addChannel(conc, mat, splat * rate * uInject * max(uDt, 0.0));
       }
     }
   }

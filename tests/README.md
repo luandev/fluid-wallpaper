@@ -2,7 +2,9 @@
 
 ## Purpose
 
-Lock **deterministic CPU** behavior: config sanitize, colors, drivers (including emitter `scale`), presets, panel layout math, format selection, UI helpers (range step, UV mapping, graph connect, shortcuts), and `FluidField` option/config merge. GPU frames and React renders are not asserted here.
+`liquid.test.ts` covers versioned scene boundaries, stable carriers, optical dilution/equal depth, conservative resampling, donor-rate positivity and scheduling/hysteresis. It does not execute shaders. The separately hosted `/diagnostics.html` fixture and GPU/device evidence are documented in [TWO_LIQUID.md](../docs/TWO_LIQUID.md).
+
+Lock **deterministic CPU** behavior: config sanitize, colors, drivers (including emitter `scale` and audio frames), YouTube ids, log-spectrum math, presets, panel layout math, format selection, UI helpers (range step, UV mapping, graph connect, shortcuts), and `FluidField` option/config merge. GPU frames and React renders are not asserted here.
 
 ## Architecture overview
 
@@ -35,4 +37,5 @@ flowchart LR
 - `field-help.test.ts` — every `controlSchema` row has help
 - `ui-range.test.ts` / `ui-uv.test.ts` / `ui-graph.test.ts` / `ui-shortcuts.test.ts` / `ui-duplicate.test.ts` — dashboard helpers
 - `react-field.test.ts` — `FluidField` flag/config merge
+- `youtube-id.test.ts` / `audio-math.test.ts` — URL parse, log bands, pulse, audio drivers
 - `ensure-yarn.test.ts` — package-manager guard

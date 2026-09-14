@@ -13,6 +13,7 @@ import { MaterialsTab } from "./tabs/MaterialsTab";
 import { PresetsTab } from "./tabs/PresetsTab";
 import { SceneTab } from "./tabs/SceneTab";
 import { WindTab } from "./tabs/WindTab";
+import { YouTubePlayer } from "./YouTubePlayer";
 import type { PatchFrom } from "./types";
 import "./dashboard.css";
 
@@ -192,6 +193,7 @@ export function Dashboard({ engine, canvas, persist = true }: DashboardProps): R
           ) : null}
           {tab === "Drivers" ? (
             <DriversTab
+              engine={engine}
               config={config}
               live={live}
               elapsed={elapsed}
@@ -231,6 +233,7 @@ export function Dashboard({ engine, canvas, persist = true }: DashboardProps): R
       >
         Panel
       </button>
+      <YouTubePlayer url={config.youtubeUrl} />
       <SpatialOverlay
         canvas={view}
         active={spatialKind === "emitters"}

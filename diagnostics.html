@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Liquid GPU diagnostics</title></head>
+<body style="font:16px system-ui;background:#202024;color:#eee;margin:1rem"><h1>Liquid GPU diagnostics</h1>
+<p>Deterministic GPU transport and static-drop probes. Results describe this browser only. A passing probe is not mobile or full solver acceptance.</p>
+<p><a href="./liquid.html" style="color:#9cf">Two-liquid studio</a></p>
+<label>Grid <select id="grid"><option>32</option><option selected>64</option><option>128</option></select></label>
+<button id="transport">60 s reversing flow</button><button id="static">1 s static drop</button><button id="resize">Conservative resize</button><button id="stop">Stop</button>
+<canvas id="fixture" width="512" height="512" style="display:block;width:min(90vw,512px);height:auto;margin-top:1rem"></canvas>
+<pre id="result" style="white-space:pre-wrap"></pre><script type="module" src="./src/app/liquidDiagnostics.ts"></script></body></html>

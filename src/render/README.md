@@ -2,6 +2,8 @@
 
 ## Purpose
 
+The opt-in `liquidDisplay.ts` renders unnormalized pigment absorption against an explicit substrate, with independently enabled artistic relief/gloss/detail. `absorption.ts` supplies CPU optical reference math. Its opaque, linear-light contract and unfinished calibration are in [TWO_LIQUID.md](../../docs/TWO_LIQUID.md). Legacy display behavior below is unchanged.
+
 Turn packed **concentrations** into a displayed look: albedo mix, cheap 2.5D lighting, glow, sheen, roughness, metal. This folder does not advect fields.
 
 ## Architecture overview
@@ -17,7 +19,7 @@ flowchart LR
   blit --> pass
 ```
 
-`Engine` calls `blitDye` after `solver.step`. Live material colors may tween; concentrations still come from the dye target. Manual bilinear is a capability fallback, not a look choice.
+`Engine` calls `blitDye` after `solver.step`. Live material colors may tween; concentrations still come from the dye target. Manual bilinear is a capability fallback, not a look choice. `uVideoReveal` writes canvas alpha so a music/video layer can show through empty dye; default 0 is opaque.
 
 ## Paradigms
 

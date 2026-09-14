@@ -35,7 +35,9 @@ export function detectCaps(gl: WebGL2RenderingContext): GpuCaps {
     colorBufferFloat: gl.getExtension("EXT_color_buffer_float") !== null,
     colorBufferHalfFloat: gl.getExtension("EXT_color_buffer_half_float") !== null,
     textureFloatLinear: gl.getExtension("OES_texture_float_linear") !== null,
-    textureHalfFloatLinear: gl.getExtension("OES_texture_half_float_linear") !== null,
+    // RGBA16F filtering is part of the WebGL2 format path. The extension
+    // object is a WebGL1 capability check and is not required here.
+    textureHalfFloatLinear: true,
   };
 }
 

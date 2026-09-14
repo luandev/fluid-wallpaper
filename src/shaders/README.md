@@ -2,6 +2,8 @@
 
 ## Purpose
 
+`liquid.frag.glsl` and `liquidDisplay.frag.glsl` are the opt-in original two-liquid passes, imported directly by their dedicated solver/display owners. The first stores transport quantities; the second computes absorption and artistic surface lighting. Their field locations, units, timestep assumptions, residuals and limitations are owned by [TWO_LIQUID.md](../../docs/TWO_LIQUID.md). They are separate from the legacy catalog below.
+
 GLSL ES 3.00 sources for simulation passes and the display blit. Compiled through `?raw` imports and assembled in `sources.ts`.
 
 ## Architecture overview
@@ -38,4 +40,4 @@ Simulation fragments read/write float (or half-float) targets. `display.frag.gls
 - `fullscreen.vert.glsl`
 - Stam set: `advection`, `jacobi`, `divergence`, `gradientSubtract`, `curl`, `vorticity`, `splat`, `clear`
 - Composer / inject: `curlNoiseForce`, `perlinDye`, `marbleSeed`, `marbleVelocity`, `windForce`, `viscosityWeight`
-- `display.frag.glsl` — look
+- `display.frag.glsl` — look + optional video-reveal alpha

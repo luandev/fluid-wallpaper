@@ -13,7 +13,7 @@ export const EMITTER_FIELD_HELP = {
   enabled: "When off, this emitter injects no dye.",
   kind: "Field is noise, point is a fixed UV, pointer follows the cursor.",
   material: "Which material channel this emitter writes.",
-  rate: "How strongly dye is injected each step.",
+  rate: "Dye dose per simulation second. The result is independent of display frame rate.",
   radius: "Splat size in field units.",
   uvX: "Drag the marker on the field, or type a value.",
   uvY: "Drag the marker on the field, or type a value.",
@@ -32,11 +32,12 @@ export const WIND_FIELD_HELP = {
 
 export const VALUE_EMITTER_FIELD_HELP = {
   enabled: "Disabled emitters hold their From value and drive nothing.",
-  kind: "Wave shape. Mic, camera, and tilt stay at 0.5 and request no permissions.",
-  rate: "Cycles per second of the wave.",
-  phase: "Offset along the wave, 0–1 of a cycle.",
+  kind: "Wave shape. Audio pulse is a beat kick; audio spectrum is a log FFT band. Camera and tilt stay at 0.5.",
+  rate: "Cycles per second of the wave. Unused for audio kinds.",
+  phase: "Offset along the wave, 0–1 of a cycle. Unused for audio kinds.",
   from: "Low end of the A↔B tween (scale 1).",
   to: "High end of the A↔B tween (scale 1).",
   scale: "Amplitude around the From/To midpoint. 1 is a full A↔B tween; 0 sits in the middle.",
+  band: "Log-frequency pick, 0 bass through 1 treble, like a Winamp bar.",
   amount: "How far this binding pulls the target from its base toward the wave.",
 } as const;

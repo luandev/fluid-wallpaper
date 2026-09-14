@@ -2,6 +2,8 @@
 
 ## Purpose
 
+`LiquidTuner.tsx` mounts the separate `/liquid.html` studio through the native element's scene API. It edits authored physical/optical controls without importing WebGL. Legacy dashboard materials/audio remain on `/play.html`. The experiment's limitations are in [TWO_LIQUID.md](../../docs/TWO_LIQUID.md).
+
 The in-page **product-shell overlay**: tabbed dashboard, crimson glass styling, on-canvas UV markers, a driver node graph, and JSON preset file pickers. Artists edit **base** looks here. The canvas artwork must still run with the panel closed.
 
 ## Architecture overview
@@ -52,7 +54,7 @@ flowchart TB
 - No MUI/shadcn, React Flow, or other component libraries.
 - Persist on user edits when `persist` is true (tuner default), never on the rAF live poll.
 - Import presets through `parsePresetJson` → `mergeImportedPresets` → `savePresets`. Fail closed (`console.warn`); do not throw into the engine.
-- Do not call `getUserMedia`. Stub driver kinds stay labeled “later”.
+- Media capture only through `engine.setAudioSource` after the Drivers Listen control. Camera/tilt stay labeled “later”.
 - Do not pick GPU pixels for placement; map the canvas `getBoundingClientRect()` through `clientToUv`.
 - Keep Vite-relative assets; this overlay is part of `dist/`.
 - Do not mount this overlay from the landing page.
@@ -60,11 +62,12 @@ flowchart TB
 ## Key files
 
 - `Dashboard.tsx` — shell, tabs, commit, H/F/Esc, spatial wiring; `canvas` + `persist` props for embeds
-- `tabs/` — Scene, Materials, Emitters, Wind, Drivers, Presets
+- `YouTubePlayer.tsx` — compact music iframe from `youtubeUrl`
+- [tabs/README.md](tabs/README.md) — Scene, Materials, Emitters, Wind, Drivers, Presets
 - `ItemCard.tsx` / `duplicateItem.ts` — collapse + duplicate for list cards
 - `rows.tsx` / `rangeMath.ts` / `format.ts` — slider + number field, Shift fine step, stepper arrows, wheel nudge, help
-- `graph/` — SVG node graph over `valueBindings`
-- `spatial/` — UV markers for point emitters and wind stations
+- [graph/README.md](graph/README.md) — SVG node graph over `valueBindings`
+- [spatial/README.md](spatial/README.md) — UV markers, coordinates, and current placement limitations
 - `shortcuts.ts` — H/P/F/Esc mapping (shared with perf HUD)
 - `dashboard.css` — centered ~960px glass panel
 - `presetFile.ts` — download JSON

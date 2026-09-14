@@ -10,7 +10,9 @@ import { applyDrivers, copyConfigOnto } from "./drivers";
 import { tweenMaterials } from "./colorTween";
 import { dyeLooksAllBlack, dyeStatsFromRgba8, type DyeStats } from "./dyeMix";
 import { wiggleMotion } from "./wiggle";
-import { PointerInput } from "../inputs/pointer";
+import { PointerInput, type PointerSplat } from "../inputs/pointer";
+import { AudioAnalyser, type AudioSource, type AudioStatus } from "../inputs/audioAnalyser";
+import type { AudioFrame } from "../inputs/audioMath";
 import { BrowserPlatform } from "../platform/browser";
 import { blitDye } from "../render/display";
 import {
@@ -31,9 +33,12 @@ import { FluidSolver } from "../sim/solver";
 import type { PerfSample } from "./perfHud";
 
 export class Engine {
+  private static readonly FIXED_STEP = 1 / 60;
+  private static readonly MAX_SIM_STEPS = 4;
   private readonly gl: WebGL2RenderingContext;
   private readonly platform: BrowserPlatform;
   private readonly pointer: PointerInput;
+  private readonly audio = new AudioAnalyser();
   private readonly vao: WebGLVertexArrayObject;
   private readonly passes: ShaderPasses;
   private readonly format: SimFormat;
@@ -46,6 +51,9 @@ export class Engine {
   private disposed = false;
   private frameMs = 16.67;
   private fpsEma = 60;
+  private paused = false;
+  private manualSplat: PointerSplat | null = null;
+  private simulationAccumulator = 0;
 
   constructor(canvas: HTMLCanvasElement, config: FluidConfig = defaultConfig) {
     this.baseConfig = clampConfig(cloneConfig(config));
@@ -56,7 +64,7 @@ export class Engine {
     this.platform = new BrowserPlatform(canvas, {
       onResize: () => this.handleResize(),
       onVisibility: (visible) => {
-        if (visible) {
+        if (visible && !this.paused) {
           this.lastMs = 0;
           this.loop();
         } else {
@@ -77,7 +85,33 @@ export class Engine {
   }
 
   start(): void {
+    this.paused = false;
     this.loop();
+  }
+
+  pause(): void {
+    this.paused = true;
+    this.stopLoop();
+  }
+
+  resume(): void {
+    if (this.disposed) {
+      return;
+    }
+    this.paused = false;
+    this.lastMs = 0;
+    this.simulationAccumulator = 0;
+    this.loop();
+  }
+
+  inject(splat: PointerSplat): void {
+    if (this.disposed) {
+      return;
+    }
+    this.manualSplat = {
+      uv: [splat.uv[0], splat.uv[1]],
+      delta: [splat.delta[0], splat.delta[1]],
+    };
   }
 
   getConfig(): FluidConfig {
@@ -90,6 +124,22 @@ export class Engine {
 
   getElapsed(): number {
     return this.elapsed;
+  }
+
+  getAudioFrame(): AudioFrame {
+    return this.audio.getFrame();
+  }
+
+  getAudioSource(): AudioSource {
+    return this.audio.getSource();
+  }
+
+  getAudioStatus(): AudioStatus {
+    return this.audio.getStatus();
+  }
+
+  setAudioSource(source: AudioSource): Promise<AudioStatus> {
+    return this.audio.setSource(source);
   }
 
   getPerfSample(): PerfSample {
@@ -132,11 +182,12 @@ export class Engine {
     deletePasses(this.gl, this.passes);
     this.gl.deleteVertexArray(this.vao);
     this.pointer.dispose();
+    this.audio.dispose();
     this.platform.dispose();
   }
 
   private syncLive(elapsed: number): void {
-    copyConfigOnto(this.liveConfig, applyDrivers(this.baseConfig, elapsed));
+    copyConfigOnto(this.liveConfig, applyDrivers(this.baseConfig, elapsed, this.audio.getFrame()));
   }
 
   private chooseFormat(): SimFormat {
@@ -249,22 +300,40 @@ export class Engine {
 
   private readonly tick = (now: number): void => {
     this.raf = 0;
-    if (this.disposed || !this.platform.visible) {
+    if (this.disposed || this.paused || !this.platform.visible) {
       return;
     }
-    const dt = this.lastMs === 0 ? 1 / 60 : Math.min(this.baseConfig.maxDt, (now - this.lastMs) / 1000);
+    const frameDt = this.lastMs === 0 ? Engine.FIXED_STEP : Math.min(this.baseConfig.maxDt, (now - this.lastMs) / 1000);
     this.frameMs = this.lastMs === 0 ? 16.67 : Math.max(0.01, now - this.lastMs);
     const instantFps = 1000 / this.frameMs;
     this.fpsEma = this.lastMs === 0 ? instantFps : this.fpsEma * 0.9 + instantFps * 0.1;
     this.lastMs = now;
-    this.syncLive(this.elapsed);
-    const motion = wiggleMotion(this.liveConfig, this.elapsed);
-    this.elapsed += dt * motion.noiseTime;
-    const live = tweenMaterials(this.liveConfig, this.elapsed);
+    this.audio.sample(frameDt);
+    this.simulationAccumulator += frameDt;
 
     this.gl.bindVertexArray(this.vao);
-    this.solver.setLiveMotion(motion);
-    this.solver.step(dt, this.elapsed, this.pointer.consume());
+    let steps = 0;
+    while (
+      this.simulationAccumulator >= Engine.FIXED_STEP &&
+      steps < Engine.MAX_SIM_STEPS
+    ) {
+      this.syncLive(this.elapsed);
+      const motion = wiggleMotion(this.liveConfig, this.elapsed);
+      this.elapsed += Engine.FIXED_STEP * motion.noiseTime;
+      this.solver.setLiveMotion(motion);
+      const splat = steps === 0 ? this.manualSplat ?? this.pointer.consume() : null;
+      this.solver.step(Engine.FIXED_STEP, this.elapsed, splat);
+      this.simulationAccumulator -= Engine.FIXED_STEP;
+      steps += 1;
+    }
+    if (steps > 0) {
+      this.manualSplat = null;
+    }
+    if (this.simulationAccumulator > Engine.FIXED_STEP * Engine.MAX_SIM_STEPS) {
+      this.simulationAccumulator = Engine.FIXED_STEP * Engine.MAX_SIM_STEPS;
+    }
+    this.syncLive(this.elapsed);
+    const live = tweenMaterials(this.liveConfig, this.elapsed);
     const size = this.platform.getSize();
     blitDye(
       this.gl,

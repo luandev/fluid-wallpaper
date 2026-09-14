@@ -20,7 +20,7 @@ Artist dashboard, perf HUD, spatial UV markers.
 - Live: [play.html](https://luandev.github.io/fluid-wallpaper/play.html)
 - Boot: `src/main.ts` → Engine + `mountDashboard` + `mountPerfHud`
 
-**H** panel, **P** perf, **F** canvas fullscreen, **Esc** exit. Base config persists in `localStorage` (`fluid-wallpaper.config.v9`).
+**H** panel, **P** perf, **F** canvas fullscreen, **Esc** exit. Base config persists in `localStorage` (`fluid-wallpaper.config.v9`). Default look includes a compact YouTube music player ([this track](https://www.youtube.com/watch?v=wKEeVPfK8nw)) and example audio drivers. Play the track, then Drivers → Listen → **Tab audio** (share this tab) or a mic loopback. The iframe cannot feed the analyser. Landing never mounts the player.
 
 ## React embed demo
 
@@ -30,7 +30,7 @@ Same `FluidField` host the package exports, with a switch for canvas-only vs das
 - Live: [embed.html](https://luandev.github.io/fluid-wallpaper/embed.html)
 - Boot: `src/react/embed.tsx`
 
-This page uses `persist={false}` so it does not share the tuner store.
+This page uses `persist={false}` so base configuration does not share the tuner store. Dashboard preset operations, panel positions, and perf preferences still use shared storage. Full instance isolation remains a release follow-up.
 
 ## React component
 
@@ -90,6 +90,8 @@ Give the host a size. `FluidField` fills 100% of its parent (`min-height: 240px`
 
 `config` is applied **once** on mount. Later edits go through `engine.applyConfig` or the dashboard.
 
+Current limitation: resolution/reseed changes also need `engine.reseed()`; `applyConfig` does not itself rebuild every GPU resource. Source-export installation and a future built web component are different distribution paths. See [engineering notes](ENGINEERING_GUIDE.md#build-embedding-and-release-know-how) for the current package-allowlist finding and validation still needed; no native custom element has been published by this work.
+
 ## Vanilla Engine
 
 No React:
@@ -105,6 +107,22 @@ if (!(canvas instanceof HTMLCanvasElement)) {
 const engine = new Engine(canvas, sanitizeConfig(defaultConfig));
 engine.start();
 ```
+
+## Native element (adoption slice)
+
+The repository now includes an explicit native element host around the current Engine. It is source-exported and private; it is not yet the final published two-phase liquid package.
+
+```ts
+import { defineFluidInk } from "fluid-wallpaper/element";
+
+defineFluidInk();
+```
+
+```html
+<fluid-ink quality="eco" style="display:block;height:320px"></fluid-ink>
+```
+
+The element exposes `play()`, `pause()`, `reset()`, `inject({ position, velocity })`, `setConfig(patch)`, and `getConfig()`. It emits `ready`, `configchange`, `qualitychange`, and `error`. Persistence is disabled. On the legacy path, `quality` changes resolution/iteration settings and may rebuild the solver. Assign a versioned `scene` to opt into the experimental two-liquid path; `updateScene` preserves field state, `scenechange` observes edits, and `qualityStatus` reports effective runtime choices. See [two-liquid usage, semantics and limits](TWO_LIQUID.md). A compiled no-`?raw` package remains a separate release gate.
 
 This repo’s landing and tuner use that path (`src/landing/main.ts`, `src/main.ts`).
 

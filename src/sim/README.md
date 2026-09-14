@@ -2,6 +2,8 @@
 
 ## Purpose
 
+The opt-in `liquidSolver.ts` owns eight RGBA32F fields for the experimental MAC/two-phase path. `liquidNumerics.ts` is its CPU flux/resize reference. Pigment slots follow carrier definitions, never display RGB. Residual readbacks and current limits are documented in [TWO_LIQUID.md](../../docs/TWO_LIQUID.md); do not infer mobile readiness from this prototype.
+
 Run the GPU fluid **transport**: velocity, pressure-like projection, and packed material **concentrations**. This folder decides how fields move, not how they look on screen.
 
 ## Architecture overview

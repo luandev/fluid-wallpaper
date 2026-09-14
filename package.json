@@ -12,7 +12,8 @@
   "exports": {
     ".": "./src/react/index.ts",
     "./engine": "./src/app/engine.ts",
-    "./config": "./src/app/config.ts"
+    "./config": "./src/app/config.ts",
+    "./element": "./src/element/index.ts"
   },
   "files": [
     "src",

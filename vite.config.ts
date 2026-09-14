@@ -18,6 +18,8 @@ export default defineConfig({
         index: resolve(root, "index.html"),
         play: resolve(root, "play.html"),
         embed: resolve(root, "embed.html"),
+        liquid: resolve(root, "liquid.html"),
+        diagnostics: resolve(root, "diagnostics.html"),
       },
     },
   },

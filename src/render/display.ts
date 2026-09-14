@@ -83,5 +83,6 @@ export function blitDye(
   }
   set1f(gl, pass, "uManualBilinear", manualBilinear ? 1 : 0);
   set1f(gl, pass, "uContrast", config.contrast);
+  set1f(gl, pass, "uVideoReveal", config.videoReveal);
   gl.drawArrays(gl.TRIANGLES, 0, 3);
 }

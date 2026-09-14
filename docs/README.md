@@ -2,6 +2,8 @@
 
 ## Purpose
 
+[TWO_LIQUID.md](TWO_LIQUID.md) owns the experimental scene contract, numerical assumptions, reference provenance, measured GPU results and unfinished acceptance gates.
+
 Hold **product facts, architecture, roadmap, and decisions** so the code and agents share one direction. Implementation lives in `src/`. This folder does not run the wallpaper.
 
 ## Architecture overview
@@ -20,15 +22,18 @@ flowchart TD
 ```
 
 - [PROJECT.md](PROJECT.md) — vision and first-release bar
+- [CONTEXT_MAP.md](CONTEXT_MAP.md) — folder-by-folder agent guidance and document ownership
+- [ENGINEERING_GUIDE.md](ENGINEERING_GUIDE.md) — runtime semantics, change recipes, persistence, validation, and known findings
 - [ARCHITECTURE.md](ARCHITECTURE.md) — system map and boundaries
 - [USAGE.md](USAGE.md) — landing, tuner, React `FluidField`, vanilla Engine
+- [REVIEW_INK_COMPONENT.md](REVIEW_INK_COMPONENT.md) — source critique and proposed ink, mobile, and web component direction (not accepted decisions)
 - [DECISIONS.md](DECISIONS.md) — accepted tradeoffs with evidence
 - [Landing README](../src/landing/README.md) — public showcase page
 - [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md) — unresolved; do not implement as if decided
 - [ROADMAP.md](ROADMAP.md) — phase outcomes
 - [AI_ASSISTED_DEVELOPMENT.md](AI_ASSISTED_DEVELOPMENT.md) — how agents should read `AGENTS.md`
 
-Folder READMEs under `src/` are local architecture; they must not contradict this set.
+Folder READMEs are local architecture; scoped AGENTS.md files guide edits. They must remain consistent with this set. See [local documentation guidance](AGENTS.md).
 
 ## Paradigms
 
@@ -40,6 +45,7 @@ Folder READMEs under `src/` are local architecture; they must not contradict thi
 
 - Do not silently settle an open question in a README or a PR description — add a DEC or leave it open.
 - Update this folder when scope, interfaces, or assumptions change (`AGENTS.md`).
+- DEC-010 records ink/component product priority only; the review's optics, API, workspace, and quality suggestions remain proposed.
 - Do not commit secrets. Do not treat agent instructions as a security boundary.
 - Keep Wallpaper Engine packaging guidance: import `dist/play.html` for the tuner, never the Git tree, until Phase 4 says otherwise. `dist/index.html` is the GitHub Pages landing; `dist/embed.html` is the React usage demo.
 

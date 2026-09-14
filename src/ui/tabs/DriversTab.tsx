@@ -1,6 +1,7 @@
-import { useMemo, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import {
   MAX_VALUE_EMITTERS,
+  VALUE_EMITTER_AUDIO_KINDS,
   VALUE_EMITTER_KINDS,
   createValueEmitter,
   type FluidConfig,
@@ -8,7 +9,9 @@ import {
   type ValueEmitterKind,
 } from "../../app/config";
 import { VALUE_EMITTER_FIELD_HELP } from "../../app/fieldHelp";
+import type { Engine } from "../../app/engine";
 import { evaluateEmitter, getPath, wave01 } from "../../app/drivers";
+import type { AudioSource } from "../../inputs/audioAnalyser";
 import { connectPorts, latestBindings, removeBinding } from "../graph/connect";
 import { DriverGraph } from "../graph/DriverGraph";
 import { duplicateById } from "../duplicateItem";
@@ -18,7 +21,18 @@ import { RangeRow, SelectRow, ToggleRow } from "../rows";
 import type { PatchFrom } from "../types";
 import { useCollapsedIds } from "../useCollapsedIds";
 
+const AUDIO_SOURCE_OPTIONS: ReadonlyArray<{ value: AudioSource; label: string }> = [
+  { value: "off", label: "Off" },
+  { value: "microphone", label: "Microphone" },
+  { value: "tab", label: "Tab audio" },
+];
+
+function isAudioKind(kind: ValueEmitterKind): boolean {
+  return (VALUE_EMITTER_AUDIO_KINDS as readonly string[]).includes(kind);
+}
+
 export function DriversTab({
+  engine,
   config,
   live,
   elapsed,
@@ -28,6 +42,7 @@ export function DriversTab({
   onSelectBinding,
   patchFrom,
 }: {
+  engine: Engine;
   config: FluidConfig;
   live: FluidConfig;
   elapsed: number;
@@ -38,6 +53,8 @@ export function DriversTab({
   patchFrom: PatchFrom;
 }): ReactNode {
   const collapsed = useCollapsedIds();
+  const [audioSource, setAudioSource] = useState<AudioSource>(() => engine.getAudioSource());
+  const [audioStatus, setAudioStatus] = useState(() => engine.getAudioStatus());
   const emitter =
     config.valueEmitters.find((item) => item.id === selectedEmitterId) ?? config.valueEmitters[0] ?? null;
   const connected = useMemo(
@@ -47,6 +64,25 @@ export function DriversTab({
 
   return (
     <div className="dash__drivers">
+      <section className="dash__group">
+        <h3 className="dash__group-title">Listen</h3>
+        <p className="dash__hint">
+          Arm analysis after a click. Tab audio (Chrome share this tab) is how YouTube playback can drive the field.
+        </p>
+        <SelectRow
+          label="Source"
+          help="Session only. Not stored in the look. Denied or unsupported sources sample 0."
+          value={audioSource}
+          options={AUDIO_SOURCE_OPTIONS}
+          onChange={(next) => {
+            void engine.setAudioSource(next as AudioSource).then((status) => {
+              setAudioSource(engine.getAudioSource());
+              setAudioStatus(status);
+            });
+          }}
+        />
+        <p className="dash__hint">Status: {audioStatus}</p>
+      </section>
       <section className="dash__group dash__drivers-graph">
         <h3 className="dash__group-title">Graph</h3>
         <p className="dash__hint">Drag from an emitter port to a target. Click a wire, then Delete to drop it.</p>
@@ -90,9 +126,12 @@ export function DriversTab({
             Add
           </button>
         </div>
-        <p className="dash__hint">A sine wave is an A↔B tween. Mic, camera, and tilt sample 0.5 and request no permissions.</p>
+        <p className="dash__hint">
+          Waves tween A↔B. Audio pulse is a beat kick; audio spectrum is a log FFT bar. Camera and tilt stay at 0.5.
+        </p>
         {emitter ? (
           <EmitterInspector
+            engine={engine}
             emitter={emitter}
             live={live}
             elapsed={elapsed}
@@ -150,6 +189,7 @@ export function DriversTab({
 }
 
 function EmitterInspector({
+  engine,
   emitter,
   live,
   elapsed,
@@ -164,6 +204,7 @@ function EmitterInspector({
   onAmount,
   onDropBinding,
 }: {
+  engine: Engine;
   emitter: ValueEmitter;
   live: FluidConfig;
   elapsed: number;
@@ -178,8 +219,11 @@ function EmitterInspector({
   onAmount: (id: string, amount: number) => void;
   onDropBinding: (id: string) => void;
 }): ReactNode {
-  const sample = evaluateEmitter(emitter, elapsed);
-  const preview = wave01(emitter.kind, elapsed * Math.max(0, emitter.rate) + emitter.phase);
+  const sample = evaluateEmitter(emitter, elapsed, engine.getAudioFrame());
+  const span = Math.max(1e-6, Math.abs(emitter.to - emitter.from));
+  const preview = isAudioKind(emitter.kind)
+    ? Math.min(1, Math.max(0, (sample - Math.min(emitter.from, emitter.to)) / span))
+    : wave01(emitter.kind, elapsed * Math.max(0, emitter.rate) + emitter.phase);
   return (
     <ItemCard
       collapsed={collapsed}
@@ -218,30 +262,44 @@ function EmitterInspector({
         options={VALUE_EMITTER_KINDS.map((kind) => ({ value: kind, label: kindLabel(kind) }))}
         onChange={(kind) => onPatch({ kind: kind as ValueEmitterKind })}
       />
-      <RangeRow
-        label="Rate (Hz)"
-        help={VALUE_EMITTER_FIELD_HELP.rate}
-        value={emitter.rate}
-        min={0}
-        max={8}
-        step={0.01}
-        onChange={(rate) => onPatch({ rate })}
-      />
-      <RangeRow
-        label="Phase"
-        help={VALUE_EMITTER_FIELD_HELP.phase}
-        value={emitter.phase}
-        min={0}
-        max={1}
-        step={0.01}
-        onChange={(phase) => onPatch({ phase })}
-      />
+      {isAudioKind(emitter.kind) ? (
+        <RangeRow
+          label="Band"
+          help={VALUE_EMITTER_FIELD_HELP.band}
+          value={emitter.band}
+          min={0}
+          max={1}
+          step={0.01}
+          onChange={(band) => onPatch({ band })}
+        />
+      ) : (
+        <>
+          <RangeRow
+            label="Rate (Hz)"
+            help={VALUE_EMITTER_FIELD_HELP.rate}
+            value={emitter.rate}
+            min={0}
+            max={8}
+            step={0.01}
+            onChange={(rate) => onPatch({ rate })}
+          />
+          <RangeRow
+            label="Phase"
+            help={VALUE_EMITTER_FIELD_HELP.phase}
+            value={emitter.phase}
+            min={0}
+            max={1}
+            step={0.01}
+            onChange={(phase) => onPatch({ phase })}
+          />
+        </>
+      )}
       <RangeRow
         label="From"
         help={VALUE_EMITTER_FIELD_HELP.from}
         value={emitter.from}
-        min={-40}
-        max={40}
+        min={-500}
+        max={8000}
         step={0.01}
         onChange={(from) => onPatch({ from })}
       />
@@ -249,8 +307,8 @@ function EmitterInspector({
         label="To"
         help={VALUE_EMITTER_FIELD_HELP.to}
         value={emitter.to}
-        min={-40}
-        max={40}
+        min={-500}
+        max={8000}
         step={0.01}
         onChange={(to) => onPatch({ to })}
       />

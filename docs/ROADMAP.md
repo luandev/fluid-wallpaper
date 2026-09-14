@@ -2,6 +2,12 @@
 
 The phases describe outcomes. They do not prescribe exact tools or implementation details.
 
+## Current priority across phases
+
+[DEC-010](DECISIONS.md#dec-010--ink-first-web-component-product-direction) prioritizes ink mixing, useful controls, mobile browser performance, and a web component release. The [review's delivery stages](REVIEW_INK_COMPONENT.md#delivery-sequence-and-acceptance-gates) propose correctness fixes, one ink scene, a portable runtime, studio improvements, and package validation. Their APIs, optical techniques, and quality budgets remain open; they are not completed milestones.
+
+The numbered phases below preserve the original wallpaper roadmap. Mobile browser performance now belongs to productization; Phase 6's mobile live-wallpaper target means native platform integration.
+
 ## Phase 0 — Foundation
 
 - Confirm repository and documentation conventions
@@ -52,7 +58,7 @@ Status: in progress for the in-page product shell. A tabbed React dashboard edit
 - Define privacy-conscious optional data adapters
 - Live wind / weather files (METAR, GRIB, APIs) would plug into the existing station list; the sim does not fetch them yet
 
-Status: driver **kinds** `mic`, `camera`, and `tilt` exist as stubs (sample `0.5`, no permissions). Real getUserMedia / orientation adapters stay here.
+Status: **audio pulse / log spectrum** are live, user-armed drivers ([DEC-009](DECISIONS.md#dec-009--optional-youtube-music-and-web-audio-drivers)). Camera and tilt stay stubs (sample `0.5`, no permissions). Wallpaper Engine audio listeners stay open.
 
 ## Phase 6 — Expansion
 

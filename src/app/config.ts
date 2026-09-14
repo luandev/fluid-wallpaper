@@ -1,4 +1,5 @@
 import { CHARCOAL } from "./colors";
+import { DEFAULT_YOUTUBE_URL, sanitizeYoutubeUrl } from "../inputs/youtubeId";
 
 export const NOISE_TYPES = ["perlin", "simplex", "value", "worley"] as const;
 export type NoiseType = (typeof NOISE_TYPES)[number];
@@ -19,13 +20,15 @@ export const VALUE_EMITTER_KINDS = [
   "saw",
   "square",
   "noise",
-  "mic",
+  "audioPulse",
+  "audioSpectrum",
   "camera",
   "tilt",
 ] as const;
 export type ValueEmitterKind = (typeof VALUE_EMITTER_KINDS)[number];
 export const VALUE_EMITTER_WAVE_KINDS = ["sine", "triangle", "saw", "square", "noise"] as const;
-export const VALUE_EMITTER_STUB_KINDS = ["mic", "camera", "tilt"] as const;
+export const VALUE_EMITTER_AUDIO_KINDS = ["audioPulse", "audioSpectrum"] as const;
+export const VALUE_EMITTER_STUB_KINDS = ["camera", "tilt"] as const;
 
 export const CRIMSON_MATERIAL_ID = "mat-crimson";
 export const CHARCOAL_MATERIAL_ID = "mat-charcoal";
@@ -45,6 +48,9 @@ export function sanitizeNoiseType(value: unknown): NoiseType {
 }
 
 export function sanitizeValueEmitterKind(value: unknown): ValueEmitterKind {
+  if (value === "mic") {
+    return "audioPulse";
+  }
   if (typeof value === "string" && (VALUE_EMITTER_KINDS as readonly string[]).includes(value)) {
     return value as ValueEmitterKind;
   }
@@ -114,6 +120,7 @@ export type ValueEmitter = {
   from: number;
   to: number;
   scale: number;
+  band: number;
 };
 
 export type ValueBinding = {
@@ -150,6 +157,8 @@ export type FluidConfig = {
   colorTweenSpeed: number;
   wiggleAmount: number;
   windStrength: number;
+  videoReveal: number;
+  youtubeUrl: string;
   materials: FluidMaterial[];
   emitters: FluidEmitter[];
   windStations: WindStation[];
@@ -321,6 +330,9 @@ export function defaultWindStations(): WindStation[] {
 }
 
 const DEFAULT_WAVE_ID = "wave-1";
+const DEFAULT_KICK_ID = "kick-1";
+const DEFAULT_BASS_ID = "bass-1";
+const DEFAULT_HIGHS_ID = "highs-1";
 
 export function defaultValueEmitters(): ValueEmitter[] {
   return [
@@ -334,6 +346,43 @@ export function defaultValueEmitters(): ValueEmitter[] {
       from: 0,
       to: 1,
       scale: 0.39,
+      band: 0.15,
+    },
+    {
+      id: DEFAULT_KICK_ID,
+      name: "Kick",
+      enabled: true,
+      kind: "audioPulse",
+      rate: 0,
+      phase: 0,
+      from: 4250,
+      to: 7200,
+      scale: 1,
+      band: 0.12,
+    },
+    {
+      id: DEFAULT_BASS_ID,
+      name: "Bass",
+      enabled: true,
+      kind: "audioSpectrum",
+      rate: 0,
+      phase: 0,
+      from: 0.25,
+      to: 0.45,
+      scale: 1,
+      band: 0.18,
+    },
+    {
+      id: DEFAULT_HIGHS_ID,
+      name: "Highs",
+      enabled: true,
+      kind: "audioSpectrum",
+      rate: 0,
+      phase: 0,
+      from: 0.17,
+      to: 0.85,
+      scale: 1,
+      band: 0.82,
     },
   ];
 }
@@ -345,6 +394,24 @@ export function defaultValueBindings(): ValueBinding[] {
       emitterId: DEFAULT_WAVE_ID,
       path: "noiseTime",
       amount: 0.87,
+    },
+    {
+      id: "bind-kick",
+      emitterId: DEFAULT_KICK_ID,
+      path: "splatForce",
+      amount: 0.85,
+    },
+    {
+      id: "bind-bass",
+      emitterId: DEFAULT_BASS_ID,
+      path: "dyeInject",
+      amount: 0.8,
+    },
+    {
+      id: "bind-highs",
+      emitterId: DEFAULT_HIGHS_ID,
+      path: `materials.${CRIMSON_MATERIAL_ID}.glow`,
+      amount: 0.75,
     },
   ];
 }
@@ -380,6 +447,8 @@ export const defaultConfig: FluidConfig = {
   colorTweenSpeed: 0.24,
   wiggleAmount: 0.28,
   windStrength: 47,
+  videoReveal: 0,
+  youtubeUrl: DEFAULT_YOUTUBE_URL,
   materials: defaultMaterials(),
   emitters: defaultEmitters(),
   windStations: defaultWindStations(),
@@ -585,7 +654,7 @@ export const controlSchema: ControlDef[] = [
     group: "Composer",
     kind: "range",
     min: 0,
-    max: 0.25,
+    max: 0.5,
     step: 0.005,
     help: "How much field emitters write per step.",
   },
@@ -639,6 +708,16 @@ export const controlSchema: ControlDef[] = [
     group: "Input",
     kind: "toggle",
     help: "When off, dragging the field does not inject velocity.",
+  },
+  {
+    key: "videoReveal",
+    label: "Video reveal",
+    group: "Input",
+    kind: "range",
+    min: 0,
+    max: 1,
+    step: 0.01,
+    help: "How much empty dye punches through to a video underlay. 0 keeps the field opaque.",
   },
 ];
 
@@ -1050,6 +1129,7 @@ const FALLBACK_VALUE_EMITTER: ValueEmitter = {
   from: 0,
   to: 1,
   scale: 1,
+  band: 0.15,
 };
 
 const FALLBACK_VALUE_BINDING: ValueBinding = {
@@ -1076,6 +1156,7 @@ export function sanitizeValueEmitter(raw: unknown, fallback: ValueEmitter, usedI
     from: clampNumber(input.from, fallback.from, -500, 500),
     to: clampNumber(input.to, fallback.to, -500, 500),
     scale: clampNumber(input.scale, fallback.scale, 0, 4),
+    band: clampNumber(input.band, fallback.band, 0, 1),
   };
 }
 
@@ -1175,6 +1256,7 @@ export function createValueBinding(config: FluidConfig, path: string): ValueBind
 export function clampConfig(config: FluidConfig): FluidConfig {
   const next = cloneConfig(config);
   next.noiseType = sanitizeNoiseType(next.noiseType);
+  next.youtubeUrl = sanitizeYoutubeUrl(next.youtubeUrl);
   for (const control of controlSchema) {
     if (control.kind !== "range" || control.min === undefined || control.max === undefined) {
       continue;
@@ -1222,6 +1304,7 @@ export function sanitizeConfig(raw: unknown): FluidConfig {
   }
   const input = raw as Record<string, unknown>;
   const next = cloneConfig(defaultConfig);
+  next.youtubeUrl = "";
   for (const key of Object.keys(defaultConfig) as (keyof FluidConfig)[]) {
     if (
       key === "materials" ||
@@ -1238,6 +1321,10 @@ export function sanitizeConfig(raw: unknown): FluidConfig {
     }
     if (key === "noiseType") {
       next.noiseType = sanitizeNoiseType(value);
+      continue;
+    }
+    if (key === "youtubeUrl") {
+      next.youtubeUrl = sanitizeYoutubeUrl(value);
       continue;
     }
     if (typeof defaultConfig[key] === "number" && typeof value === "number" && Number.isFinite(value)) {

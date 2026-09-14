@@ -6,7 +6,9 @@ A GPU-driven generative wallpaper that should feel fluid, material, intricate, a
 
 ## Current status
 
-Phase 0–1 baseline plus Phase 3 materials and a React product-shell dashboard: a browser-runnable WebGL2 fluid with packed material concentrations, multiple emitters, optional wind stations, and wave drivers for numeric knobs. Real mic/camera/tilt, adaptive quality, and Wallpaper Engine properties remain later.
+The current working tree contains a browser-runnable WebGL2 fluid with packed material concentrations, multiple emitters, wind stations, a React dashboard/embed, wave drivers, optional user-armed microphone/tab audio, and a native element. An opt-in [two-liquid prototype](docs/TWO_LIQUID.md) adds conservative transport, absorption and experimental adaptive scheduling. Camera/tilt remain stubs; mobile support, a compiled component release and Wallpaper Engine properties are not complete.
+
+The current product priority is believable **ink mixing**, predictable controls, mobile performance, and a reusable web component release ([DEC-010](docs/DECISIONS.md#dec-010--ink-first-web-component-product-direction)). The [source review and proposal](docs/REVIEW_INK_COMPONENT.md) identifies the work required; its technical recommendations are not release guarantees.
 
 ## North star
 
@@ -18,6 +20,8 @@ Create ambient desktop art that is interesting enough to watch deliberately and 
 yarn install
 yarn dev
 ```
+
+These are contributor setup commands. Agent sessions must honor the install restriction in [AGENTS.md](AGENTS.md); use existing dependencies and report missing tools.
 
 `yarn dev` opens the **landing** (`index.html`) — live fluid with editorial chrome. Open `/play.html` for the tabbed tuner (Scene, Materials, Emitters, Wind, Drivers, Presets). Open `/embed.html` for the React `<FluidField />` demo (canvas-only or dashboard). Multi-scale curl-noise runs without the mouse; drag still stirs if pointer is on. Value emitters can tween numeric knobs with waves. **H** hides the panel, **P** toggles the perf HUD, **F** fullscreen on the canvas, **Esc** exits fullscreen. Drag a panel header (or a Panel/Perf button) to reposition; overlay positions persist in `localStorage`. Tunings persist there too. Presets can be exported and imported as versioned JSON (`fluid-wallpaper.preset.v1`); import merges by name.
 
@@ -38,6 +42,10 @@ Do not import this Git repository into Wallpaper Engine (it would pull `node_mod
 
 ## Start here
 
+Open `/liquid.html` for the experimental two-liquid studio and `/diagnostics.html` for GPU probes. See [implementation limits and measured evidence](docs/TWO_LIQUID.md) before treating this as physical or mobile acceptance.
+
+- [Agent instructions](AGENTS.md) and [folder context map](docs/CONTEXT_MAP.md)
+- [Engineering know-how](docs/ENGINEERING_GUIDE.md) (change recipes and known limitations)
 - [Project definition](docs/PROJECT.md)
 - [Architecture overview](docs/ARCHITECTURE.md) (system map)
 - [Source tree](src/README.md) (folder contracts)

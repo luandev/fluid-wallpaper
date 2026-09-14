@@ -14,6 +14,7 @@ uniform float uEnabled[4];
 uniform vec2 uDyeRes;
 uniform float uManualBilinear;
 uniform float uContrast;
+uniform float uVideoReveal;
 
 vec4 sampleDye(vec2 uv) {
   if (uManualBilinear < 0.5) {
@@ -108,5 +109,8 @@ void main() {
   float bloom = (1.0 - exp(-overshoot * 1.85)) * glow;
 
   vec3 color = albedo * diffuse + vec3(spec) + sheenCol + emissive + albedo * bloom * 0.45;
-  fragColor = vec4(clamp(color, 0.0, 1.0), 1.0);
+  float reveal = clamp(uVideoReveal, 0.0, 1.0);
+  float coverage = smoothstep(0.02, 0.28, height);
+  float alpha = mix(1.0, coverage, reveal);
+  fragColor = vec4(clamp(color, 0.0, 1.0), alpha);
 }

@@ -22,12 +22,12 @@ flowchart LR
 
 - React is a host and optional dashboard ([DEC-006](../../docs/DECISIONS.md), [DEC-008](../../docs/DECISIONS.md)).
 - `config` is the **initial** base look. Later edits go through `Engine.applyConfig` / the dashboard.
-- `persist` defaults to **off** so an embed does not share the tuner’s `localStorage`.
+- `persist` defaults to **off** for base config. Preset operations, panel positions, and perf preferences still use shared storage; full instance isolation is not implemented.
 
 ## Enforced patterns
 
 - Consumers need a bundler that understands Vite `?raw` GLSL imports (this repo’s Vite app, or an equivalent).
-- Do not call `getUserMedia`.
+- Do not call `getUserMedia` from this host. The dashboard Listen control may, after a gesture.
 - Do not add MUI/shadcn.
 - Keep Yarn; package `exports` point at `src/react/index.ts`.
 

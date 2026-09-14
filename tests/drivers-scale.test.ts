@@ -13,6 +13,7 @@ function sineEmitter(overrides: Partial<Parameters<typeof evaluateEmitter>[0]> =
     from: 2,
     to: 8,
     scale: 1,
+    band: 0.15,
     ...overrides,
   };
 }
@@ -35,5 +36,6 @@ describe("value emitter scale", () => {
     });
     expect(next.valueEmitters[0]?.scale).toBe(1);
     expect(cloneConfig(next).valueEmitters[0]?.scale).toBe(1);
+    expect(next.valueEmitters[0]?.band).toBe(0.15);
   });
 });

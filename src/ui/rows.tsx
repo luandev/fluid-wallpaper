@@ -253,3 +253,31 @@ export function SelectRow({ label, value, help, options, onChange }: SelectRowPr
     </label>
   );
 }
+
+type TextRowProps = {
+  label: string;
+  value: string;
+  help?: string;
+  placeholder?: string;
+  onChange: (next: string) => void;
+};
+
+export function TextRow({ label, value, help, placeholder, onChange }: TextRowProps): ReactNode {
+  return (
+    <label className="dash__row" title={help}>
+      <div className="dash__meta">
+        <span className="dash__label">{label}</span>
+      </div>
+      <input
+        className="dash__input dash__text"
+        type="url"
+        defaultValue={value}
+        key={value}
+        placeholder={placeholder}
+        spellCheck={false}
+        onBlur={(event) => onChange(event.target.value)}
+      />
+      <HelpText help={help} />
+    </label>
+  );
+}

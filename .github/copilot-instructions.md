@@ -1,5 +1,5 @@
 # GitHub Copilot instructions
 
-Read and follow `/AGENTS.md` as the canonical repository guidance.
+Read [root AGENTS.md](../AGENTS.md) and the ancestor/local AGENTS.md files for the paths being edited. Use [the context map](../docs/CONTEXT_MAP.md) to find folder contracts and [the agent workflow](../docs/AI_ASSISTED_DEVELOPMENT.md) for validation and handoff.
 
-The implementation stack is TypeScript, Vite, WebGL2, and GLSL ES 3.00 (DEC-003). Use Yarn only (DEC-004); do not use npm. Keep changes focused on the task's acceptance criteria. Do not add Workshop packaging, material/PBR rendering, audio, or WebGPU unless the task explicitly requests them. Do not copy third-party fluid-simulation source.
+Keep shared policy in those documents; do not duplicate stack, phase, or feature restrictions in this bridge.

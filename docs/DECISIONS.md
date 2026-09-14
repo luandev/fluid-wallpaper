@@ -2,6 +2,8 @@
 
 Record durable decisions here. Do not record an option as decided until its evidence and tradeoffs have been reviewed.
 
+Accepted records preserve intent and history; they do not certify that implementation or validation is complete. Current limitations and follow-up recipes live in [ENGINEERING_GUIDE.md](ENGINEERING_GUIDE.md). Technical options in [REVIEW_INK_COMPONENT.md](REVIEW_INK_COMPONENT.md) remain proposals except where later decisions explicitly accept them.
+
 ## Template
 
 ### DEC-000 — Short title
@@ -77,7 +79,7 @@ Record durable decisions here. Do not record an option as decided until its evid
 - **Status:** Accepted
 - **Date:** 2026-08-17
 - **Context:** The vanilla tuner became a long stack of nested cards. Artists need to see and bind what they are changing, including LFOs that drive any numeric knob. Mic, camera, and tilt belong to later optional inputs (Phase 5) and must not be required for a complete look.
-- **Decision:** Use React only for the product-shell dashboard overlay (`src/ui`). Simulation, shaders, and `Engine` stay TypeScript. Numeric **value emitters** (sine, triangle, saw, square, noise) map a wave in `[0,1]` onto `[from, to]` and mix into **base** config via bindings. Mic, camera, and tilt exist as stub kinds that sample `0.5` and request no permissions. Storage and presets save **base** config plus the driver graph, never 60fps live values.
+- **Decision:** Use React only for the product-shell dashboard overlay (`src/ui`). Simulation, shaders, and `Engine` stay TypeScript. Numeric **value emitters** (sine, triangle, saw, square, noise) map a wave in `[0,1]` onto `[from, to]` and mix into **base** config via bindings. Camera and tilt exist as stub kinds that sample `0.5` and request no permissions. Audio pulse / spectrum kinds are wired in [DEC-009](#dec-009--optional-youtube-music-and-web-audio-drivers). Storage and presets save **base** config plus the driver graph, never 60fps live values.
 - **Alternatives:** Keep and restyle the vanilla tuner; add a heavier UI kit; wire real getUserMedia in this pass.
 - **Consequences:** Yarn installs `react` / `react-dom`. The artwork still runs with the panel closed and with an empty driver list. Real sensor adapters can later replace stub `sample()` without touching the solver.
 - **Evidence:** `src/ui/Dashboard.tsx`; `src/app/drivers.ts`; `src/app/engine.ts` base vs live split.
@@ -104,3 +106,58 @@ Record durable decisions here. Do not record an option as decided until its evid
 - **Consequences:** Git/Yarn install works; a plain script tag does not. Two WebGL2 instances on one page are not a supported recipe. `config` is initial-only; later patches use `Engine.applyConfig`.
 - **Evidence:** `src/react/`; `embed.html`; `docs/USAGE.md`; package `exports`; `.github/workflows/pages.yml` usage-doc and usage-page checks.
 - **Review trigger:** Consumers need a no-bundler build, or shader `?raw` cannot be compiled outside this Vite app.
+
+### DEC-009 — Optional YouTube music and Web Audio drivers
+
+- **Status:** Accepted
+- **Date:** 2026-08-18
+- **Context:** Artists want a default music example and Winamp-style pulse / log-spectrum drivers. YouTube iframe audio cannot feed `AnalyserNode` (CORS). Wallpaper Engine audio listeners remain an open platform question.
+- **Decision:** Tuner/embed mounts a compact YouTube player from a sanitized video id (default `wKEeVPfK8nw`). The field stays opaque (`videoReveal` 0) unless the artist opts into a dye punch-through. Analysis is a user-armed **microphone** or **tab audio** capture feeding `audioPulse` / `audioSpectrum` value emitters. Legacy `mic` sanitizes to `audioPulse`. Camera/tilt stay stubs. Landing never mounts the player or requests media. Live FFT is not stored.
+- **Alternatives:** Tap the iframe (blocked); Wallpaper Engine `wallpaperRegisterAudioListener` as the first path; auto-start getUserMedia on load.
+- **Consequences:** YouTube playback and visualization can desync unless the user shares tab audio or uses a loopback mic. Permissions require a gesture. `dyeInject` max is 0.5 so bass can push pigment above the hard-mix 0.25 default.
+- **Evidence:** `src/inputs/youtubeId.ts`; `src/inputs/audioMath.ts`; `src/inputs/audioAnalyser.ts`; `src/ui/YouTubePlayer.tsx`; `src/app/drivers.ts`.
+- **Review trigger:** A browser allows MediaElementSource on YouTube, or Wallpaper Engine audio bins become the primary analyser.
+
+### DEC-010 — Ink-first web component product direction
+
+- **Status:** Accepted (product direction only)
+- **Date:** 2026-09-09
+- **Context:** The owner identified mobile lag and arbitrary controls, made ink/material mixing the highest priority, and stated the intention to package and release a web component. The original project definition prioritized desktop Wallpaper Engine and deferred mobile parity.
+- **Decision:** Prioritize believable ink behavior, predictable controls, mobile browser performance, and a reusable web component release. Keep the accepted WebGL2 stack and existing browser/React implementation while planning that work. Wallpaper Engine and native mobile wallpaper integration remain later.
+- **Alternatives:** Continue expanding the desktop material catalog first; publish the current React source export unchanged.
+- **Consequences:** Mobile browser evidence and consumer/lifecycle validation become release concerns. This does not select Beer–Lambert vs Kubelka–Munk, accept a custom-element tag/API, approve a workspace split, lock quality numbers, authorize publication, or claim any proposal is implemented. DEC-008 still describes current distribution until a release implementation decision replaces it.
+- **Evidence:** Owner's 2026-09-09 request to review ink mixing, mobile lag, controls, and a web component release; [source critique and proposed stages](REVIEW_INK_COMPONENT.md); [updated product definition](PROJECT.md).
+- **Review trigger:** Named-device experiments, ink reference studies, or consumer requirements show that the proposed scope is unsuitable.
+
+### DEC-011 — Layered repository context for agents
+
+- **Status:** Accepted
+- **Date:** 2026-09-09
+- **Context:** The owner requested Markdown context for each folder, AGENTS.md guidance, and durable capture of decisions, know-how, and working methods. Existing READMEs covered most major folders, but instructions and phase summaries had drifted.
+- **Decision:** Keep root AGENTS.md as shared guidance; add concise scoped AGENTS.md files to maintained source/documentation/configuration folders; use folder READMEs for local contracts. Maintain one context map, an engineering guide for change recipes, the decision log for rationale, and open questions for unresolved choices. Tool-specific bridge files link to this system instead of copying rules.
+- **Alternatives:** One ever-growing root instruction file; duplicate full policies in every folder; tool-specific rule sets.
+- **Consequences:** Agents load only relevant local context. New maintained folders need a short guide and a context-map entry; generated output, dependencies, and Git internals do not. Changes to contracts include documentation maintenance. Existing user instructions still take precedence.
+- **Evidence:** Owner's 2026-09-09 documentation request; [root instructions](../AGENTS.md); [context map](CONTEXT_MAP.md); [working methods](AI_ASSISTED_DEVELOPMENT.md).
+- **Review trigger:** Duplicated rules, stale local descriptions, or excessive context loading make the guidance harder to use.
+
+### DEC-012 — Incremental runtime and correctness adoption slice
+
+- **Status:** Accepted
+- **Date:** 2026-09-10
+- **Context:** The ink-first two-phase plan requires a stable runtime boundary, but replacing the legacy solver and shipping a final package in one change would make failures difficult to isolate. Several correctness findings are independent of the future phase-field model.
+- **Decision:** First land a compatibility-preserving correctness slice: elapsed-time source dose, accumulated pointer movement, projection after velocity-changing operations, WebGL2 half-float filtering detection, explicit Engine pause/resume/injection methods, and an opt-in native `<fluid-ink>` host around the current Engine. Keep the existing React/Pages paths and legacy renderer working. The element accepts current `FluidConfig` patches and quality presets until the two-phase scene schema is implemented.
+- **Alternatives:** Replace the solver and package layout atomically; wait to expose any runtime boundary until the physical model is complete.
+- **Consequences:** The repository now has a usable native-host seam without claiming that immiscible liquid physics or a compiled public package is complete. Source injection behavior changes from frame-count based to elapsed-time based; old presets retain structure but may produce a different dose over equal real time. GPU visual validation remains required.
+- **Evidence:** [Review priority findings](REVIEW_INK_COMPONENT.md#priority-findings); [engineering guide](ENGINEERING_GUIDE.md); `src/app/engine.ts`, `src/sim/solver.ts`, `src/inputs/pointer.ts`, `src/element/`.
+- **Review trigger:** The two-phase solver needs a different runtime state contract, or device evidence shows the current Engine seam cannot support the required lifecycle/quality behavior.
+
+### DEC-013 — Opt-in two-liquid scene and numerical prototype
+
+- **Status:** Accepted architecture; implementation and acceptance incomplete
+- **Date:** 2026-09-13
+- **Context:** The owner explicitly requested implementation of the adaptive two-liquid plan, including equal-density phases, real viscosity, conservative transport, absorption, artistic detail and a versioned element scene API.
+- **Decision:** Add an opt-in `fluid-ink.scene.v1` path with two phase definitions and four stable carrier-bound pigment slots. Preserve legacy configuration without guessing physical migrations. Separate a MAC-grid solver, absorption/surface display, scene runtime and quality policy. Use original conservative diffuse-interface fluxes, implicit viscous stress, matched projection/surface-force locations and closed free-slip walls. Select the plan's nondimensional equal-density model and linear RGB Beer–Lambert approximation; glossy relief remains explicitly artistic. Default stirring is zero pending static-drop evidence.
+- **Alternatives:** Replace legacy presets in place; retain drag as viscosity; normalize colors; treat the proposed 3D theorem as a rendering method.
+- **Consequences:** A source-level element and studio can exercise the new model. The implementation currently uses collocated pigment resolution, RGBA32F diagnostic readbacks and conservative CPU resize. These are prototype limitations, not completion of the requested mobile architecture. The full plan, higher quality ceilings, separate pigment grid, coordinated solver budgets, efficient reductions, recovery and device gates remain outstanding. Static-drop refinement has not met acceptance; measured evidence is recorded rather than hidden by optical effects. No publication authorized or performed.
+- **Evidence:** Owner's implementation plan; [numerical contract, reference provenance and session results](TWO_LIQUID.md); scene/solver/display/runtime modules and browser fixture. CPU tests and build are separate from GPU/device acceptance.
+- **Review trigger:** Static-drop/shear convergence fails; carrier transport diffuses excessively; named-device experiments cannot sustain the work/memory budgets; or consumer requirements change the source API.

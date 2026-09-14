@@ -83,10 +83,19 @@ describe("defaultConfig", () => {
     expect(defaultConfig.noiseTime).toBeLessThan(1);
     expect(defaultConfig.warmupSteps).toBeGreaterThan(0);
     expect(defaultConfig.windStations).toHaveLength(4);
-    expect(defaultConfig.valueEmitters).toHaveLength(1);
-    expect(defaultConfig.valueEmitters[0]?.kind).toBe("triangle");
+    expect(defaultConfig.youtubeUrl).toBe("https://www.youtube.com/watch?v=wKEeVPfK8nw");
+    expect(defaultConfig.videoReveal).toBe(0);
+    expect(defaultConfig.valueEmitters.map((emitter) => emitter.kind)).toEqual([
+      "triangle",
+      "audioPulse",
+      "audioSpectrum",
+      "audioSpectrum",
+    ]);
     expect(defaultConfig.valueBindings).toEqual([
       { id: "bind-1", emitterId: "wave-1", path: "noiseTime", amount: 0.87 },
+      { id: "bind-kick", emitterId: "kick-1", path: "splatForce", amount: 0.85 },
+      { id: "bind-bass", emitterId: "bass-1", path: "dyeInject", amount: 0.8 },
+      { id: "bind-highs", emitterId: "highs-1", path: `materials.${CRIMSON_MATERIAL_ID}.glow`, amount: 0.75 },
     ]);
     expect(defaultConfig.windStrength).toBeGreaterThan(0);
     expect(() => assertConfig(defaultConfig)).not.toThrow();
@@ -290,6 +299,7 @@ describe("sanitizeConfig", () => {
     expect(next.valueEmitters).toHaveLength(MAX_VALUE_EMITTERS);
     expect(next.valueEmitters[0]?.kind).toBe("sine");
     expect(next.valueEmitters.every((emitter) => emitter.scale === 1)).toBe(true);
+    expect(next.valueEmitters.every((emitter) => emitter.band === 0.15)).toBe(true);
     expect(next.valueBindings).toHaveLength(MAX_VALUE_BINDINGS);
     expect(next.valueBindings.every((binding) => binding.emitterId === "wave-0")).toBe(true);
     expect(next.valueBindings.some((binding) => binding.path === "simResolution")).toBe(false);
@@ -324,6 +334,7 @@ describe("mergeConfig", () => {
         from: 0,
         to: 1,
         scale: 1,
+        band: 0.15,
       },
     ];
     base.valueBindings = [{ id: "bind-1", emitterId: "wave-1", path: "vorticity", amount: 1 }];
@@ -531,7 +542,8 @@ describe("drivers", () => {
     expect(wave01("saw", 0.25)).toBeCloseTo(0.25, 5);
     expect(wave01("square", 0.2)).toBe(0);
     expect(wave01("square", 0.7)).toBe(1);
-    expect(wave01("mic", 12)).toBe(0.5);
+    expect(wave01("audioPulse", 12)).toBe(0);
+    expect(wave01("audioSpectrum", 4)).toBe(0);
     expect(wave01("camera", 3)).toBe(0.5);
     expect(wave01("tilt", 8)).toBe(0.5);
     expect(() => wave01("noise", 1.25)).not.toThrow();
@@ -548,6 +560,7 @@ describe("drivers", () => {
       from: 2,
       to: 8,
       scale: 1,
+      band: 0.15,
     };
     expect(evaluateEmitter(emitter, 0)).toBeCloseTo(8, 5);
     expect(evaluateEmitter({ ...emitter, enabled: false }, 0)).toBe(2);
@@ -574,6 +587,8 @@ describe("drivers", () => {
     expect(paths).not.toContain("pressureIterations");
     expect(paths).not.toContain("warmupSteps");
     expect(paths).not.toContain("viewZoom");
+    expect(paths).toContain("videoReveal");
+    expect(paths).not.toContain("youtubeUrl");
   });
 
   it("mixes driven values onto a cloned live config", () => {
@@ -590,6 +605,7 @@ describe("drivers", () => {
         from: 0,
         to: 20,
         scale: 1,
+        band: 0.15,
       },
     ];
     base.valueBindings = [{ id: "bind-1", emitterId: "wave-1", path: "vorticity", amount: 1 }];
@@ -613,6 +629,7 @@ describe("drivers", () => {
         from: 0,
         to: 20,
         scale: 1,
+        band: 0.15,
       },
     ];
     base.valueBindings = [{ id: "bind-1", emitterId: "wave-1", path: "vorticity", amount: 0.5 }];
@@ -634,6 +651,7 @@ describe("drivers", () => {
         from: 0,
         to: 20,
         scale: 1,
+        band: 0.15,
       },
     ];
     base.valueBindings = [{ id: "bind-1", emitterId: "wave-1", path: "vorticity", amount: 1 }];
@@ -677,6 +695,7 @@ describe("presets", () => {
         from: 0,
         to: 12,
         scale: 1,
+        band: 0.15,
       },
     ];
     config.valueBindings = [{ id: "bind-1", emitterId: "wave-1", path: "vorticity", amount: 0.4 }];
@@ -722,6 +741,7 @@ describe("presets", () => {
         from: 1,
         to: 8,
         scale: 1,
+        band: 0.15,
       },
     ];
     config.valueBindings = [{ id: "bind-1", emitterId: "wave-1", path: "dyeInject", amount: 0.75 }];

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { RESEED_KEYS, controlSchema, type ControlGroup, type FluidConfig } from "../../app/config";
 import { driverNameForPath } from "../../app/drivers";
-import { RangeRow, SelectRow, ToggleRow } from "../rows";
+import { RangeRow, SelectRow, TextRow, ToggleRow } from "../rows";
 import type { CommitConfig } from "../types";
 
 const GROUPS: ControlGroup[] = ["Look", "Flow", "Composer", "Quality", "Input"];
@@ -17,6 +17,19 @@ export function SceneTab({
 }): ReactNode {
   return (
     <div className="dash__scene">
+      <section className="dash__group">
+        <h3 className="dash__group-title">Music</h3>
+        <p className="dash__hint">
+          Play the track, then Listen on Drivers with tab audio or a mic loopback. The iframe cannot feed the analyser.
+        </p>
+        <TextRow
+          label="YouTube"
+          help="Watch, youtu.be, shorts, or embed URL. Stored as a video id. Landing never mounts this player."
+          placeholder="https://www.youtube.com/watch?v="
+          value={config.youtubeUrl}
+          onChange={(youtubeUrl) => commit({ youtubeUrl })}
+        />
+      </section>
       {GROUPS.map((group) => (
         <section key={group} className="dash__group">
           <h3 className="dash__group-title">{group}</h3>
