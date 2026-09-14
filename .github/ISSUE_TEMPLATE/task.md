@@ -16,11 +16,11 @@ assignees: ""
 
 ## In scope
 
-- 
+-
 
 ## Out of scope
 
-- 
+-
 
 ## Acceptance criteria
 
@@ -32,4 +32,4 @@ assignees: ""
 
 ## Open questions or risks
 
-- 
+-

@@ -36,8 +36,16 @@ export const shaders = {
   gradientSubtract: gradientSubtractFrag,
   advection: advectionFrag,
   marbleSeed: includeMarker(marbleSeedFrag, "// #include noise", noiseGlsl),
-  marbleVelocity: includeMarker(marbleVelocityFrag, "// #include perlin", perlinGlsl),
-  curlNoiseForce: includeMarker(curlNoiseForceFrag, "// #include perlin", perlinGlsl),
+  marbleVelocity: includeMarker(
+    marbleVelocityFrag,
+    "// #include perlin",
+    perlinGlsl,
+  ),
+  curlNoiseForce: includeMarker(
+    curlNoiseForceFrag,
+    "// #include perlin",
+    perlinGlsl,
+  ),
   perlinDye: includeMarker(perlinDyeFrag, "// #include perlin", perlinGlsl),
   viscosityWeight: viscosityWeightFrag,
   windForce: windForceFrag,

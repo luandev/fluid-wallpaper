@@ -49,8 +49,14 @@ export class AudioAnalyser {
     try {
       const stream =
         next === "microphone"
-          ? await navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-          : await navigator.mediaDevices.getDisplayMedia({ audio: true, video: true });
+          ? await navigator.mediaDevices.getUserMedia({
+              audio: true,
+              video: false,
+            })
+          : await navigator.mediaDevices.getDisplayMedia({
+              audio: true,
+              video: true,
+            });
       for (const track of stream.getVideoTracks()) {
         track.stop();
         stream.removeTrack(track);
@@ -94,9 +100,18 @@ export class AudioAnalyser {
       return this.frame;
     }
     this.analyser.getByteFrequencyData(this.bins);
-    const bands = logBandEnergies(this.bins, this.context?.sampleRate ?? 44100, FFT_SIZE);
+    const bands = logBandEnergies(
+      this.bins,
+      this.context?.sampleRate ?? 44100,
+      FFT_SIZE,
+    );
     for (let i = 0; i < LOG_BAND_COUNT; i += 1) {
-      const stepped = onsetUpdate(bands[i] ?? 0, this.averages[i] ?? 0, this.pulses[i] ?? 0, dt);
+      const stepped = onsetUpdate(
+        bands[i] ?? 0,
+        this.averages[i] ?? 0,
+        this.pulses[i] ?? 0,
+        dt,
+      );
       this.averages[i] = stepped.average;
       this.pulses[i] = stepped.pulse;
     }

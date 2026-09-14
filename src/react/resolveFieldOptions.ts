@@ -1,4 +1,9 @@
-import { cloneConfig, defaultConfig, sanitizeConfig, type FluidConfig } from "../app/config";
+import {
+  cloneConfig,
+  defaultConfig,
+  sanitizeConfig,
+  type FluidConfig,
+} from "../app/config";
 
 export type FluidFieldOptions = {
   dashboard: boolean;
@@ -6,11 +11,13 @@ export type FluidFieldOptions = {
   persist: boolean;
 };
 
-export function resolveFieldOptions(input: {
-  dashboard?: boolean;
-  perf?: boolean;
-  persist?: boolean;
-} = {}): FluidFieldOptions {
+export function resolveFieldOptions(
+  input: {
+    dashboard?: boolean;
+    perf?: boolean;
+    persist?: boolean;
+  } = {},
+): FluidFieldOptions {
   return {
     dashboard: Boolean(input.dashboard),
     perf: Boolean(input.perf),

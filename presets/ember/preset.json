@@ -1,0 +1,213 @@
+{
+  "kind": "fluid-wallpaper.preset.v1",
+  "presets": [
+    {
+      "id": "ember",
+      "name": "Ember Bloom",
+      "updatedAt": 1789344000000,
+      "config": {
+        "simResolution": 128,
+        "dyeResolution": 384,
+        "pressureIterations": 24,
+        "vorticity": 15,
+        "velocityDecay": 0.55,
+        "dyeDecay": 0.012,
+        "splatRadius": 0.0006,
+        "splatForce": 900,
+        "dyeSplatRadius": 0.0009,
+        "seedVelocityScale": 7,
+        "composerStrength": 18,
+        "composerBroad": 1.2,
+        "composerMedium": 0.9,
+        "composerFine": 0.48,
+        "noiseScale": 4.6,
+        "noiseTime": 0.11,
+        "noiseType": "simplex",
+        "dyeInject": 0.32,
+        "warmupSteps": 36,
+        "viewZoom": 2.2,
+        "contrast": 2.2,
+        "pointerEnabled": true,
+        "maxDt": 0.03333333333333333,
+        "colorTweenSpeed": 0.012,
+        "wiggleAmount": 0.13,
+        "windStrength": 7,
+        "backgroundMode": "gradient",
+        "backgroundColor": "#291429",
+        "backgroundColorB": "#72372e",
+        "videoReveal": 0,
+        "youtubeUrl": "",
+        "materials": [
+          {
+            "id": "cyan",
+            "name": "Ion cyan",
+            "enabled": true,
+            "color": "#ff775e",
+            "colorB": "#321329",
+            "viscosity": 0.08,
+            "roughness": 0.22,
+            "metallic": 0.08,
+            "sheen": 0.65,
+            "glow": 0.2
+          },
+          {
+            "id": "night",
+            "name": "Ultraviolet",
+            "enabled": true,
+            "color": "#321329",
+            "colorB": "#efae67",
+            "viscosity": 0.2,
+            "roughness": 0.6,
+            "metallic": 0.08,
+            "sheen": 0.65,
+            "glow": 0.2
+          },
+          {
+            "id": "rose",
+            "name": "Plasma rose",
+            "enabled": true,
+            "color": "#efae67",
+            "colorB": "#ffc7a2",
+            "viscosity": 0.12,
+            "roughness": 0.25,
+            "metallic": 0.08,
+            "sheen": 0.65,
+            "glow": 0.2
+          },
+          {
+            "id": "ice",
+            "name": "Glacial light",
+            "enabled": true,
+            "color": "#ffc7a2",
+            "colorB": "#ff775e",
+            "viscosity": 0.06,
+            "roughness": 0.3,
+            "metallic": 0.08,
+            "sheen": 0.65,
+            "glow": 0.2
+          }
+        ],
+        "emitters": [
+          {
+            "id": "Cyan ribbons",
+            "name": "Cyan ribbons",
+            "enabled": true,
+            "materialId": "cyan",
+            "kind": "field",
+            "rate": 0.85,
+            "radius": 0.018,
+            "uvX": 0.5,
+            "uvY": 0.5,
+            "noiseOffset": 0
+          },
+          {
+            "id": "Violet depths",
+            "name": "Violet depths",
+            "enabled": true,
+            "materialId": "night",
+            "kind": "field",
+            "rate": 1,
+            "radius": 0.018,
+            "uvX": 0.5,
+            "uvY": 0.5,
+            "noiseOffset": 1
+          },
+          {
+            "id": "Rose bloom",
+            "name": "Rose bloom",
+            "enabled": true,
+            "materialId": "rose",
+            "kind": "point",
+            "rate": 0.8,
+            "radius": 0.035,
+            "uvX": 0.76,
+            "uvY": 0.7,
+            "noiseOffset": 0
+          },
+          {
+            "id": "Rose undertow",
+            "name": "Rose undertow",
+            "enabled": true,
+            "materialId": "rose",
+            "kind": "point",
+            "rate": 0.5,
+            "radius": 0.022,
+            "uvX": 0.28,
+            "uvY": 0.22,
+            "noiseOffset": 0
+          },
+          {
+            "id": "Ice filament",
+            "name": "Ice filament",
+            "enabled": true,
+            "materialId": "ice",
+            "kind": "point",
+            "rate": 0.55,
+            "radius": 0.009,
+            "uvX": 0.92,
+            "uvY": 0.34,
+            "noiseOffset": 0
+          },
+          {
+            "id": "Paint with light",
+            "name": "Paint with light",
+            "enabled": true,
+            "materialId": "ice",
+            "kind": "pointer",
+            "rate": 0.22,
+            "radius": 0.0007,
+            "uvX": 0.5,
+            "uvY": 0.5,
+            "noiseOffset": 0
+          }
+        ],
+        "windStations": [
+          {
+            "id": "Rising arc",
+            "name": "Rising arc",
+            "enabled": true,
+            "uvX": 0.72,
+            "uvY": 0.6,
+            "heading": 0.25,
+            "speed": 0.18,
+            "spin": 0.066,
+            "radius": 0.25
+          },
+          {
+            "id": "Returning arc",
+            "name": "Returning arc",
+            "enabled": true,
+            "uvX": 0.32,
+            "uvY": 0.3,
+            "heading": 0.7,
+            "speed": 0.18,
+            "spin": -0.05,
+            "radius": 0.25
+          }
+        ],
+        "valueEmitters": [
+          {
+            "id": "breath",
+            "name": "Slow current",
+            "enabled": true,
+            "kind": "sine",
+            "rate": 0.015,
+            "phase": 0.2,
+            "from": 0.18,
+            "to": 0.38,
+            "scale": 1,
+            "band": 0
+          }
+        ],
+        "valueBindings": [
+          {
+            "id": "current",
+            "emitterId": "breath",
+            "path": "noiseTime",
+            "amount": 0.6
+          }
+        ]
+      }
+    }
+  ]
+}

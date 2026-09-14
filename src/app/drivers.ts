@@ -26,7 +26,11 @@ export type BindablePath = {
 export function bindablePaths(config: FluidConfig): BindablePath[] {
   const out: BindablePath[] = [];
   for (const control of controlSchema) {
-    if (control.kind !== "range" || control.min === undefined || control.max === undefined) {
+    if (
+      control.kind !== "range" ||
+      control.min === undefined ||
+      control.max === undefined
+    ) {
       continue;
     }
     if (RESEED_KEYS.has(control.key)) {
@@ -114,12 +118,19 @@ export function wave01(kind: ValueEmitterKind, t: number): number {
   return a + (b - a) * s;
 }
 
-export function evaluateEmitter(emitter: ValueEmitter, elapsed: number, audio?: AudioFrame): number {
+export function evaluateEmitter(
+  emitter: ValueEmitter,
+  elapsed: number,
+  audio?: AudioFrame,
+): number {
   if (!emitter.enabled) {
     return emitter.from;
   }
   const w = audio01(emitter, audio) ?? wave01FromElapsed(emitter, elapsed);
-  const scale = typeof emitter.scale === "number" && Number.isFinite(emitter.scale) ? emitter.scale : 1;
+  const scale =
+    typeof emitter.scale === "number" && Number.isFinite(emitter.scale)
+      ? emitter.scale
+      : 1;
   const mix = 0.5 + (w - 0.5) * scale;
   return emitter.from + (emitter.to - emitter.from) * mix;
 }
@@ -129,11 +140,19 @@ function wave01FromElapsed(emitter: ValueEmitter, elapsed: number): number {
   return wave01(emitter.kind, t);
 }
 
-function audio01(emitter: ValueEmitter, audio?: AudioFrame): number | undefined {
-  if (!(VALUE_EMITTER_AUDIO_KINDS as readonly string[]).includes(emitter.kind)) {
+function audio01(
+  emitter: ValueEmitter,
+  audio?: AudioFrame,
+): number | undefined {
+  if (
+    !(VALUE_EMITTER_AUDIO_KINDS as readonly string[]).includes(emitter.kind)
+  ) {
     return undefined;
   }
-  const band = typeof emitter.band === "number" && Number.isFinite(emitter.band) ? emitter.band : 0.15;
+  const band =
+    typeof emitter.band === "number" && Number.isFinite(emitter.band)
+      ? emitter.band
+      : 0.15;
   if (!audio) {
     return 0;
   }
@@ -172,7 +191,11 @@ export function getPath(config: FluidConfig, path: string): number | undefined {
   return undefined;
 }
 
-export function setPath(config: FluidConfig, path: string, nextValue: number): boolean {
+export function setPath(
+  config: FluidConfig,
+  path: string,
+  nextValue: number,
+): boolean {
   const parts = parsePath(path);
   if (!Number.isFinite(nextValue)) {
     return false;
@@ -215,8 +238,13 @@ export function setPath(config: FluidConfig, path: string, nextValue: number): b
   return false;
 }
 
-export function driverNameForPath(config: FluidConfig, path: string): string | undefined {
-  const emitters = new Map(config.valueEmitters.map((emitter) => [emitter.id, emitter]));
+export function driverNameForPath(
+  config: FluidConfig,
+  path: string,
+): string | undefined {
+  const emitters = new Map(
+    config.valueEmitters.map((emitter) => [emitter.id, emitter]),
+  );
   for (let i = config.valueBindings.length - 1; i >= 0; i -= 1) {
     const binding = config.valueBindings[i];
     if (binding.path !== path) {
@@ -230,13 +258,21 @@ export function driverNameForPath(config: FluidConfig, path: string): string | u
   return undefined;
 }
 
-export function applyDrivers(base: FluidConfig, elapsed: number, audio?: AudioFrame): FluidConfig {
+export function applyDrivers(
+  base: FluidConfig,
+  elapsed: number,
+  audio?: AudioFrame,
+): FluidConfig {
   const live = cloneConfig(base);
   if (base.valueBindings.length === 0 || base.valueEmitters.length === 0) {
     return live;
   }
-  const registry = new Map(bindablePaths(live).map((item) => [item.path, item]));
-  const emitters = new Map(live.valueEmitters.map((emitter) => [emitter.id, emitter]));
+  const registry = new Map(
+    bindablePaths(live).map((item) => [item.path, item]),
+  );
+  const emitters = new Map(
+    live.valueEmitters.map((emitter) => [emitter.id, emitter]),
+  );
   const latest = new Map<string, (typeof live.valueBindings)[number]>();
   for (const binding of live.valueBindings) {
     latest.set(binding.path, binding);

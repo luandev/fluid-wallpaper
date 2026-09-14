@@ -24,14 +24,23 @@ function fract(n: number): number {
   return n - Math.floor(n);
 }
 
-function perlinGrad3(ix: number, iy: number, iz: number): [number, number, number] {
+function perlinGrad3(
+  ix: number,
+  iy: number,
+  iz: number,
+): [number, number, number] {
   const n = hash13(ix, iy, iz);
   const a = n * Math.PI * 2;
   const b = fract(n * 17) * Math.PI * 2;
   return [Math.sin(a) * Math.cos(b), Math.sin(a) * Math.sin(b), Math.cos(a)];
 }
 
-function dot3(g: readonly [number, number, number], x: number, y: number, z: number): number {
+function dot3(
+  g: readonly [number, number, number],
+  x: number,
+  y: number,
+  z: number,
+): number {
   return g[0] * x + g[1] * y + g[2] * z;
 }
 
@@ -53,7 +62,12 @@ export function perlin3(x: number, y: number, z: number): number {
   const n001 = dot3(perlinGrad3(ix, iy, iz + 1), fx, fy, fz - 1);
   const n101 = dot3(perlinGrad3(ix + 1, iy, iz + 1), fx - 1, fy, fz - 1);
   const n011 = dot3(perlinGrad3(ix, iy + 1, iz + 1), fx, fy - 1, fz - 1);
-  const n111 = dot3(perlinGrad3(ix + 1, iy + 1, iz + 1), fx - 1, fy - 1, fz - 1);
+  const n111 = dot3(
+    perlinGrad3(ix + 1, iy + 1, iz + 1),
+    fx - 1,
+    fy - 1,
+    fz - 1,
+  );
   const nx00 = n000 + (n100 - n000) * u;
   const nx10 = n010 + (n110 - n010) * u;
   const nx01 = n001 + (n101 - n001) * u;

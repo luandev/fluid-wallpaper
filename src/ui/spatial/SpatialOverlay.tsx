@@ -1,6 +1,17 @@
-import { useEffect, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
+import {
+  useEffect,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
+} from "react";
 import { createPortal } from "react-dom";
-import { clientToUv, radiusToPixels, uvToClient, type Uv, type ViewRect } from "./uv";
+import {
+  clientToUv,
+  radiusToPixels,
+  uvToClient,
+  type Uv,
+  type ViewRect,
+} from "./uv";
 
 export type SpatialMark = {
   id: string;
@@ -36,7 +47,12 @@ export function SpatialOverlay({
     }
     const update = (): void => {
       const next = canvas.getBoundingClientRect();
-      setRect({ left: next.left, top: next.top, width: next.width, height: next.height });
+      setRect({
+        left: next.left,
+        top: next.top,
+        width: next.width,
+        height: next.height,
+      });
     };
     update();
     const observer = new ResizeObserver(update);
@@ -54,13 +70,17 @@ export function SpatialOverlay({
     return null;
   }
 
-  const uvFromEvent = (event: ReactPointerEvent): Uv => clientToUv(event.clientX, event.clientY, rect);
+  const uvFromEvent = (event: ReactPointerEvent): Uv =>
+    clientToUv(event.clientX, event.clientY, rect);
 
   const onFieldDown = (event: ReactPointerEvent<HTMLDivElement>): void => {
     if (event.target !== event.currentTarget) {
       return;
     }
-    const inMarks = selectedId && marks.some((mark) => mark.id === selectedId) ? selectedId : marks[0]?.id;
+    const inMarks =
+      selectedId && marks.some((mark) => mark.id === selectedId)
+        ? selectedId
+        : marks[0]?.id;
     const targetId = inMarks;
     if (!targetId) {
       return;
@@ -90,7 +110,8 @@ export function SpatialOverlay({
       {marks.map((mark) => {
         const pos = uvToClient({ u: mark.uvX, v: mark.uvY }, rect);
         const selected = mark.id === selectedId;
-        const radiusPx = mark.radius !== undefined ? radiusToPixels(mark.radius, rect) : 0;
+        const radiusPx =
+          mark.radius !== undefined ? radiusToPixels(mark.radius, rect) : 0;
         const headingDeg = (mark.heading ?? 0) * 360;
         return (
           <div
@@ -99,9 +120,18 @@ export function SpatialOverlay({
             style={{ left: pos.x, top: pos.y }}
           >
             {radiusPx > 0 ? (
-              <span className="spatial__ring" data-selected={selected ? "true" : "false"} style={{ width: radiusPx * 2, height: radiusPx * 2 }} />
+              <span
+                className="spatial__ring"
+                data-selected={selected ? "true" : "false"}
+                style={{ width: radiusPx * 2, height: radiusPx * 2 }}
+              />
             ) : null}
-            {mark.heading !== undefined ? <span className="spatial__heading" style={{ transform: `rotate(${headingDeg}deg)` }} /> : null}
+            {mark.heading !== undefined ? (
+              <span
+                className="spatial__heading"
+                style={{ transform: `rotate(${headingDeg}deg)` }}
+              />
+            ) : null}
             <button
               type="button"
               className="spatial__mark"

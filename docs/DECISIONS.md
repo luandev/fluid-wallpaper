@@ -162,7 +162,7 @@ Accepted records preserve intent and history; they do not certify that implement
 - **Evidence:** Owner's implementation plan; [numerical contract, reference provenance and session results](TWO_LIQUID.md); scene/solver/display/runtime modules and browser fixture. CPU tests and build are separate from GPU/device acceptance.
 - **Review trigger:** Static-drop/shear convergence fails; carrier transport diffuses excessively; named-device experiments cannot sustain the work/memory budgets; or consumer requirements change the source API.
 
-### DEC-014 — Compiled npm preview and tag releases
+### DEC-014 ï¿½ Compiled npm preview and tag releases
 
 - **Status:** Accepted implementation scope; publication and clean CI consumer execution require external evidence.
 - **Date:** 2026-09-14
@@ -190,7 +190,12 @@ Accepted records preserve intent and history; they do not certify that implement
 - **Tradeoffs:** Smaller internal grids can soften detail. Legacy resizing is not conservative; experimental resizing retains costly CPU readbacks. Pacing/CPU submission are proxies where GPU timing is unavailable. No target-FPS or mobile guarantee is implied.
 - **Evidence:** [ECO contract and validation](ECO.md).
 
-
 ## DEC-017 - Authored display backgrounds and music underlay
 
-Accepted 2026-09-14 at owner request. The established renderer supports video, solid color and a two-color diagonal gradient as portable config. Colors composite in the existing display pass without extra simulation targets. Video uses concentration-derived alpha and the tuner mounts its existing YouTube iframe behind the canvas with explicit playback interaction; optional audio analysis remains separate. Legacy presets without the new mode migrate to video reveal enabled. Dashboard-free components do not load media automatically. Experimental two-liquid substrate semantics remain unchanged. Browser tests cover pixels and DOM routing with external media blocked; playback and mobile visual acceptance remain unmeasured.
+Accepted 2026-09-14 at owner request. The established renderer supports video, solid color, a two-color diagonal gradient, and transparent pigment coverage as portable config. Colors and transparency composite in the existing display pass without extra simulation targets. Transparent mode uses coverage as straight canvas alpha and does not load media or change optional audio. Video uses concentration-derived alpha and the tuner mounts its existing YouTube iframe behind the canvas with explicit playback interaction; optional audio analysis remains separate. Legacy presets without the new mode migrate to video reveal enabled. Dashboard-free components do not load media automatically. Experimental two-liquid substrate semantics remain unchanged. Browser tests cover pixels and DOM routing with external media blocked; playback and mobile visual acceptance remain unmeasured.
+
+## DEC-018 - Public docs, reusable heroes and curated presets
+
+Accepted 2026-09-14 at owner request. Publish five public documentation pages under /docs/ while retaining repository engineering Markdown. Add native fluid-hero and React FluidHero, composing the established element with ECO defaults, deferred/offscreen lifecycle and accessible foreground content. A shared repository collection supplies six initial presets and package lookup helpers; captured PNG thumbnails are intentional source artwork for the requested gallery, not generated distribution binaries. Gallery previews run one at a time. Preset contributions use the existing document format plus metadata and a representative capture.
+
+Transparent background mode uses pigment coverage as straight canvas alpha, independently of videoReveal; hosts introduce no opaque backing. Hero transparency suppresses its default scrim/fallback colors. The experimental two-liquid substrate remains opaque. Music video requests muted autoplay and offers explicit sound/playback controls; audio analysis still requires user-armed capture. No new solver, mobile certification or registry publication is implied.

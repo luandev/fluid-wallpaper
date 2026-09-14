@@ -1,0 +1,213 @@
+{
+  "kind": "fluid-wallpaper.preset.v1",
+  "presets": [
+    {
+      "id": "cobalt",
+      "name": "Cobalt Glass",
+      "updatedAt": 1789344000000,
+      "config": {
+        "simResolution": 128,
+        "dyeResolution": 384,
+        "pressureIterations": 24,
+        "vorticity": 12,
+        "velocityDecay": 1.15,
+        "dyeDecay": 0.012,
+        "splatRadius": 0.0006,
+        "splatForce": 900,
+        "dyeSplatRadius": 0.0009,
+        "seedVelocityScale": 4.5,
+        "composerStrength": 12,
+        "composerBroad": 0.7,
+        "composerMedium": 1.2,
+        "composerFine": 0.5,
+        "noiseScale": 3.4,
+        "noiseTime": 0.09,
+        "noiseType": "value",
+        "dyeInject": 0.32,
+        "warmupSteps": 36,
+        "viewZoom": 2.2,
+        "contrast": 2.7,
+        "pointerEnabled": true,
+        "maxDt": 0.03333333333333333,
+        "colorTweenSpeed": 0.006,
+        "wiggleAmount": 0.13,
+        "windStrength": 4.5,
+        "backgroundMode": "gradient",
+        "backgroundColor": "#07132e",
+        "backgroundColorB": "#174b77",
+        "videoReveal": 0,
+        "youtubeUrl": "",
+        "materials": [
+          {
+            "id": "gold",
+            "name": "Brushed gold",
+            "enabled": true,
+            "color": "#337cfa",
+            "colorB": "#071b46",
+            "viscosity": 0.6,
+            "roughness": 0.32,
+            "metallic": 0.5,
+            "sheen": 0.65,
+            "glow": 0.03
+          },
+          {
+            "id": "stone",
+            "name": "Obsidian",
+            "enabled": true,
+            "color": "#071b46",
+            "colorB": "#60c9ed",
+            "viscosity": 0.75,
+            "roughness": 0.23,
+            "metallic": 0.5,
+            "sheen": 0.65,
+            "glow": 0.03
+          },
+          {
+            "id": "copper",
+            "name": "Copper seam",
+            "enabled": true,
+            "color": "#60c9ed",
+            "colorB": "#d9edff",
+            "viscosity": 0.45,
+            "roughness": 0.4,
+            "metallic": 0.5,
+            "sheen": 0.65,
+            "glow": 0.03
+          },
+          {
+            "id": "silver",
+            "name": "Pale alloy",
+            "enabled": true,
+            "color": "#d9edff",
+            "colorB": "#337cfa",
+            "viscosity": 0.4,
+            "roughness": 0.25,
+            "metallic": 0.5,
+            "sheen": 0.65,
+            "glow": 0.03
+          }
+        ],
+        "emitters": [
+          {
+            "id": "Gold folds",
+            "name": "Gold folds",
+            "enabled": true,
+            "materialId": "gold",
+            "kind": "field",
+            "rate": 0.72,
+            "radius": 0.018,
+            "uvX": 0.5,
+            "uvY": 0.5,
+            "noiseOffset": 0
+          },
+          {
+            "id": "Stone body",
+            "name": "Stone body",
+            "enabled": true,
+            "materialId": "stone",
+            "kind": "field",
+            "rate": 1,
+            "radius": 0.018,
+            "uvX": 0.5,
+            "uvY": 0.5,
+            "noiseOffset": 1
+          },
+          {
+            "id": "Copper seam",
+            "name": "Copper seam",
+            "enabled": true,
+            "materialId": "copper",
+            "kind": "point",
+            "rate": 0.62,
+            "radius": 0.023,
+            "uvX": 0.78,
+            "uvY": 0.28,
+            "noiseOffset": 0
+          },
+          {
+            "id": "Copper seam north",
+            "name": "Copper seam north",
+            "enabled": true,
+            "materialId": "copper",
+            "kind": "point",
+            "rate": 0.45,
+            "radius": 0.016,
+            "uvX": 0.18,
+            "uvY": 0.82,
+            "noiseOffset": 0
+          },
+          {
+            "id": "Alloy thread",
+            "name": "Alloy thread",
+            "enabled": true,
+            "materialId": "silver",
+            "kind": "point",
+            "rate": 0.42,
+            "radius": 0.009,
+            "uvX": 0.83,
+            "uvY": 0.8,
+            "noiseOffset": 0
+          },
+          {
+            "id": "Draw gold",
+            "name": "Draw gold",
+            "enabled": true,
+            "materialId": "gold",
+            "kind": "pointer",
+            "rate": 0.3,
+            "radius": 0.0005,
+            "uvX": 0.5,
+            "uvY": 0.5,
+            "noiseOffset": 0
+          }
+        ],
+        "windStations": [
+          {
+            "id": "Slow fold",
+            "name": "Slow fold",
+            "enabled": true,
+            "uvX": 0.7,
+            "uvY": 0.48,
+            "heading": 0.08,
+            "speed": 0.18,
+            "spin": 0.039,
+            "radius": 0.36
+          },
+          {
+            "id": "Counterfold",
+            "name": "Counterfold",
+            "enabled": true,
+            "uvX": 0.25,
+            "uvY": 0.65,
+            "heading": 0.55,
+            "speed": 0.18,
+            "spin": -0.025,
+            "radius": 0.3
+          }
+        ],
+        "valueEmitters": [
+          {
+            "id": "breath",
+            "name": "Slow current",
+            "enabled": true,
+            "kind": "sine",
+            "rate": 0.015,
+            "phase": 0.2,
+            "from": 0.18,
+            "to": 0.38,
+            "scale": 1,
+            "band": 0
+          }
+        ],
+        "valueBindings": [
+          {
+            "id": "current",
+            "emitterId": "breath",
+            "path": "noiseTime",
+            "amount": 0.6
+          }
+        ]
+      }
+    }
+  ]
+}

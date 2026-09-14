@@ -43,7 +43,8 @@ export class BrowserPlatform {
 
   applyCanvasResolution(size: ViewportSize): boolean {
     const changed =
-      this.canvas.width !== size.pixelWidth || this.canvas.height !== size.pixelHeight;
+      this.canvas.width !== size.pixelWidth ||
+      this.canvas.height !== size.pixelHeight;
     if (changed) {
       this.canvas.width = size.pixelWidth;
       this.canvas.height = size.pixelHeight;

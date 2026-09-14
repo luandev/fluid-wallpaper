@@ -7,7 +7,11 @@ import {
   type ValueBinding,
   type ValueEmitter,
 } from "../src/app/config";
-import { connectPorts, latestBindings, removeBinding } from "../src/ui/graph/connect";
+import {
+  connectPorts,
+  latestBindings,
+  removeBinding,
+} from "../src/ui/graph/connect";
 import { layoutDriverGraph } from "../src/ui/graph/layout";
 
 function wave(id: string): ValueEmitter {
@@ -29,7 +33,9 @@ describe("driver graph connect", () => {
   it("lets the last connection win per path", () => {
     const config = cloneConfig(defaultConfig);
     config.valueEmitters = [wave("a"), wave("b")];
-    config.valueBindings = [{ id: "bind-1", emitterId: "a", path: "vorticity", amount: 0.4 }];
+    config.valueBindings = [
+      { id: "bind-1", emitterId: "a", path: "vorticity", amount: 0.4 },
+    ];
     const next = connectPorts(config, "b", "vorticity");
     expect(next).toBeDefined();
     const latest = latestBindings(next ?? []);
@@ -66,8 +72,12 @@ describe("driver graph connect", () => {
       path,
       amount: 1,
     })) as ValueBinding[];
-    expect(connectPorts(config, "a", `materials.${CRIMSON_MATERIAL_ID}.viscosity`)).toBeUndefined();
-    expect(connectPorts(config, "a", paths[0] ?? "vorticity")).toHaveLength(MAX_VALUE_BINDINGS);
+    expect(
+      connectPorts(config, "a", `materials.${CRIMSON_MATERIAL_ID}.viscosity`),
+    ).toBeUndefined();
+    expect(connectPorts(config, "a", paths[0] ?? "vorticity")).toHaveLength(
+      MAX_VALUE_BINDINGS,
+    );
   });
 
   it("drops a binding by id", () => {

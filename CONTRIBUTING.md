@@ -38,3 +38,7 @@ A pull request should explain:
 - which decisions, risks, or follow-up tasks remain.
 
 Use the pull request template and keep documentation aligned with the change.
+
+## Contributing a visual preset
+
+Follow the [preset guide](docs/contributing-presets.html) or [collection contract](presets/README.md). Add one folder with a full current-format preset, matching metadata and a representative 640x400 PNG capture. Use original work under MIT, public attribution, and no required external media. The gallery discovers folders automatically. Run yarn test and yarn build and include visual/device observations in the PR.

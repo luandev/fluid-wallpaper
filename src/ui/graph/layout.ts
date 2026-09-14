@@ -86,7 +86,11 @@ export function layoutDriverGraph(config: FluidConfig): GraphLayout {
                 control.max !== undefined &&
                 !RESEED_KEYS.has(control.key),
             )
-            .map((control) => ({ path: String(control.key), label: control.label, y: 0 })),
+            .map((control) => ({
+              path: String(control.key),
+              label: control.label,
+              y: 0,
+            })),
         },
       ],
     },
@@ -179,7 +183,11 @@ export function layoutDriverGraph(config: FluidConfig): GraphLayout {
   };
 }
 
-export function portCenter(node: GraphNode, port: GraphPort, side: "out" | "in"): { x: number; y: number } {
+export function portCenter(
+  node: GraphNode,
+  port: GraphPort,
+  side: "out" | "in",
+): { x: number; y: number } {
   return {
     x: side === "out" ? node.x + node.width : node.x,
     y: node.y + port.y,

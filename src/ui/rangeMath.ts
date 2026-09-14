@@ -14,7 +14,12 @@ export function clampNumber(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
-export function clampNumberField(raw: string, min: number, max: number, fallback: number): number {
+export function clampNumberField(
+  raw: string,
+  min: number,
+  max: number,
+  fallback: number,
+): number {
   const parsed = Number(raw);
   if (!Number.isFinite(parsed)) {
     return clampNumber(fallback, min, max);

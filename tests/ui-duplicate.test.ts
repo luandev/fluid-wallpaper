@@ -13,7 +13,11 @@ describe("duplicateById", () => {
     expect(next?.copy.id).not.toBe("a");
     expect(next?.copy.name).toBe("Crimson copy");
     expect(next?.copy.value).toBe(1);
-    expect(next?.items.map((item) => item.name)).toEqual(["Crimson", "Crimson copy", "Charcoal"]);
+    expect(next?.items.map((item) => item.name)).toEqual([
+      "Crimson",
+      "Crimson copy",
+      "Charcoal",
+    ]);
   });
 
   it("rejects when at cap or the id is missing", () => {

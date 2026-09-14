@@ -15,7 +15,9 @@
   border-radius: 12px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(10px);
-  font: 12px/1.4 system-ui, sans-serif;
+  font:
+    12px/1.4 system-ui,
+    sans-serif;
   overflow: hidden;
   user-select: none;
 }
@@ -445,7 +447,9 @@
 
 .graph__group {
   fill: #e80818;
-  font: 700 10px/1 system-ui, sans-serif;
+  font:
+    700 10px/1 system-ui,
+    sans-serif;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
@@ -462,7 +466,9 @@
 .graph__label,
 .graph__port-label {
   fill: #f4ecec;
-  font: 11px/1 system-ui, sans-serif;
+  font:
+    11px/1 system-ui,
+    sans-serif;
   pointer-events: none;
 }
 
@@ -549,7 +555,9 @@
   padding: 3px 8px;
   color: #f4ecec;
   background: rgba(12, 12, 14, 0.82);
-  font: 11px/1.2 system-ui, sans-serif;
+  font:
+    11px/1.2 system-ui,
+    sans-serif;
   cursor: grab;
   white-space: nowrap;
 }

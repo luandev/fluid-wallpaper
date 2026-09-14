@@ -15,14 +15,14 @@ For direct Engine or React integrations:
 ```ts
 const engine = new Engine(canvas, config, {
   eco: true,
-  onEcoChange: status => console.log(status),
+  onEcoChange: (status) => console.log(status),
 });
 engine.start();
 engine.setEcoMode(false); // Restore authored resolution without a new composition.
 ```
 
 ```tsx
-<FluidField onEngine={engine => engine.setEcoMode(true)} />
+<FluidField onEngine={(engine) => engine.setEcoMode(true)} />
 ```
 
 The constructor option applies the smaller budget before allocation/warmup. React's `onEngine` enables it after initial construction. `getEcoStatus()` and the element's `qualityStatus` expose effective settings; `qualitychange` fires on adaptation. For the legacy path, `qualityStatus` is now `EcoStatus | null`; for a liquid scene it remains `LiquidStatus`. `getConfig()` continues to return authored settings, not adaptive overrides. Leaving ECO restores those settings; choosing another named quality preset applies that preset as before.
@@ -30,11 +30,11 @@ The constructor option applies the smaller budget before allocation/warmup. Reac
 ## Policy
 
 | ECO level | Legacy sim / pigment ceiling (short edge) | Target FPS | Simulation-time multiplier | Legacy display pixel cap |
-| --- | --- | --- | --- | --- |
-| 0 | 192 / 384 | 30 | 1.00 | 524,288 |
-| 1 | 144 / 288 | 30 | 0.85 | 294,912 |
-| 2 | 96 / 192 | 24 | 0.65 | 131,072 |
-| 3 | 64 / 128 | 20 | 0.50 | 65,536 |
+| --------- | ----------------------------------------- | ---------- | -------------------------- | ------------------------ |
+| 0         | 192 / 384                                 | 30         | 1.00                       | 524,288                  |
+| 1         | 144 / 288                                 | 30         | 0.85                       | 294,912                  |
+| 2         | 96 / 192                                  | 24         | 0.65                       | 131,072                  |
+| 3         | 64 / 128                                  | 20         | 0.50                       | 65,536                   |
 
 Authored resolutions below the initial ceilings stay below them, subject to internal floors of 64/128. Pressure stays at 20 iterations. ECO initialization caps existing warmup at 24 steps. The smaller internal grids do not change the authoring slider ranges. Display resolution changes preserve CSS size/aspect and pointer coordinates.
 

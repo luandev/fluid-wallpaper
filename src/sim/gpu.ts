@@ -36,7 +36,12 @@ export function compileProgram(
   label: string,
 ): WebGLProgram {
   const vert = compileShader(gl, gl.VERTEX_SHADER, vertSrc, `${label} vertex`);
-  const frag = compileShader(gl, gl.FRAGMENT_SHADER, fragSrc, `${label} fragment`);
+  const frag = compileShader(
+    gl,
+    gl.FRAGMENT_SHADER,
+    fragSrc,
+    `${label} fragment`,
+  );
   const program = gl.createProgram();
   if (!program) {
     throw new Error(`Failed to create program: ${label}`);
@@ -94,7 +99,9 @@ export function uniformMap(
   return map;
 }
 
-export function createFullscreenVao(gl: WebGL2RenderingContext): WebGLVertexArrayObject {
+export function createFullscreenVao(
+  gl: WebGL2RenderingContext,
+): WebGLVertexArrayObject {
   const vao = gl.createVertexArray();
   const buffer = gl.createBuffer();
   if (!vao || !buffer) {
@@ -143,14 +150,22 @@ export function createFbo(
     null,
   );
   gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+  gl.framebufferTexture2D(
+    gl.FRAMEBUFFER,
+    gl.COLOR_ATTACHMENT0,
+    gl.TEXTURE_2D,
+    texture,
+    0,
+  );
   const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
   gl.bindFramebuffer(gl.FRAMEBUFFER, null);
   gl.bindTexture(gl.TEXTURE_2D, null);
   if (status !== gl.FRAMEBUFFER_COMPLETE) {
     gl.deleteTexture(texture);
     gl.deleteFramebuffer(framebuffer);
-    throw new Error(`Incomplete framebuffer (${status}) for ${width}x${height}`);
+    throw new Error(
+      `Incomplete framebuffer (${status}) for ${width}x${height}`,
+    );
   }
   return { texture, framebuffer, width, height };
 }
@@ -170,9 +185,25 @@ export function createByteFbo(
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+  gl.texImage2D(
+    gl.TEXTURE_2D,
+    0,
+    gl.RGBA,
+    width,
+    height,
+    0,
+    gl.RGBA,
+    gl.UNSIGNED_BYTE,
+    null,
+  );
   gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+  gl.framebufferTexture2D(
+    gl.FRAMEBUFFER,
+    gl.COLOR_ATTACHMENT0,
+    gl.TEXTURE_2D,
+    texture,
+    0,
+  );
   const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
   gl.bindFramebuffer(gl.FRAMEBUFFER, null);
   gl.bindTexture(gl.TEXTURE_2D, null);
@@ -192,8 +223,12 @@ export function createDoubleFbo(
 ): DoubleFBO {
   const a = createFbo(gl, width, height, format);
   let b: FBO;
-  try { b = createFbo(gl, width, height, format); }
-  catch (error) { deleteFbo(gl, a); throw error; }
+  try {
+    b = createFbo(gl, width, height, format);
+  } catch (error) {
+    deleteFbo(gl, a);
+    throw error;
+  }
   const pair: DoubleFBO = {
     read: a,
     write: b,
@@ -211,7 +246,10 @@ export function deleteFbo(gl: WebGL2RenderingContext, fbo: FBO): void {
   gl.deleteFramebuffer(fbo.framebuffer);
 }
 
-export function deleteDoubleFbo(gl: WebGL2RenderingContext, fbo: DoubleFBO): void {
+export function deleteDoubleFbo(
+  gl: WebGL2RenderingContext,
+  fbo: DoubleFBO,
+): void {
   deleteFbo(gl, fbo.read);
   deleteFbo(gl, fbo.write);
 }
@@ -231,7 +269,10 @@ export function bindTarget(
   }
 }
 
-export function resolutionFor(resolution: number, aspect: number): { width: number; height: number } {
+export function resolutionFor(
+  resolution: number,
+  aspect: number,
+): { width: number; height: number } {
   if (aspect > 1) {
     return {
       width: Math.max(8, Math.round(resolution * aspect)),

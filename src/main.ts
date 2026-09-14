@@ -1,3 +1,5 @@
+import { getFluidPreset, fluidPresets } from "./presets";
+import type { FluidConfig } from "./app/config";
 import { Engine } from "./app/engine";
 import { loadStoredConfig } from "./app/storage";
 import { mountDashboard } from "./ui/Dashboard";
@@ -26,7 +28,17 @@ let unmountDash: (() => void) | null = null;
 let unmountPerf: (() => void) | null = null;
 
 try {
-  engine = new Engine(canvas, loadStoredConfig());
+  const query = new URLSearchParams(location.search),
+    id = query.get("preset");
+  const fromGallery = !!id && fluidPresets.some((p) => p.id === id);
+  const initial = fromGallery ? getFluidPreset(id!) : loadStoredConfig();
+  const background = query.get("background");
+  if (
+    fromGallery &&
+    ["solid", "gradient", "transparent"].includes(background ?? "")
+  )
+    initial.backgroundMode = background as FluidConfig["backgroundMode"];
+  engine = new Engine(canvas, initial, { eco: fromGallery });
   engine.start();
   if (dashRoot instanceof HTMLElement) {
     dashRoot.hidden = false;

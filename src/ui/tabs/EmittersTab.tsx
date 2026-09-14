@@ -38,8 +38,13 @@ export function EmittersTab({
           disabled={config.emitters.length >= MAX_EMITTERS}
           onClick={() =>
             patchFrom((current) => {
-              const emitter = createEmitter(current.emitters, current.materials);
-              return emitter ? { emitters: [...current.emitters, emitter] } : {};
+              const emitter = createEmitter(
+                current.emitters,
+                current.materials,
+              );
+              return emitter
+                ? { emitters: [...current.emitters, emitter] }
+                : {};
             })
           }
         >
@@ -47,7 +52,8 @@ export function EmittersTab({
         </button>
       </div>
       {config.emitters.map((emitter) => {
-        const liveEmitter = live.emitters.find((item) => item.id === emitter.id) ?? emitter;
+        const liveEmitter =
+          live.emitters.find((item) => item.id === emitter.id) ?? emitter;
         return (
           <ItemCard
             key={emitter.id}
@@ -58,7 +64,12 @@ export function EmittersTab({
             onSelect={() => onSelect(emitter.id)}
             onDuplicate={() =>
               patchFrom((current) => {
-                const next = duplicateById(current.emitters, emitter.id, "emit", MAX_EMITTERS);
+                const next = duplicateById(
+                  current.emitters,
+                  emitter.id,
+                  "emit",
+                  MAX_EMITTERS,
+                );
                 if (!next) {
                   return {};
                 }
@@ -68,7 +79,9 @@ export function EmittersTab({
             }
             onRemove={() =>
               patchFrom((current) => ({
-                emitters: current.emitters.filter((item) => item.id !== emitter.id),
+                emitters: current.emitters.filter(
+                  (item) => item.id !== emitter.id,
+                ),
               }))
             }
             nameSlot={
@@ -80,7 +93,9 @@ export function EmittersTab({
                 onBlur={(event) =>
                   patchFrom((current) => ({
                     emitters: current.emitters.map((item) =>
-                      item.id === emitter.id ? { ...item, name: event.target.value } : item,
+                      item.id === emitter.id
+                        ? { ...item, name: event.target.value }
+                        : item,
                     ),
                   }))
                 }
@@ -91,7 +106,9 @@ export function EmittersTab({
               label="Enabled"
               help={EMITTER_FIELD_HELP.enabled}
               value={emitter.enabled}
-              onChange={(enabled) => patchEmitter(patchFrom, emitter.id, { enabled })}
+              onChange={(enabled) =>
+                patchEmitter(patchFrom, emitter.id, { enabled })
+              }
             />
             <SelectRow
               label="Kind"
@@ -102,14 +119,23 @@ export function EmittersTab({
                 { value: "point", label: "Point" },
                 { value: "pointer", label: "Pointer" },
               ]}
-              onChange={(kind) => patchEmitter(patchFrom, emitter.id, { kind: kind as EmitterKind })}
+              onChange={(kind) =>
+                patchEmitter(patchFrom, emitter.id, {
+                  kind: kind as EmitterKind,
+                })
+              }
             />
             <SelectRow
               label="Material"
               help={EMITTER_FIELD_HELP.material}
               value={emitter.materialId}
-              options={config.materials.map((material) => ({ value: material.id, label: material.name }))}
-              onChange={(materialId) => patchEmitter(patchFrom, emitter.id, { materialId })}
+              options={config.materials.map((material) => ({
+                value: material.id,
+                label: material.name,
+              }))}
+              onChange={(materialId) =>
+                patchEmitter(patchFrom, emitter.id, { materialId })
+              }
             />
             <EmitterRange
               emitter={emitter}
@@ -186,9 +212,15 @@ export function EmittersTab({
   );
 }
 
-function patchEmitter(patchFrom: PatchFrom, id: string, patch: Partial<FluidEmitter>): void {
+function patchEmitter(
+  patchFrom: PatchFrom,
+  id: string,
+  patch: Partial<FluidEmitter>,
+): void {
   patchFrom((current) => ({
-    emitters: current.emitters.map((item) => (item.id === id ? { ...item, ...patch } : item)),
+    emitters: current.emitters.map((item) =>
+      item.id === id ? { ...item, ...patch } : item,
+    ),
   }));
 }
 
@@ -226,7 +258,9 @@ function EmitterRange({
       max={max}
       step={step}
       driverName={driverNameForPath(config, path)}
-      onChange={(value) => patchEmitter(patchFrom, emitter.id, { [field]: value })}
+      onChange={(value) =>
+        patchEmitter(patchFrom, emitter.id, { [field]: value })
+      }
     />
   );
 }

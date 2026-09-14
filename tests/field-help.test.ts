@@ -10,6 +10,8 @@ describe("field help", () => {
 
   it("keeps reseed keys out of bindable help paths", () => {
     expect(RESEED_KEYS.has("simResolution")).toBe(true);
-    expect(controlSchema.find((control) => control.key === "simResolution")?.help).toMatch(/rebuild/i);
+    expect(
+      controlSchema.find((control) => control.key === "simResolution")?.help,
+    ).toMatch(/rebuild/i);
   });
 });

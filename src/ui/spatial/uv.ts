@@ -18,7 +18,11 @@ function clamp01(value: number): number {
 }
 
 /** Map client pixels to field UV. V is 0 at the bottom, matching pointer stir. */
-export function clientToUv(clientX: number, clientY: number, rect: ViewRect): Uv {
+export function clientToUv(
+  clientX: number,
+  clientY: number,
+  rect: ViewRect,
+): Uv {
   const width = Math.max(rect.width, 1);
   const height = Math.max(rect.height, 1);
   return {

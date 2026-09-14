@@ -15,7 +15,11 @@ function EmbedApp(): ReactNode {
         <a href="./">Landing</a>
         <a href="./play.html">Tuner</a>
         <a href="./usage.html">Install & examples</a>
-        <button type="button" data-active={mode === "field" ? "true" : "false"} onClick={() => setMode("field")}>
+        <button
+          type="button"
+          data-active={mode === "field" ? "true" : "false"}
+          onClick={() => setMode("field")}
+        >
           React field
         </button>
         <button

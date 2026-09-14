@@ -1,0 +1,10 @@
+{
+  "id": "cobalt",
+  "name": "Cobalt Glass",
+  "description": "Cobalt currents with glacial white edges and translucent blue folds.",
+  "character": "Cool / glassy / sweeping",
+  "accent": "#8fbfff",
+  "author": "fluid-wallpaper contributors",
+  "license": "MIT",
+  "tags": ["cool", "glassy", "sweeping"]
+}

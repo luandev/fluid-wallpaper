@@ -50,12 +50,19 @@ export class FluidSolver {
     this.dyeSize = resolutionFor(config.dyeResolution, aspect);
     const allocated: FBO[] = [];
     const single = () => {
-      const field = createFbo(gl, this.simSize.width, this.simSize.height, format);
-      allocated.push(field); return field;
+      const field = createFbo(
+        gl,
+        this.simSize.width,
+        this.simSize.height,
+        format,
+      );
+      allocated.push(field);
+      return field;
     };
     const pair = (size: { width: number; height: number }) => {
       const field = createDoubleFbo(gl, size.width, size.height, format);
-      allocated.push(field.read, field.write); return field;
+      allocated.push(field.read, field.write);
+      return field;
     };
     try {
       this.velocity = pair(this.simSize);
@@ -66,7 +73,10 @@ export class FluidSolver {
       this.liveNoiseTime = config.noiseTime;
       this.liveNoiseScale = config.noiseScale;
       if (initialize) this.seed();
-    } catch (error) { allocated.forEach(field => deleteFbo(gl, field)); throw error; }
+    } catch (error) {
+      allocated.forEach((field) => deleteFbo(gl, field));
+      throw error;
+    }
   }
 
   setLiveMotion(motion: LiveMotion): void {
@@ -80,7 +90,14 @@ export class FluidSolver {
 
   /** Carry the current composition into a new grid without seeding or warmup. */
   resample(aspect: number): FluidSolver {
-    const next = new FluidSolver(this.gl, this.passes, this.format, this.config, aspect, false);
+    const next = new FluidSolver(
+      this.gl,
+      this.passes,
+      this.format,
+      this.config,
+      aspect,
+      false,
+    );
     try {
       const pass = this.passes.resample;
       const transfer = (source: FBO, target: FBO, x: number, y: number) => {
@@ -92,13 +109,26 @@ export class FluidSolver {
       };
       transfer(this.dye.read, next.dye.read, 1, 1);
       // Velocity is in grid cells/sec; preserve normalized-domain displacement.
-      transfer(this.velocity.read, next.velocity.read, next.simSize.width / this.simSize.width, next.simSize.height / this.simSize.height);
+      transfer(
+        this.velocity.read,
+        next.velocity.read,
+        next.simSize.width / this.simSize.width,
+        next.simSize.height / this.simSize.height,
+      );
       next.project();
       return next;
-    } catch (error) { next.dispose(); throw error; }
+    } catch (error) {
+      next.dispose();
+      throw error;
+    }
   }
 
-  get gridSizes(): { simWidth: number; simHeight: number; dyeWidth: number; dyeHeight: number } {
+  get gridSizes(): {
+    simWidth: number;
+    simHeight: number;
+    dyeWidth: number;
+    dyeHeight: number;
+  } {
     return {
       simWidth: this.simSize.width,
       simHeight: this.simSize.height,
@@ -113,7 +143,9 @@ export class FluidSolver {
 
   matchesAspect(aspect: number): boolean {
     const next = resolutionFor(this.config.simResolution, aspect);
-    return next.width === this.simSize.width && next.height === this.simSize.height;
+    return (
+      next.width === this.simSize.width && next.height === this.simSize.height
+    );
   }
 
   step(dt: number, time: number, splat: PointerSplat | null): void {
@@ -131,7 +163,12 @@ export class FluidSolver {
       this.applyViscosity(simDt);
       this.advect(this.velocity, this.velocity, 1, simDt);
       this.project();
-      this.advect(this.dye, this.velocity, decayFactor(this.config.dyeDecay, simDt), simDt);
+      this.advect(
+        this.dye,
+        this.velocity,
+        decayFactor(this.config.dyeDecay, simDt),
+        simDt,
+      );
     }
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
   }
@@ -178,13 +215,21 @@ export class FluidSolver {
 
   private splatPointer(splat: PointerSplat): void {
     const forceX = splat.delta[0] * this.config.splatForce * this.simSize.width;
-    const forceY = splat.delta[1] * this.config.splatForce * this.simSize.height;
-    this.splat(this.velocity, splat.uv, [forceX, forceY, 0, 0], this.config.splatRadius);
+    const forceY =
+      splat.delta[1] * this.config.splatForce * this.simSize.height;
+    this.splat(
+      this.velocity,
+      splat.uv,
+      [forceX, forceY, 0, 0],
+      this.config.splatRadius,
+    );
     for (const emitter of this.config.emitters) {
       if (!emitter.enabled || emitter.kind !== "pointer") {
         continue;
       }
-      const material = this.config.materials.find((item) => item.id === emitter.materialId);
+      const material = this.config.materials.find(
+        (item) => item.id === emitter.materialId,
+      );
       if (!material?.enabled) {
         continue;
       }
@@ -213,7 +258,10 @@ export class FluidSolver {
     this.set4f(pass, "uColor", color[0], color[1], color[2], color[3]);
     this.gl.uniform2f(pass.uniforms.uPoint, point[0], point[1]);
     this.gl.uniform1f(pass.uniforms.uRadius, radius);
-    this.drawTo(target.write, { width: target.write.width, height: target.write.height });
+    this.drawTo(target.write, {
+      width: target.write.width,
+      height: target.write.height,
+    });
     target.swap();
   }
 
@@ -266,7 +314,9 @@ export class FluidSolver {
       if (emitter.kind !== "field" && emitter.kind !== "point") {
         continue;
       }
-      const mat = this.config.materials.find((item) => item.id === emitter.materialId);
+      const mat = this.config.materials.find(
+        (item) => item.id === emitter.materialId,
+      );
       if (!mat?.enabled) {
         continue;
       }
@@ -302,7 +352,14 @@ export class FluidSolver {
       enabled[i] = material.enabled ? 1 : 0;
     }
     this.set4f(pass, "uViscosity", visc[0], visc[1], visc[2], visc[3]);
-    this.set4f(pass, "uEnabled", enabled[0], enabled[1], enabled[2], enabled[3]);
+    this.set4f(
+      pass,
+      "uEnabled",
+      enabled[0],
+      enabled[1],
+      enabled[2],
+      enabled[3],
+    );
     this.set1f(pass, "uBaseDecay", this.config.velocityDecay);
     this.set1f(pass, "uDt", dt);
     this.drawTo(this.velocity.write, this.simSize);
@@ -432,17 +489,30 @@ export class FluidSolver {
     this.velocity.swap();
   }
 
-  private advect(field: DoubleFBO, velocity: DoubleFBO, decay: number, dt: number): void {
+  private advect(
+    field: DoubleFBO,
+    velocity: DoubleFBO,
+    decay: number,
+    dt: number,
+  ): void {
     const pass = this.passes.advection;
     this.use(pass);
     this.bindField(pass, "uSource", field.read.texture, 0);
     this.bindField(pass, "uVelocity", velocity.read.texture, 1);
-    this.set2f(pass, "uInvSimSize", 1 / this.simSize.width, 1 / this.simSize.height);
+    this.set2f(
+      pass,
+      "uInvSimSize",
+      1 / this.simSize.width,
+      1 / this.simSize.height,
+    );
     this.set2f(pass, "uSourceRes", field.read.width, field.read.height);
     this.set1f(pass, "uDt", dt);
     this.set1f(pass, "uDecay", decay);
     this.set1f(pass, "uManualBilinear", this.format.manualBilinear ? 1 : 0);
-    this.drawTo(field.write, { width: field.write.width, height: field.write.height });
+    this.drawTo(field.write, {
+      width: field.write.width,
+      height: field.write.height,
+    });
     field.swap();
   }
 
@@ -454,7 +524,10 @@ export class FluidSolver {
     this.set4f(pass, "uColor", 0, 0, 0, 0);
     this.set2f(pass, "uPoint", -10, -10);
     this.set1f(pass, "uRadius", 1e-8);
-    this.drawTo(pair.write, { width: pair.write.width, height: pair.write.height });
+    this.drawTo(pair.write, {
+      width: pair.write.width,
+      height: pair.write.height,
+    });
   }
 
   private texelSize(): [number, number] {
@@ -469,7 +542,12 @@ export class FluidSolver {
     return pass.uniforms[name] ?? pass.uniforms[`${name}[0]`];
   }
 
-  private bindField(pass: Pass, name: string, texture: WebGLTexture, unit: number): void {
+  private bindField(
+    pass: Pass,
+    name: string,
+    texture: WebGLTexture,
+    unit: number,
+  ): void {
     this.gl.activeTexture(this.gl.TEXTURE0 + unit);
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
     const loc = this.loc(pass, name);
@@ -499,7 +577,14 @@ export class FluidSolver {
     }
   }
 
-  private set4f(pass: Pass, name: string, x: number, y: number, z: number, w: number): void {
+  private set4f(
+    pass: Pass,
+    name: string,
+    x: number,
+    y: number,
+    z: number,
+    w: number,
+  ): void {
     const loc = this.loc(pass, name);
     if (loc) {
       this.gl.uniform4f(loc, x, y, z, w);

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="A field of color. A feeling of motion. Fluid backgrounds that fit the things you make."
+    />
+    <title>Start · fluid-wallpaper</title>
+    <link rel="stylesheet" href="../src/docs/docs.css" />
+  </head>
+  <body data-page="index" style="--accent: #7aefdc">
+    <a class="skip button" href="#content">Skip to content</a>
+    <header class="site-nav">
+      <a class="brand" href="../index.html">fluid<span>—</span>wallpaper</a
+      ><button
+        class="menu-toggle"
+        aria-expanded="false"
+        aria-controls="docs-nav"
+      >
+        Menu
+      </button>
+      <nav class="nav-links" id="docs-nav" aria-label="Documentation">
+        <a href="./index.html">Start</a><a href="./settings.html">Settings</a
+        ><a href="./hero.html">Fluid hero</a><a href="./gallery.html">Gallery</a
+        ><a href="./contributing-presets.html">Contribute</a
+        ><a href="../play.html">Open tuner ↗</a>
+      </nav>
+    </header>
+    <main id="content">
+      <fluid-hero id="page-hero" preset="aurora"
+        ><p class="eyebrow">fluid-wallpaper / Start</p>
+        <h1>
+          Give your interface<br />
+          a little life.
+        </h1>
+        <p>
+          A field of color. A feeling of motion. Fluid backgrounds that fit the
+          things you make.
+        </p>
+        <div class="hero-links">
+          <a class="button" href="./gallery.html">Explore the gallery</a
+          ><a href="./hero.html">Build with fluid-hero ↗</a>
+        </div></fluid-hero
+      >
+      <p class="lead">
+        A little atmosphere. A lot of possibility. Add a living material field
+        to a hero, a canvas, or an entire interface.
+      </p>
+      <div class="tiles">
+        <section class="tile">
+          <small>01 / Compose</small>
+          <h3><a href="./gallery.html">Find your current</a></h3>
+          <p>
+            Six authored looks, from liquid gold to drifting ink. Pick one, make
+            it yours.
+          </p>
+        </section>
+        <section class="tile">
+          <small>02 / Embed</small>
+          <h3><a href="./hero.html">A hero in a few lines</a></h3>
+          <p>
+            Your heading, your layout, a fluid background. Native HTML and
+            React.
+          </p>
+        </section>
+        <section class="tile">
+          <small>03 / Explore</small>
+          <h3><a href="./settings.html">Know every control</a></h3>
+          <p>
+            Palettes, forces, emitters, backgrounds and runtime budgets,
+            explained.
+          </p>
+        </section>
+      </div>
+      <article>
+        <h2>Install once. Use anywhere.</h2>
+        <p>
+          The site uses the local compiled preview. Registry commands become
+          available once the preview release is published.
+        </p>
+        <pre><code>npm install fluid-wallpaper@next
+# or
+yarn add fluid-wallpaper@next</code></pre>
+        <h2>Native web component</h2>
+        <p>No React or stylesheet dependency. Give the host a height.</p>
+        <pre><code>import { defineFluidInk } from &#x27;fluid-wallpaper/element&#x27;;
+defineFluidInk();
+
+&lt;fluid-ink quality=&quot;eco&quot; style=&quot;height:360px&quot;&gt;
+  &lt;p slot=&quot;fallback&quot;&gt;A still moment.&lt;/p&gt;
+&lt;/fluid-ink&gt;</code></pre>
+        <h2>React</h2>
+        <pre><code>import { FluidHero } from &#x27;fluid-wallpaper/react&#x27;;
+
+export function Welcome() {
+  return &lt;FluidHero preset=&quot;aurora&quot;&gt;
+    &lt;h1&gt;Make room for wonder.&lt;/h1&gt;
+  &lt;/FluidHero&gt;;
+}</code></pre>
+        <p>
+          FluidHero includes its own shadow styles. The existing FluidField uses
+          <code>fluid-wallpaper/styles.css</code> and offers the optional artist
+          dashboard.
+        </p>
+        <h2>Meet the tools</h2>
+        <p>
+          <a href="../component.html">Web component playground</a> ·
+          <a href="../embed.html">React field demo</a> ·
+          <a href="../play.html">Artist tuner</a> ·
+          <a href="../liquid.html">Experimental two-liquid studio</a>
+        </p>
+        <p class="note">
+          WebGL2 and floating-point render targets are required for animation.
+          ECO adapts to load; mobile certification and physical two-liquid
+          accuracy remain unfinished. Static content stays useful without the
+          animation.
+        </p>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <span>fluid-wallpaper · Living color, thoughtfully embedded.</span
+      ><a href="https://github.com/luandev/fluid-wallpaper"
+        >Source &amp; contributions ↗</a
+      >
+    </footer>
+    <script type="module" src="../src/docs/main.ts"></script>
+  </body>
+</html>

@@ -21,7 +21,10 @@ import { RangeRow, SelectRow, ToggleRow } from "../rows";
 import type { PatchFrom } from "../types";
 import { useCollapsedIds } from "../useCollapsedIds";
 
-const AUDIO_SOURCE_OPTIONS: ReadonlyArray<{ value: AudioSource; label: string }> = [
+const AUDIO_SOURCE_OPTIONS: ReadonlyArray<{
+  value: AudioSource;
+  label: string;
+}> = [
   { value: "off", label: "Off" },
   { value: "microphone", label: "Microphone" },
   { value: "tab", label: "Tab audio" },
@@ -53,12 +56,21 @@ export function DriversTab({
   patchFrom: PatchFrom;
 }): ReactNode {
   const collapsed = useCollapsedIds();
-  const [audioSource, setAudioSource] = useState<AudioSource>(() => engine.getAudioSource());
+  const [audioSource, setAudioSource] = useState<AudioSource>(() =>
+    engine.getAudioSource(),
+  );
   const [audioStatus, setAudioStatus] = useState(() => engine.getAudioStatus());
   const emitter =
-    config.valueEmitters.find((item) => item.id === selectedEmitterId) ?? config.valueEmitters[0] ?? null;
+    config.valueEmitters.find((item) => item.id === selectedEmitterId) ??
+    config.valueEmitters[0] ??
+    null;
   const connected = useMemo(
-    () => (emitter ? latestBindings(config.valueBindings).filter((binding) => binding.emitterId === emitter.id) : []),
+    () =>
+      emitter
+        ? latestBindings(config.valueBindings).filter(
+            (binding) => binding.emitterId === emitter.id,
+          )
+        : [],
     [config.valueBindings, emitter],
   );
 
@@ -67,7 +79,8 @@ export function DriversTab({
       <section className="dash__group">
         <h3 className="dash__group-title">Listen</h3>
         <p className="dash__hint">
-          Arm analysis after a click. Tab audio (Chrome share this tab) is how YouTube playback can drive the field.
+          Arm analysis after a click. Tab audio (Chrome share this tab) is how
+          YouTube playback can drive the field.
         </p>
         <SelectRow
           label="Source"
@@ -85,7 +98,10 @@ export function DriversTab({
       </section>
       <section className="dash__group dash__drivers-graph">
         <h3 className="dash__group-title">Graph</h3>
-        <p className="dash__hint">Drag from an emitter port to a target. Click a wire, then Delete to drop it.</p>
+        <p className="dash__hint">
+          Drag from an emitter port to a target. Click a wire, then Delete to
+          drop it.
+        </p>
         <DriverGraph
           config={config}
           selectedEmitterId={emitter?.id ?? null}
@@ -127,7 +143,8 @@ export function DriversTab({
           </button>
         </div>
         <p className="dash__hint">
-          Waves tween A↔B. Audio pulse is a beat kick; audio spectrum is a log FFT bar. Camera and tilt stay at 0.5.
+          Waves tween A↔B. Audio pulse is a beat kick; audio spectrum is a log
+          FFT bar. Camera and tilt stay at 0.5.
         </p>
         {emitter ? (
           <EmitterInspector
@@ -141,7 +158,12 @@ export function DriversTab({
             onToggleCollapse={() => collapsed.toggle(emitter.id)}
             onDuplicate={() =>
               patchFrom((current) => {
-                const next = duplicateById(current.valueEmitters, emitter.id, "wave", MAX_VALUE_EMITTERS);
+                const next = duplicateById(
+                  current.valueEmitters,
+                  emitter.id,
+                  "wave",
+                  MAX_VALUE_EMITTERS,
+                );
                 if (!next) {
                   return {};
                 }
@@ -152,11 +174,15 @@ export function DriversTab({
             patchFrom={patchFrom}
             onRemove={() =>
               patchFrom((current) => {
-                const valueEmitters = current.valueEmitters.filter((item) => item.id !== emitter.id);
+                const valueEmitters = current.valueEmitters.filter(
+                  (item) => item.id !== emitter.id,
+                );
                 onSelectEmitter(valueEmitters[0]?.id ?? null);
                 return {
                   valueEmitters,
-                  valueBindings: current.valueBindings.filter((binding) => binding.emitterId !== emitter.id),
+                  valueBindings: current.valueBindings.filter(
+                    (binding) => binding.emitterId !== emitter.id,
+                  ),
                 };
               })
             }
@@ -181,7 +207,9 @@ export function DriversTab({
             }
           />
         ) : (
-          <p className="dash__hint">Add a value emitter to start wiring knobs.</p>
+          <p className="dash__hint">
+            Add a value emitter to start wiring knobs.
+          </p>
         )}
       </section>
     </div>
@@ -222,7 +250,10 @@ function EmitterInspector({
   const sample = evaluateEmitter(emitter, elapsed, engine.getAudioFrame());
   const span = Math.max(1e-6, Math.abs(emitter.to - emitter.from));
   const preview = isAudioKind(emitter.kind)
-    ? Math.min(1, Math.max(0, (sample - Math.min(emitter.from, emitter.to)) / span))
+    ? Math.min(
+        1,
+        Math.max(0, (sample - Math.min(emitter.from, emitter.to)) / span),
+      )
     : wave01(emitter.kind, elapsed * Math.max(0, emitter.rate) + emitter.phase);
   return (
     <ItemCard
@@ -241,7 +272,9 @@ function EmitterInspector({
           onBlur={(event) =>
             patchFrom((current) => ({
               valueEmitters: current.valueEmitters.map((item) =>
-                item.id === emitter.id ? { ...item, name: event.target.value } : item,
+                item.id === emitter.id
+                  ? { ...item, name: event.target.value }
+                  : item,
               ),
             }))
           }
@@ -259,7 +292,10 @@ function EmitterInspector({
         help={VALUE_EMITTER_FIELD_HELP.kind}
         value={emitter.kind}
         display={kindLabel(emitter.kind)}
-        options={VALUE_EMITTER_KINDS.map((kind) => ({ value: kind, label: kindLabel(kind) }))}
+        options={VALUE_EMITTER_KINDS.map((kind) => ({
+          value: kind,
+          label: kindLabel(kind),
+        }))}
         onChange={(kind) => onPatch({ kind: kind as ValueEmitterKind })}
       />
       {isAudioKind(emitter.kind) ? (
@@ -327,7 +363,10 @@ function EmitterInspector({
           <span className="dash__value">{sample.toFixed(2)}</span>
         </div>
         <div className="dash__wave" aria-hidden="true">
-          <div className="dash__wave-fill" style={{ width: `${Math.min(100, Math.max(0, preview * 100))}%` }} />
+          <div
+            className="dash__wave-fill"
+            style={{ width: `${Math.min(100, Math.max(0, preview * 100))}%` }}
+          />
         </div>
       </div>
       {connected.map((binding) => {
@@ -345,7 +384,11 @@ function EmitterInspector({
               driverName={emitter.name}
               onChange={(amount) => onAmount(binding.id, amount)}
             />
-            <button type="button" className="dash__btn" onClick={() => onDropBinding(binding.id)}>
+            <button
+              type="button"
+              className="dash__btn"
+              onClick={() => onDropBinding(binding.id)}
+            >
               Remove
             </button>
           </div>

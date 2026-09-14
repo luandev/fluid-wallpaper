@@ -1,0 +1,213 @@
+{
+  "kind": "fluid-wallpaper.preset.v1",
+  "presets": [
+    {
+      "id": "verdant",
+      "name": "Verdant Drift",
+      "updatedAt": 1789344000000,
+      "config": {
+        "simResolution": 128,
+        "dyeResolution": 384,
+        "pressureIterations": 24,
+        "vorticity": 10,
+        "velocityDecay": 0.78,
+        "dyeDecay": 0.02,
+        "splatRadius": 0.0006,
+        "splatForce": 900,
+        "dyeSplatRadius": 0.0009,
+        "seedVelocityScale": 5.5,
+        "composerStrength": 14,
+        "composerBroad": 1.1,
+        "composerMedium": 0.8,
+        "composerFine": 0.8,
+        "noiseScale": 5.2,
+        "noiseTime": 0.06,
+        "noiseType": "perlin",
+        "dyeInject": 0.32,
+        "warmupSteps": 36,
+        "viewZoom": 2.15,
+        "contrast": 2.1,
+        "pointerEnabled": true,
+        "maxDt": 0.03333333333333333,
+        "colorTweenSpeed": 0.009,
+        "wiggleAmount": 0.13,
+        "windStrength": 5.5,
+        "backgroundMode": "gradient",
+        "backgroundColor": "#102d27",
+        "backgroundColorB": "#435a30",
+        "videoReveal": 0,
+        "youtubeUrl": "",
+        "materials": [
+          {
+            "id": "ivory",
+            "name": "Porcelain",
+            "enabled": true,
+            "color": "#bde786",
+            "colorB": "#0b392e",
+            "viscosity": 0.3,
+            "roughness": 0.88,
+            "metallic": 0.08,
+            "sheen": 0.65,
+            "glow": 0.03
+          },
+          {
+            "id": "ink",
+            "name": "Indigo ink",
+            "enabled": true,
+            "color": "#0b392e",
+            "colorB": "#388b69",
+            "viscosity": 0.18,
+            "roughness": 0.76,
+            "metallic": 0.08,
+            "sheen": 0.65,
+            "glow": 0.03
+          },
+          {
+            "id": "glass",
+            "name": "Sea glass",
+            "enabled": true,
+            "color": "#388b69",
+            "colorB": "#e1e6ac",
+            "viscosity": 0.12,
+            "roughness": 0.65,
+            "metallic": 0.08,
+            "sheen": 0.65,
+            "glow": 0.03
+          },
+          {
+            "id": "coral",
+            "name": "Coral trace",
+            "enabled": true,
+            "color": "#e1e6ac",
+            "colorB": "#bde786",
+            "viscosity": 0.25,
+            "roughness": 0.84,
+            "metallic": 0.08,
+            "sheen": 0.65,
+            "glow": 0.03
+          }
+        ],
+        "emitters": [
+          {
+            "id": "Porcelain wash",
+            "name": "Porcelain wash",
+            "enabled": true,
+            "materialId": "ivory",
+            "kind": "field",
+            "rate": 1,
+            "radius": 0.018,
+            "uvX": 0.5,
+            "uvY": 0.5,
+            "noiseOffset": 0
+          },
+          {
+            "id": "Indigo tide",
+            "name": "Indigo tide",
+            "enabled": true,
+            "materialId": "ink",
+            "kind": "field",
+            "rate": 0.8,
+            "radius": 0.018,
+            "uvX": 0.5,
+            "uvY": 0.5,
+            "noiseOffset": 1
+          },
+          {
+            "id": "Sea glass inlet",
+            "name": "Sea glass inlet",
+            "enabled": true,
+            "materialId": "glass",
+            "kind": "point",
+            "rate": 0.7,
+            "radius": 0.04,
+            "uvX": 0.8,
+            "uvY": 0.65,
+            "noiseOffset": 0
+          },
+          {
+            "id": "Sea glass return",
+            "name": "Sea glass return",
+            "enabled": true,
+            "materialId": "glass",
+            "kind": "point",
+            "rate": 0.4,
+            "radius": 0.022,
+            "uvX": 0.32,
+            "uvY": 0.18,
+            "noiseOffset": 0
+          },
+          {
+            "id": "Coral trace",
+            "name": "Coral trace",
+            "enabled": true,
+            "materialId": "coral",
+            "kind": "point",
+            "rate": 0.45,
+            "radius": 0.012,
+            "uvX": 0.89,
+            "uvY": 0.22,
+            "noiseOffset": 0
+          },
+          {
+            "id": "Draw indigo",
+            "name": "Draw indigo",
+            "enabled": true,
+            "materialId": "ink",
+            "kind": "pointer",
+            "rate": 0.22,
+            "radius": 0.0006,
+            "uvX": 0.5,
+            "uvY": 0.5,
+            "noiseOffset": 0
+          }
+        ],
+        "windStations": [
+          {
+            "id": "Incoming tide",
+            "name": "Incoming tide",
+            "enabled": true,
+            "uvX": 0.82,
+            "uvY": 0.42,
+            "heading": 0.48,
+            "speed": 0.18,
+            "spin": -0.03,
+            "radius": 0.35
+          },
+          {
+            "id": "Outgoing tide",
+            "name": "Outgoing tide",
+            "enabled": true,
+            "uvX": 0.28,
+            "uvY": 0.75,
+            "heading": 0.02,
+            "speed": 0.18,
+            "spin": 0.036,
+            "radius": 0.3
+          }
+        ],
+        "valueEmitters": [
+          {
+            "id": "breath",
+            "name": "Slow current",
+            "enabled": true,
+            "kind": "sine",
+            "rate": 0.015,
+            "phase": 0.2,
+            "from": 0.18,
+            "to": 0.38,
+            "scale": 1,
+            "band": 0
+          }
+        ],
+        "valueBindings": [
+          {
+            "id": "current",
+            "emitterId": "breath",
+            "path": "noiseTime",
+            "amount": 0.6
+          }
+        ]
+      }
+    }
+  ]
+}

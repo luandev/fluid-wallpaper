@@ -10,7 +10,12 @@ function loc(pass: Pass, name: string): WebGLUniformLocation | undefined {
   return pass.uniforms[name] ?? pass.uniforms[`${name}[0]`];
 }
 
-function set1f(gl: WebGL2RenderingContext, pass: Pass, name: string, value: number): void {
+function set1f(
+  gl: WebGL2RenderingContext,
+  pass: Pass,
+  name: string,
+  value: number,
+): void {
   const location = loc(pass, name);
   if (location) {
     gl.uniform1f(location, value);
@@ -85,8 +90,22 @@ export function blitDye(
   set1f(gl, pass, "uManualBilinear", manualBilinear ? 1 : 0);
   set1f(gl, pass, "uContrast", config.contrast);
   set1f(gl, pass, "uVideoReveal", config.videoReveal);
-  set1f(gl, pass, "uBackgroundMode", config.backgroundMode === "solid" ? 1 : config.backgroundMode === "gradient" ? 2 : 0);
-  for (const [name, color] of [["uBackgroundA", config.backgroundColor], ["uBackgroundB", config.backgroundColorB]]) {
+  set1f(
+    gl,
+    pass,
+    "uBackgroundMode",
+    config.backgroundMode === "transparent"
+      ? 3
+      : config.backgroundMode === "solid"
+        ? 1
+        : config.backgroundMode === "gradient"
+          ? 2
+          : 0,
+  );
+  for (const [name, color] of [
+    ["uBackgroundA", config.backgroundColor],
+    ["uBackgroundB", config.backgroundColorB],
+  ]) {
     const location = loc(pass, name);
     if (location) gl.uniform3fv(location, hexToRgb(color));
   }

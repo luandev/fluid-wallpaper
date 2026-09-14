@@ -1,4 +1,12 @@
-import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 import { Engine } from "../app/engine";
 import { mountPerfHud } from "../app/perfHud";
 import { hasStoredConfig, loadStoredConfig } from "../app/storage";
@@ -54,7 +62,9 @@ export function FluidField({
     }
     setCanvas(node);
     const initial =
-      options.persist && hasStoredConfig() ? loadStoredConfig() : resolveFieldConfig(config);
+      options.persist && hasStoredConfig()
+        ? loadStoredConfig()
+        : resolveFieldConfig(config);
     let instance: Engine;
     try {
       instance = new Engine(node, initial);
@@ -84,7 +94,10 @@ export function FluidField({
   }, [engine, options.perf]);
 
   return (
-    <div className={["fluid-field", className].filter(Boolean).join(" ")} style={style}>
+    <div
+      className={["fluid-field", className].filter(Boolean).join(" ")}
+      style={style}
+    >
       <canvas ref={canvasRef} className="fluid-field__canvas" />
       {error ? (
         <p className="fluid-field__fatal" role="alert">
@@ -93,10 +106,16 @@ export function FluidField({
       ) : null}
       {engine && options.dashboard ? (
         <Suspense fallback={null}>
-          <Dashboard engine={engine} canvas={canvas} persist={options.persist} />
+          <Dashboard
+            engine={engine}
+            canvas={canvas}
+            persist={options.persist}
+          />
         </Suspense>
       ) : null}
-      {options.perf ? <div ref={perfRef} className="fluid-field__perf" /> : null}
+      {options.perf ? (
+        <div ref={perfRef} className="fluid-field__perf" />
+      ) : null}
     </div>
   );
 }

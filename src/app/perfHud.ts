@@ -16,7 +16,10 @@ export type PerfProvider = {
   getPerfSample: () => PerfSample;
 };
 
-export function mountPerfHud(engine: PerfProvider, root: HTMLElement): () => void {
+export function mountPerfHud(
+  engine: PerfProvider,
+  root: HTMLElement,
+): () => void {
   root.replaceChildren();
   root.classList.add("perf");
   root.hidden = false;
@@ -29,7 +32,11 @@ export function mountPerfHud(engine: PerfProvider, root: HTMLElement): () => voi
   const simLine = el("div", "perf__line");
   const dyeLine = el("div", "perf__line");
   root.append(title, fpsLine, frameLine, simLine, dyeLine);
-  const detachPerfDrag = attachDraggablePanel({ element: root, handle: title, id: "perf" });
+  const detachPerfDrag = attachDraggablePanel({
+    element: root,
+    handle: title,
+    id: "perf",
+  });
 
   const setOpen = (open: boolean): void => {
     root.dataset.open = open ? "true" : "false";
@@ -49,7 +56,11 @@ export function mountPerfHud(engine: PerfProvider, root: HTMLElement): () => voi
 
   const host = root.parentElement ?? document.body;
   host.append(toggle);
-  const detachFabDrag = attachDraggablePanel({ element: toggle, handle: toggle, id: "perfFab" });
+  const detachFabDrag = attachDraggablePanel({
+    element: toggle,
+    handle: toggle,
+    id: "perfFab",
+  });
 
   const onKey = (event: KeyboardEvent): void => {
     if (shortcutFromKey(event, event.target) !== "togglePerf") {

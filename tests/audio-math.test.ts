@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { LOG_BAND_COUNT, logBandEnergies, onsetUpdate, sampleLogBand } from "../src/inputs/audioMath";
+import {
+  LOG_BAND_COUNT,
+  logBandEnergies,
+  onsetUpdate,
+  sampleLogBand,
+} from "../src/inputs/audioMath";
 import { cloneConfig, defaultConfig, sanitizeConfig } from "../src/app/config";
 import { applyDrivers, evaluateEmitter } from "../src/app/drivers";
 
@@ -39,7 +44,9 @@ describe("beat pulse", () => {
 describe("audio value emitters", () => {
   it("maps legacy mic to audioPulse and fills band", () => {
     const next = sanitizeConfig({
-      valueEmitters: [{ id: "wave-1", name: "Mic", kind: "mic", from: 0, to: 1 }],
+      valueEmitters: [
+        { id: "wave-1", name: "Mic", kind: "mic", from: 0, to: 1 },
+      ],
     });
     expect(next.valueEmitters[0]?.kind).toBe("audioPulse");
     expect(next.valueEmitters[0]?.band).toBe(0.15);
@@ -82,7 +89,9 @@ describe("audio value emitters", () => {
         band: 0.12,
       },
     ];
-    base.valueBindings = [{ id: "bind-kick", emitterId: "kick-1", path: "splatForce", amount: 1 }];
+    base.valueBindings = [
+      { id: "bind-kick", emitterId: "kick-1", path: "splatForce", amount: 1 },
+    ];
     const silent = applyDrivers(base, 0);
     expect(silent.splatForce).toBeCloseTo(4250, 5);
     const live = applyDrivers(base, 0, {

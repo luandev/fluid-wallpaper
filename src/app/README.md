@@ -54,5 +54,6 @@ flowchart LR
 
 Engine exposes optional constructor ECO settings, `setEcoMode` and `getEcoStatus`. Adaptive overrides stay separate from authored configuration. LiquidEngine also applies shared ECO scaling and reports simulationSpeed. See [ECO.md](../../docs/ECO.md).
 
-
 Background mode/colors are portable authored config; see [usage](../../docs/USAGE.md#backgrounds). Legacy presets without the mode migrate to video with reveal enabled. Display-only changes do not reseed.
+
+Gallery tuner links use a preset query plus optional background override. They start in ECO and bypass stored configuration on entry; persistence occurs on user edits/saves. Transparent mode is portable authored config.

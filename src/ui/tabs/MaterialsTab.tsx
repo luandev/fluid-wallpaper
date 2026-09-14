@@ -44,7 +44,9 @@ export function MaterialsTab({
           onClick={() =>
             patchFrom((current) => {
               const material = createMaterial(current.materials);
-              return material ? { materials: [...current.materials, material] } : {};
+              return material
+                ? { materials: [...current.materials, material] }
+                : {};
             })
           }
         >
@@ -52,7 +54,8 @@ export function MaterialsTab({
         </button>
       </div>
       {config.materials.map((material) => {
-        const liveMaterial = live.materials.find((item) => item.id === material.id) ?? material;
+        const liveMaterial =
+          live.materials.find((item) => item.id === material.id) ?? material;
         return (
           <ItemCard
             key={material.id}
@@ -66,10 +69,14 @@ export function MaterialsTab({
                 if (current.materials.length <= MIN_MATERIALS) {
                   return {};
                 }
-                const materials = current.materials.filter((item) => item.id !== material.id);
+                const materials = current.materials.filter(
+                  (item) => item.id !== material.id,
+                );
                 const fallback = materials[0]?.id ?? material.id;
                 const emitters = current.emitters.map((emitter) =>
-                  emitter.materialId === material.id ? { ...emitter, materialId: fallback } : emitter,
+                  emitter.materialId === material.id
+                    ? { ...emitter, materialId: fallback }
+                    : emitter,
                 );
                 return { materials, emitters };
               })
@@ -83,7 +90,9 @@ export function MaterialsTab({
                 onBlur={(event) =>
                   patchFrom((current) => ({
                     materials: current.materials.map((item) =>
-                      item.id === material.id ? { ...item, name: event.target.value } : item,
+                      item.id === material.id
+                        ? { ...item, name: event.target.value }
+                        : item,
                     ),
                   }))
                 }
@@ -94,19 +103,25 @@ export function MaterialsTab({
               label="Enabled"
               help={MATERIAL_FIELD_HELP.enabled}
               value={material.enabled}
-              onChange={(enabled) => patchMaterial(patchFrom, material.id, { enabled })}
+              onChange={(enabled) =>
+                patchMaterial(patchFrom, material.id, { enabled })
+              }
             />
             <ColorRow
               label="Color"
               help={MATERIAL_FIELD_HELP.color}
               value={material.color}
-              onChange={(color) => patchMaterial(patchFrom, material.id, { color })}
+              onChange={(color) =>
+                patchMaterial(patchFrom, material.id, { color })
+              }
             />
             <ColorRow
               label="Color B"
               help={MATERIAL_FIELD_HELP.colorB}
               value={material.colorB}
-              onChange={(colorB) => patchMaterial(patchFrom, material.id, { colorB })}
+              onChange={(colorB) =>
+                patchMaterial(patchFrom, material.id, { colorB })
+              }
             />
             <MaterialRange
               material={material}
@@ -160,9 +175,15 @@ export function MaterialsTab({
   );
 }
 
-function patchMaterial(patchFrom: PatchFrom, id: string, patch: Partial<FluidMaterial>): void {
+function patchMaterial(
+  patchFrom: PatchFrom,
+  id: string,
+  patch: Partial<FluidMaterial>,
+): void {
   patchFrom((current) => ({
-    materials: current.materials.map((item) => (item.id === id ? { ...item, ...patch } : item)),
+    materials: current.materials.map((item) =>
+      item.id === id ? { ...item, ...patch } : item,
+    ),
   }));
 }
 
@@ -194,7 +215,9 @@ function MaterialRange({
       max={1}
       step={0.01}
       driverName={driverNameForPath(config, path)}
-      onChange={(value) => patchMaterial(patchFrom, material.id, { [field]: value })}
+      onChange={(value) =>
+        patchMaterial(patchFrom, material.id, { [field]: value })
+      }
     />
   );
 }

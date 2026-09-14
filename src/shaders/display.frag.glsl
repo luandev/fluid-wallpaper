@@ -114,7 +114,9 @@ void main() {
   vec3 color = albedo * diffuse + vec3(spec) + sheenCol + emissive + albedo * bloom * 0.45;
   float reveal = clamp(uVideoReveal, 0.0, 1.0);
   float coverage = smoothstep(0.02, 0.28, height);
-  if (uBackgroundMode > 0.5) {
+  if (uBackgroundMode > 2.5) {
+    fragColor = vec4(clamp(color, 0.0, 1.0), coverage);
+  } else if (uBackgroundMode > 0.5) {
     float t = uBackgroundMode > 1.5 ? clamp((vUv.x + 1.0 - vUv.y) * 0.5, 0.0, 1.0) : 0.0;
     vec3 background = mix(uBackgroundA, uBackgroundB, t);
     fragColor = vec4(mix(background, clamp(color, 0.0, 1.0), coverage), 1.0);

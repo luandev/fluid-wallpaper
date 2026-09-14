@@ -16,12 +16,16 @@ export type ShortcutEvent = {
   repeat?: boolean;
 };
 
-export function isTypingTarget(target: EventTarget | TypingLike | null): boolean {
+export function isTypingTarget(
+  target: EventTarget | TypingLike | null,
+): boolean {
   if (!target || typeof target !== "object") {
     return false;
   }
   const tag =
-    "tagName" in target && typeof target.tagName === "string" ? target.tagName.toUpperCase() : "";
+    "tagName" in target && typeof target.tagName === "string"
+      ? target.tagName.toUpperCase()
+      : "";
   if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") {
     return true;
   }

@@ -21,19 +21,19 @@ These are current paths, not a prescription to preserve the reviewed defects bel
 
 ## Field and control semantics
 
-| State/control | Current meaning |
-| --- | --- |
-| Velocity | One shared vector field; advection converts grid displacement to UV using inverse simulation size |
-| Pressure/divergence/curl | Derived simulation fields; allocated with the selected simulation texture format |
-| Dye RGBA | Up to four material concentrations, not display RGBA |
-| Material ID | UI/config identity; GPU slot currently follows material array position |
-| Material viscosity | Concentration-weighted exponential velocity damping; not a true viscosity diffusion solve |
-| Contrast | Exponent controlling normalized material weights in display |
-| Noise time | Current legacy motion multiplier for simulation dt and elapsed time; fixed-step accumulation now bounds frame variance |
-| View zoom | Procedural composer/seed scale; not a display camera transform |
-| Source rate | Point dose and field approach are now scaled by elapsed seconds in the shader; source rates remain legacy config values pending unit migration |
-| Source radius | Gaussian squared-distance denominator in the shader; UI ring uses a different transform |
-| Frame ms/FPS | RAF interval and smoothed rate; not GPU elapsed time |
+| State/control            | Current meaning                                                                                                                                |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Velocity                 | One shared vector field; advection converts grid displacement to UV using inverse simulation size                                              |
+| Pressure/divergence/curl | Derived simulation fields; allocated with the selected simulation texture format                                                               |
+| Dye RGBA                 | Up to four material concentrations, not display RGBA                                                                                           |
+| Material ID              | UI/config identity; GPU slot currently follows material array position                                                                         |
+| Material viscosity       | Concentration-weighted exponential velocity damping; not a true viscosity diffusion solve                                                      |
+| Contrast                 | Exponent controlling normalized material weights in display                                                                                    |
+| Noise time               | Current legacy motion multiplier for simulation dt and elapsed time; fixed-step accumulation now bounds frame variance                         |
+| View zoom                | Procedural composer/seed scale; not a display camera transform                                                                                 |
+| Source rate              | Point dose and field approach are now scaled by elapsed seconds in the shader; source rates remain legacy config values pending unit migration |
+| Source radius            | Gaussian squared-distance denominator in the shader; UI ring uses a different transform                                                        |
+| Frame ms/FPS             | RAF interval and smoothed rate; not GPU elapsed time                                                                                           |
 
 The current step order is pointer splats → composer/wind → injection → vorticity → local damping → velocity advection → projection → dye advection. This is the first correction slice; divergence and visual behavior still require GPU validation.
 
@@ -74,13 +74,13 @@ Current default traps: base `noiseTime` is zero and an enabled triangle driver s
 
 ## Persistence and migrations
 
-| Data | Owner | Current scope |
-| --- | --- | --- |
-| Base config | [storage.ts](../src/app/storage.ts) | v9 key, v8 read fallback; sanitizes loaded data |
-| Preset library/document | [presets.ts](../src/app/presets.ts) | Shared localStorage library; portable document kind `fluid-wallpaper.preset.v1`; import merges by name |
-| Panel positions | [panelLayout.ts](../src/app/panelLayout.ts), [dragPanel.ts](../src/app/dragPanel.ts) | Shared chrome storage, separate from look data |
-| Perf preference | [perfHud.ts](../src/app/perfHud.ts) | Shared HUD preference |
-| Live data | Engine/inputs | Not persisted |
+| Data                    | Owner                                                                                | Current scope                                                                                          |
+| ----------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
+| Base config             | [storage.ts](../src/app/storage.ts)                                                  | v9 key, v8 read fallback; sanitizes loaded data                                                        |
+| Preset library/document | [presets.ts](../src/app/presets.ts)                                                  | Shared localStorage library; portable document kind `fluid-wallpaper.preset.v1`; import merges by name |
+| Panel positions         | [panelLayout.ts](../src/app/panelLayout.ts), [dragPanel.ts](../src/app/dragPanel.ts) | Shared chrome storage, separate from look data                                                         |
+| Perf preference         | [perfHud.ts](../src/app/perfHud.ts)                                                  | Shared HUD preference                                                                                  |
+| Live data               | Engine/inputs                                                                        | Not persisted                                                                                          |
 
 Changing a field's units while retaining the same stored value changes old scenes. Define migration behavior and tests before changing semantics. Unknown/invalid input goes through sanitization; document kind and config-storage version serve different purposes.
 
@@ -98,18 +98,18 @@ The fixed [quality helper](../src/quality/budgets.ts) is not connected as an ada
 
 These findings remain open as of this guide's date. Full reasoning and source links: [ink/component review](REVIEW_INK_COMPONENT.md#priority-findings). Resolve each with code and appropriate evidence, then update this table rather than leaving stale warnings.
 
-| Finding | Primary owners | Evidence needed for resolution |
-| --- | --- | --- |
-| Frame-dependent injection and inconsistent global injection knob | sim/solver, shaders/perlinDye | **Implementation slice landed:** elapsed-time scaling; equal-time GPU dose and source-kind behavior still need validation |
-| Normalized RGB mixing hides dilution; color space is implicit | render, shaders/display, app/colors/shade | Dilution/mixture swatches and documented optical contract |
-| Velocity changes after projection | sim/solver, velocity shaders | **Implementation slice landed:** projection moved after velocity advection/drag; divergence measured at the velocity used for pigment transport |
-| Half-float linear filtering checks an unnecessary WebGL1 extension | sim/capabilities, display/advection | **Implementation slice landed:** WebGL2 half filtering is treated as available; format/filter probes still need device validation |
-| Material array edits reinterpret existing channels | app/config, UI materials, solver/render slots | Remove/reorder/add scenarios preserve intended identities |
-| Synchronous warmup/readback and aspect reseeds | app/engine, sim, platform | Startup and resize traces; no hidden hard reset claim |
-| Radius marker differs from shader footprint | ui/spatial, inject/splat/wind shaders | Agreed falloff contour in portrait and landscape |
-| Global overlays/shortcuts/storage escape embed scope | ui, react, app chrome, element | Element host is scoped; React/dashboard limitations remain; scrolling and independent-instance fixtures are still needed |
-| Missing context restoration and partial-init cleanup | app/engine, sim/gpu, platform, react | Failure/reconnect/context-loss resource checks |
-| Private source export is not a built custom element | package/Vite, react, future adapter | Actual packed-artifact consumer installation |
+| Finding                                                            | Primary owners                                | Evidence needed for resolution                                                                                                                  |
+| ------------------------------------------------------------------ | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Frame-dependent injection and inconsistent global injection knob   | sim/solver, shaders/perlinDye                 | **Implementation slice landed:** elapsed-time scaling; equal-time GPU dose and source-kind behavior still need validation                       |
+| Normalized RGB mixing hides dilution; color space is implicit      | render, shaders/display, app/colors/shade     | Dilution/mixture swatches and documented optical contract                                                                                       |
+| Velocity changes after projection                                  | sim/solver, velocity shaders                  | **Implementation slice landed:** projection moved after velocity advection/drag; divergence measured at the velocity used for pigment transport |
+| Half-float linear filtering checks an unnecessary WebGL1 extension | sim/capabilities, display/advection           | **Implementation slice landed:** WebGL2 half filtering is treated as available; format/filter probes still need device validation               |
+| Material array edits reinterpret existing channels                 | app/config, UI materials, solver/render slots | Remove/reorder/add scenarios preserve intended identities                                                                                       |
+| Synchronous warmup/readback and aspect reseeds                     | app/engine, sim, platform                     | Startup and resize traces; no hidden hard reset claim                                                                                           |
+| Radius marker differs from shader footprint                        | ui/spatial, inject/splat/wind shaders         | Agreed falloff contour in portrait and landscape                                                                                                |
+| Global overlays/shortcuts/storage escape embed scope               | ui, react, app chrome, element                | Element host is scoped; React/dashboard limitations remain; scrolling and independent-instance fixtures are still needed                        |
+| Missing context restoration and partial-init cleanup               | app/engine, sim/gpu, platform, react          | Failure/reconnect/context-loss resource checks                                                                                                  |
+| Private source export is not a built custom element                | package/Vite, react, future adapter           | Actual packed-artifact consumer installation                                                                                                    |
 
 Do not mark these fixed because documentation exists. The dated review retains historical observations; attach a resolution note with evidence when a later change addresses them.
 

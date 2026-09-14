@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="Six distinct compositions. Pick a palette, change the mood, make it your own."
+    />
+    <title>Gallery · fluid-wallpaper</title>
+    <link rel="stylesheet" href="../src/docs/docs.css" />
+  </head>
+  <body data-page="gallery" style="--accent: #8fbfff">
+    <a class="skip button" href="#content">Skip to content</a>
+    <header class="site-nav">
+      <a class="brand" href="../index.html">fluid<span>—</span>wallpaper</a
+      ><button
+        class="menu-toggle"
+        aria-expanded="false"
+        aria-controls="docs-nav"
+      >
+        Menu
+      </button>
+      <nav class="nav-links" id="docs-nav" aria-label="Documentation">
+        <a href="./index.html">Start</a><a href="./settings.html">Settings</a
+        ><a href="./hero.html">Fluid hero</a><a href="./gallery.html">Gallery</a
+        ><a href="./contributing-presets.html">Contribute</a
+        ><a href="../play.html">Open tuner ↗</a>
+      </nav>
+    </header>
+    <main id="content">
+      <fluid-hero id="page-hero" preset="cobalt"
+        ><p class="eyebrow">fluid-wallpaper / Gallery</p>
+        <h1>Find your flow.</h1>
+        <p>
+          Six distinct compositions. Pick a palette, change the mood, make it
+          your own.
+        </p>
+        <div class="hero-links">
+          <a class="button" href="./gallery.html">Explore the gallery</a
+          ><a href="./hero.html">Build with fluid-hero ↗</a>
+        </div></fluid-hero
+      >
+      <div class="section-heading">
+        <h2>Choose your atmosphere.</h2>
+        <span class="tag">Six starting points · Infinite variations</span>
+      </div>
+      <p>
+        Pick a composition to explore it live. Only the selected preview
+        animates; the cards remain still.
+      </p>
+      <div id="gallery-grid" class="gallery-grid"></div>
+      <section
+        id="gallery-detail"
+        class="gallery-detail"
+        aria-label="Selected preset"
+      >
+        <h2 id="preset-title"></h2>
+        <p id="preset-description"></p>
+        <div class="toolbar">
+          <label
+            >Background
+            <select id="background-mode">
+              <option value="preset">Preset default</option>
+              <option value="solid">Solid color</option>
+              <option value="gradient">Gradient</option>
+              <option value="transparent">Transparent</option>
+            </select></label
+          ><button id="preview-toggle" class="secondary">Pause preview</button
+          ><a id="open-tuner" class="button" href="../play.html"
+            >Open in tuner ↗</a
+          ><button id="download-preset" class="secondary">
+            Download preset
+          </button>
+        </div>
+        <div class="preview">
+          <div class="preview-underlay">
+            <span>YOUR PAGE, UNDERNEATH</span><strong>Let it flow.</strong>
+          </div>
+          <fluid-hero id="gallery-preview" paused></fluid-hero>
+        </div>
+        <div class="gallery-code">
+          <section>
+            <h3>HTML + JavaScript</h3>
+            <button id="copy-html" class="secondary">Copy HTML</button>
+            <pre><code id="html-example"></code></pre>
+          </section>
+          <section>
+            <h3>React</h3>
+            <button id="copy-react" class="secondary">Copy React</button>
+            <pre><code id="react-example"></code></pre>
+          </section>
+        </div>
+        <p id="copy-status" class="copy-status" role="status"></p>
+        <p>
+          <a href="./contributing-presets.html"
+            >Have a different vision? Contribute your own preset →</a
+          >
+        </p>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <span>fluid-wallpaper · Living color, thoughtfully embedded.</span
+      ><a href="https://github.com/luandev/fluid-wallpaper"
+        >Source &amp; contributions ↗</a
+      >
+    </footer>
+    <script type="module" src="../src/docs/main.ts"></script>
+  </body>
+</html>

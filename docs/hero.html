@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="Meet fluid-hero: a small integration with a living, intricate presence."
+    />
+    <title>Fluid hero · fluid-wallpaper</title>
+    <link rel="stylesheet" href="../src/docs/docs.css" />
+  </head>
+  <body data-page="hero" style="--accent: #e8bd79">
+    <a class="skip button" href="#content">Skip to content</a>
+    <header class="site-nav">
+      <a class="brand" href="../index.html">fluid<span>—</span>wallpaper</a
+      ><button
+        class="menu-toggle"
+        aria-expanded="false"
+        aria-controls="docs-nav"
+      >
+        Menu
+      </button>
+      <nav class="nav-links" id="docs-nav" aria-label="Documentation">
+        <a href="./index.html">Start</a><a href="./settings.html">Settings</a
+        ><a href="./hero.html">Fluid hero</a><a href="./gallery.html">Gallery</a
+        ><a href="./contributing-presets.html">Contribute</a
+        ><a href="../play.html">Open tuner ↗</a>
+      </nav>
+    </header>
+    <main id="content">
+      <fluid-hero id="page-hero" preset="obsidian"
+        ><p class="eyebrow">fluid-wallpaper / Fluid hero</p>
+        <h1>
+          Make an entrance.<br />
+          Leave an impression.
+        </h1>
+        <p>
+          Meet fluid-hero: a small integration with a living, intricate
+          presence.
+        </p>
+        <div class="hero-links">
+          <a class="button" href="./gallery.html">Explore the gallery</a
+          ><a href="./hero.html">Build with fluid-hero ↗</a>
+        </div></fluid-hero
+      >
+      <article>
+        <p class="lead">
+          Your message takes the foreground. The fluid brings the atmosphere.
+        </p>
+        <h2>Drop it into HTML</h2>
+        <pre><code>import { defineFluidHero } from &#x27;fluid-wallpaper/hero&#x27;;
+defineFluidHero();
+
+&lt;fluid-hero preset=&quot;obsidian&quot; quality=&quot;eco&quot;&gt;
+  &lt;p&gt;Introducing something different&lt;/p&gt;
+  &lt;h1&gt;Ideas in motion.&lt;/h1&gt;
+  &lt;a href=&quot;#details&quot;&gt;Explore the details&lt;/a&gt;
+&lt;/fluid-hero&gt;</code></pre>
+        <h2>Or use React</h2>
+        <pre><code>import { FluidHero } from &#x27;fluid-wallpaper/react&#x27;;
+
+&lt;FluidHero preset=&quot;porcelain&quot; config={{ noiseTime: 0.18 }}
+  onError={event =&gt; console.warn(event.detail)}&gt;
+  &lt;h1&gt;A quieter kind of energy.&lt;/h1&gt;
+  &lt;button&gt;Discover more&lt;/button&gt;
+&lt;/FluidHero&gt;</code></pre>
+        <h2>No build step</h2>
+        <pre><code>&lt;fluid-hero preset=&quot;aurora&quot;&gt;&lt;h1&gt;Hello, flow.&lt;/h1&gt;&lt;/fluid-hero&gt;
+&lt;script type=&quot;module&quot; src=&quot;https://cdn.jsdelivr.net/npm/fluid-wallpaper@0.1.0-next.0/hero-auto.js&quot;&gt;&lt;/script&gt;</code></pre>
+        <p>The CDN example requires that preview version to be published.</p>
+        <h2>Shape the frame</h2>
+        <pre><code>fluid-hero {
+  --fluid-hero-height: 480px;
+  --fluid-hero-radius: 24px;
+  --fluid-hero-content-width: 1100px;
+  --fluid-hero-overlay: linear-gradient(90deg, #07111bcc, transparent);
+  color: white;
+}</code></pre>
+        <h2>Let the page show through</h2>
+        <p>
+          Transparent mode reveals your existing HTML, photography or video
+          through empty ink. It adds no backdrop or scrim. Decorative overlays
+          should also use <code>pointer-events: none</code> so controls
+          underneath remain clickable.
+        </p>
+      </article>
+      <div class="layer-example">
+        <p class="eyebrow">Ordinary HTML, underneath</p>
+        <h3>Keep your own backdrop.</h3>
+        <button id="underlay-action">Try this button</button
+        ><span id="underlay-status" role="status"></span
+        ><fluid-hero
+          id="transparent-example"
+          preset="porcelain"
+          paused
+          aria-label="Transparent fluid overlay"
+        ></fluid-hero>
+      </div>
+      <article>
+        <pre><code>const hero = document.querySelector(&#x27;fluid-hero&#x27;);
+hero.config = { backgroundMode: &#x27;transparent&#x27; };
+hero.style.pointerEvents = &#x27;none&#x27;;
+// React: &lt;FluidHero config={{ backgroundMode: &#x27;transparent&#x27; }} /&gt;</code></pre>
+        <h2>Behavior that belongs in a hero</h2>
+        <p>
+          Defaults: Aurora, ECO, decorative input. Preset changes create a fresh
+          composition; config patches preserve it unless a resource reset is
+          needed. Foreground headings and links remain normal accessible
+          content. Hidden or offscreen animation pauses. Reduced motion starts
+          with a still background and an explicit Play animation control.
+        </p>
+        <p>
+          <a href="./settings.html#component-apis"
+            >Properties, methods, events and lifecycle →</a
+          >
+        </p>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <span>fluid-wallpaper · Living color, thoughtfully embedded.</span
+      ><a href="https://github.com/luandev/fluid-wallpaper"
+        >Source &amp; contributions ↗</a
+      >
+    </footer>
+    <script type="module" src="../src/docs/main.ts"></script>
+  </body>
+</html>

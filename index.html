@@ -17,6 +17,22 @@
     />
   </head>
   <body>
+    <a
+      href="./docs/index.html"
+      style="
+        position: fixed;
+        left: 18px;
+        bottom: 18px;
+        z-index: 20;
+        padding: 10px 16px;
+        background: #10202be8;
+        color: #dff8f0;
+        border-radius: 9px;
+        font: 13px system-ui;
+        text-decoration: none;
+      "
+      >Docs &amp; gallery ↗</a
+    >
     <canvas id="view"></canvas>
     <div class="grain" aria-hidden="true"></div>
     <div class="vignette" aria-hidden="true"></div>
@@ -27,6 +43,7 @@
         <nav class="top__nav">
           <a href="./play.html">Tuner</a>
           <a href="./embed.html">React</a>
+          <a href="./docs/gallery.html">Gallery</a>
           <a href="./usage.html">Use in your app</a>
           <a href="https://github.com/luandev/fluid-wallpaper">GitHub</a>
         </nav>
@@ -40,8 +57,8 @@
           to repeat.
         </h1>
         <p class="lede">
-          One living canvas. Three different worlds.
-          Drag to stir the current, or explore another atmosphere.
+          One living canvas. Three different worlds. Drag to stir the current,
+          or explore another atmosphere.
         </p>
         <div class="cta">
           <a class="btn btn--solid" href="./play.html">Launch the field</a>
@@ -50,22 +67,39 @@
       </main>
 
       <section class="scene-picker" aria-label="Explore the fields">
-        <div class="scene-picker__heading"><span class="eyebrow" id="scene-character">Three living atmospheres</span><span class="scene-picker__hint">Explore the collection</span></div>
-        <div class="scene-picker__links">
-          <a href="?scene=aurora" data-scene-link="aurora"><span class="scene-swatch scene-swatch--aurora"></span><span>01 / Aurora</span></a>
-          <a href="?scene=obsidian" data-scene-link="obsidian"><span class="scene-swatch scene-swatch--obsidian"></span><span>02 / Gilded Obsidian</span></a>
-          <a href="?scene=porcelain" data-scene-link="porcelain"><span class="scene-swatch scene-swatch--porcelain"></span><span>03 / Porcelain Tide</span></a>
+        <div class="scene-picker__heading">
+          <span class="eyebrow" id="scene-character"
+            >Three living atmospheres</span
+          ><span class="scene-picker__hint">Explore the collection</span>
         </div>
-        <p class="scene-caption"><strong id="scene-name">Living fluid</strong><span id="scene-description">A different atmosphere on every visit.</span></p>
+        <div class="scene-picker__links">
+          <a href="?scene=aurora" data-scene-link="aurora"
+            ><span class="scene-swatch scene-swatch--aurora"></span
+            ><span>01 / Aurora</span></a
+          >
+          <a href="?scene=obsidian" data-scene-link="obsidian"
+            ><span class="scene-swatch scene-swatch--obsidian"></span
+            ><span>02 / Gilded Obsidian</span></a
+          >
+          <a href="?scene=porcelain" data-scene-link="porcelain"
+            ><span class="scene-swatch scene-swatch--porcelain"></span
+            ><span>03 / Porcelain Tide</span></a
+          >
+        </div>
+        <p class="scene-caption">
+          <strong id="scene-name">Living fluid</strong
+          ><span id="scene-description"
+            >A different atmosphere on every visit.</span
+          >
+        </p>
       </section>
     </div>
 
     <div class="marquee" aria-hidden="true">
       <div class="marquee__track">
-        <span>vorticity</span><span>dye inject</span><span>sheen</span><span>wind stations</span>
-        <span>value emitters</span><span>RGBA16F</span><span>Yarn</span><span>base './'</span>
-        <span>vorticity</span><span>dye inject</span><span>sheen</span><span>wind stations</span>
-        <span>value emitters</span><span>RGBA16F</span><span>Yarn</span><span>base './'</span>
+        <span>vorticity</span><span>dye inject</span><span>sheen</span
+        ><span>wind stations</span> <span>value emitters</span
+        ><span>RGBA16F</span>
       </div>
     </div>
 

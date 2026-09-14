@@ -50,7 +50,10 @@ export function createPasses(gl: WebGL2RenderingContext): ShaderPasses {
   };
 }
 
-export function deletePasses(gl: WebGL2RenderingContext, passes: ShaderPasses): void {
+export function deletePasses(
+  gl: WebGL2RenderingContext,
+  passes: ShaderPasses,
+): void {
   for (const pass of Object.values(passes)) {
     gl.deleteProgram(pass.program);
   }

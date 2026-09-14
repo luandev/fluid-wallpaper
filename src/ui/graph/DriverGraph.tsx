@@ -1,7 +1,19 @@
-import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
+} from "react";
 import type { FluidConfig, ValueBinding } from "../../app/config";
 import { latestBindings } from "./connect";
-import { layoutDriverGraph, portCenter, type GraphNode, type GraphPort } from "./layout";
+import {
+  layoutDriverGraph,
+  portCenter,
+  type GraphNode,
+  type GraphPort,
+} from "./layout";
 import { isTypingTarget } from "../shortcuts";
 
 export function DriverGraph({
@@ -22,8 +34,15 @@ export function DriverGraph({
   onRemoveBinding: (id: string) => void;
 }): ReactNode {
   const layout = useMemo(() => layoutDriverGraph(config), [config]);
-  const wires = useMemo(() => layoutWires(config.valueBindings, layout.nodes), [config.valueBindings, layout.nodes]);
-  const [drag, setDrag] = useState<{ emitterId: string; x: number; y: number } | null>(null);
+  const wires = useMemo(
+    () => layoutWires(config.valueBindings, layout.nodes),
+    [config.valueBindings, layout.nodes],
+  );
+  const [drag, setDrag] = useState<{
+    emitterId: string;
+    x: number;
+    y: number;
+  } | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
@@ -61,7 +80,9 @@ export function DriverGraph({
     }
     const target = document.elementFromPoint(event.clientX, event.clientY);
     const path =
-      target instanceof Element ? target.closest("[data-port-path]")?.getAttribute("data-port-path") : null;
+      target instanceof Element
+        ? target.closest("[data-port-path]")?.getAttribute("data-port-path")
+        : null;
     if (path) {
       onConnect(drag.emitterId, path);
     }
@@ -86,7 +107,12 @@ export function DriverGraph({
         onPointerCancel={() => setDrag(null)}
       >
         {layout.groups.map((group) => (
-          <text key={group.id} className="graph__group" x={layout.nodes.find((n) => n.group === group.id)?.x ?? 0} y={group.y + 12}>
+          <text
+            key={group.id}
+            className="graph__group"
+            x={layout.nodes.find((n) => n.group === group.id)?.x ?? 0}
+            y={group.y + 12}
+          >
             {group.label}
           </text>
         ))}
@@ -104,13 +130,20 @@ export function DriverGraph({
         ))}
         {drag
           ? (() => {
-              const from = layout.nodes.find((node) => node.id === drag.emitterId);
+              const from = layout.nodes.find(
+                (node) => node.id === drag.emitterId,
+              );
               const port = from?.ports[0];
               if (!from || !port) {
                 return null;
               }
               const start = portCenter(from, port, "out");
-              return <path className="graph__wire graph__wire--temp" d={wirePath(start.x, start.y, drag.x, drag.y)} />;
+              return (
+                <path
+                  className="graph__wire graph__wire--temp"
+                  d={wirePath(start.x, start.y, drag.x, drag.y)}
+                />
+              );
             })()
           : null}
         {layout.nodes.map((node) =>
@@ -153,14 +186,34 @@ function EmitterNode({
   onPortDown: (event: ReactPointerEvent<SVGCircleElement>) => void;
 }): ReactNode {
   const port = node.ports[0];
-  const center = port ? portCenter(node, port, "out") : { x: node.x + node.width, y: node.y + node.height / 2 };
+  const center = port
+    ? portCenter(node, port, "out")
+    : { x: node.x + node.width, y: node.y + node.height / 2 };
   return (
-    <g className="graph__node" data-kind="emitter" data-selected={selected ? "true" : "false"} onClick={onSelect}>
-      <rect className="graph__card" x={node.x} y={node.y} width={node.width} height={node.height} rx={8} />
+    <g
+      className="graph__node"
+      data-kind="emitter"
+      data-selected={selected ? "true" : "false"}
+      onClick={onSelect}
+    >
+      <rect
+        className="graph__card"
+        x={node.x}
+        y={node.y}
+        width={node.width}
+        height={node.height}
+        rx={8}
+      />
       <text className="graph__label" x={node.x + 10} y={node.y + 18}>
         {node.label}
       </text>
-      <circle className="graph__port graph__port--out" cx={center.x} cy={center.y} r={6} onPointerDown={onPortDown} />
+      <circle
+        className="graph__port graph__port--out"
+        cx={center.x}
+        cy={center.y}
+        r={6}
+        onPointerDown={onPortDown}
+      />
     </g>
   );
 }
@@ -176,14 +229,23 @@ function TargetNode({
 }): ReactNode {
   return (
     <g className="graph__node" data-kind="target">
-      <rect className="graph__card" x={node.x} y={node.y} width={node.width} height={node.height} rx={8} />
+      <rect
+        className="graph__card"
+        x={node.x}
+        y={node.y}
+        width={node.width}
+        height={node.height}
+        rx={8}
+      />
       <text className="graph__label" x={node.x + 14} y={node.y + 16}>
         {node.label}
       </text>
       {node.ports.map((port) => {
         const center = portCenter(node, port, "in");
         const bound = bindings.some(
-          (binding) => binding.path === port.path && (!selectedEmitterId || binding.emitterId === selectedEmitterId),
+          (binding) =>
+            binding.path === port.path &&
+            (!selectedEmitterId || binding.emitterId === selectedEmitterId),
         );
         return (
           <g key={port.path}>
@@ -195,7 +257,11 @@ function TargetNode({
               cy={center.y}
               r={5}
             />
-            <text className="graph__port-label" x={node.x + 12} y={center.y + 3}>
+            <text
+              className="graph__port-label"
+              x={node.x + 12}
+              y={center.y + 3}
+            >
               {port.label}
             </text>
           </g>
@@ -207,8 +273,15 @@ function TargetNode({
 
 type Wire = { id: string; x1: number; y1: number; x2: number; y2: number };
 
-function layoutWires(bindings: readonly ValueBinding[], nodes: readonly GraphNode[]): Wire[] {
-  const emitters = new Map(nodes.filter((node) => node.kind === "emitter").map((node) => [node.id, node]));
+function layoutWires(
+  bindings: readonly ValueBinding[],
+  nodes: readonly GraphNode[],
+): Wire[] {
+  const emitters = new Map(
+    nodes
+      .filter((node) => node.kind === "emitter")
+      .map((node) => [node.id, node]),
+  );
   const portByPath = new Map<string, { node: GraphNode; port: GraphPort }>();
   for (const node of nodes) {
     if (node.kind !== "target") {

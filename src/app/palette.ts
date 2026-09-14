@@ -29,7 +29,9 @@ export function smoothstep(edge0: number, edge1: number, x: number): number {
   return t * t * (3 - 2 * t);
 }
 
-export function normalize3(v: readonly [number, number, number]): [number, number, number] {
+export function normalize3(
+  v: readonly [number, number, number],
+): [number, number, number] {
   const len = Math.hypot(v[0], v[1], v[2]) || 1;
   return [v[0] / len, v[1] / len, v[2] / len];
 }

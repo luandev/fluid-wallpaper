@@ -1,8 +1,4 @@
-import {
-  cloneConfig,
-  sanitizeConfig,
-  type FluidConfig,
-} from "./config";
+import { cloneConfig, sanitizeConfig, type FluidConfig } from "./config";
 
 export const PRESETS_STORAGE_KEY = "fluid-wallpaper.presets.v1";
 export const PRESET_DOCUMENT_KIND = "fluid-wallpaper.preset.v1";
@@ -21,8 +17,7 @@ export type PresetDocument = {
 };
 
 export type PresetDocumentResult =
-  | { ok: true; presets: FluidPreset[] }
-  | { ok: false; reason: string };
+  { ok: true; presets: FluidPreset[] } | { ok: false; reason: string };
 
 export function normalizePresetName(name: string): string {
   return name.trim().replace(/\s+/g, " ");
@@ -39,7 +34,8 @@ export function sanitizePresetList(raw: unknown): FluidPreset[] {
       continue;
     }
     const item = entry as Record<string, unknown>;
-    const name = typeof item.name === "string" ? normalizePresetName(item.name) : "";
+    const name =
+      typeof item.name === "string" ? normalizePresetName(item.name) : "";
     const id = typeof item.id === "string" && item.id.length > 0 ? item.id : "";
     if (!name || !id || seen.has(id)) {
       continue;
@@ -62,11 +58,17 @@ export function sanitizePresetList(raw: unknown): FluidPreset[] {
   return out.sort((a, b) => b.updatedAt - a.updatedAt);
 }
 
-export function getPresetFromList(list: readonly FluidPreset[], id: string): FluidPreset | undefined {
+export function getPresetFromList(
+  list: readonly FluidPreset[],
+  id: string,
+): FluidPreset | undefined {
   return list.find((preset) => preset.id === id);
 }
 
-export function deletePresetFromList(list: readonly FluidPreset[], id: string): FluidPreset[] {
+export function deletePresetFromList(
+  list: readonly FluidPreset[],
+  id: string,
+): FluidPreset[] {
   return list.filter((preset) => preset.id !== id);
 }
 
@@ -89,7 +91,9 @@ export function upsertPresetInList(
     updatedAt: now,
     config: sanitizeConfig(cloneConfig(config)),
   };
-  const without = list.filter((item) => item.id !== preset.id && item.name.toLowerCase() !== key);
+  const without = list.filter(
+    (item) => item.id !== preset.id && item.name.toLowerCase() !== key,
+  );
   const next = [preset, ...without].sort((a, b) => b.updatedAt - a.updatedAt);
   return { list: next.slice(0, MAX_PRESETS), preset };
 }
@@ -111,7 +115,10 @@ export function loadPresets(): FluidPreset[] {
 }
 
 export function savePresets(list: readonly FluidPreset[]): void {
-  localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(sanitizePresetList(list)));
+  localStorage.setItem(
+    PRESETS_STORAGE_KEY,
+    JSON.stringify(sanitizePresetList(list)),
+  );
 }
 
 export function getPreset(id: string): FluidPreset | undefined {
@@ -130,7 +137,9 @@ export function deletePreset(id: string): FluidPreset[] {
   return next;
 }
 
-export function serializePresetDocument(list: readonly FluidPreset[]): PresetDocument {
+export function serializePresetDocument(
+  list: readonly FluidPreset[],
+): PresetDocument {
   return {
     kind: PRESET_DOCUMENT_KIND,
     presets: sanitizePresetList(list),
@@ -164,15 +173,21 @@ export function mergeImportedPresets(
   let list = sanitizePresetList(existing);
   for (const preset of incoming) {
     const used = new Set(list.map((item) => item.id));
-    const result = upsertPresetInList(list, preset.name, preset.config, now, () => {
-      if (preset.id && !used.has(preset.id)) {
-        return preset.id;
-      }
-      if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-        return crypto.randomUUID();
-      }
-      return `import-${Math.random().toString(36).slice(2, 10)}`;
-    });
+    const result = upsertPresetInList(
+      list,
+      preset.name,
+      preset.config,
+      now,
+      () => {
+        if (preset.id && !used.has(preset.id)) {
+          return preset.id;
+        }
+        if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+          return crypto.randomUUID();
+        }
+        return `import-${Math.random().toString(36).slice(2, 10)}`;
+      },
+    );
     list = result.list;
   }
   return list;

@@ -120,22 +120,22 @@ Change: make the browser element an isolated adapter to a lifecycle-safe runtime
 
 ## Component-by-component product critique
 
-| Component | Current rendering/use | Better purpose and interaction |
-| --- | --- | --- |
+| Component            | Current rendering/use                                                                                                   | Better purpose and interaction                                                                                                                                                                                                                                                                                  |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Fluid canvas/display | Full-area concentration shading, gradient height normals, fixed light, specular power, local glow, optional video alpha | First offer a recognizable ink medium: transparent fringes, dark concentrated cores, stable mixture colors, visible substrate. Keep glossy marbling as a distinct look. Current specular is a power-lobe approximation; the decision's “GGX-like” description is loose. Local brightening is not spatial bloom. |
-| Engine and quality | One RAF-driven update/display cycle; fixed config budgets; quality helper is not an adaptive controller | Own lifecycle, bounded stepping, render scheduling, diagnostics, and observable automatic quality. Keep optional adapters outside the essential update. |
-| React FluidField | Convenient canvas host, lazy dashboard, error callback, initial-only config | Thin optional wrapper over the same runtime/custom element. Document controlled vs initial properties and make external changes observable. |
-| Scene tab | Music appears first, followed by flat technical control groups | Put medium/preset and a few visible artistic effects first. Move solver tuning into Advanced; make music an optional integration. |
-| Materials tab | Repeated cards for Color/Color B, viscosity, roughness, metallic, sheen, glow | An ink palette with mixture/dilution swatches and clear Add ink/Remove ink behavior. Show opacity/absorption controls appropriate to the medium. |
-| Emitters tab | Field/point/pointer cards, rate, numeric UVs and radius; spatial markers | Name sources Dropper, Brush, and Replenishment; give a footprint preview, timed pulse, flow per second, ink selector, and direct placement. Retain coordinate input for precision and keyboard use. |
-| Wind tab | Sparse directional/spinning stations and global gain | Present as Flow tools: current, stirrer, vortex. Show direction and extent. “Wind station” describes an implementation/source idea more than the artist's task. |
-| Drivers and graph | Waves/audio map values onto numeric paths; graph and live readouts; camera/tilt stubs | Optional Automation workspace after the static look works. Show “Swirl moves between gentle and strong every 12 seconds.” Distinguish base, effective, and automated values. Hide unavailable sensor kinds from normal workflows. Provide form controls equivalent to graph gestures. |
-| Presets | Text list; save/load/import/export; load reseeds; errors often console-only | Curated visual recipes, preview image, short purpose, compatible medium version, undoable apply, visible import errors. Separate scene recipe from device quality and editor layout. |
-| RangeRow/ItemCard | Dense numeric editing, Shift fine control, wheel adjustment, clipped help | Units, nonlinear mappings, reset per control, reachable full help, touch targets, and no accidental wheel changes while scrolling. Complete tab-panel associations and keyboard tab navigation. |
-| SpatialOverlay | Full-page portal, draggable labels, radius rings | Contain to the instance, align on scroll, match shader math, expose keyboard nudges, and provide an explicit Place/Edit mode distinct from stirring. |
-| YouTube/audio | Optional media transport and analysis; user-armed capture | Keep as a demo/adapter. A reusable ink surface should not need a player or capture instructions to demonstrate its central behavior. |
-| Perf HUD | RAF interval/FPS and grid dimensions | Developer diagnostics: frame pacing, CPU submission, GPU timing where supported, passes, estimated field memory, quality changes and reasons. RAF interval is not GPU duration. |
-| Landing/embed demos | Live art and installation examples, landing shares saved tuner config | Deterministic reviewed showcase recipes and realistic embed fixtures: scrolling article, small card, two independent instances, resize and unsupported GPU. |
+| Engine and quality   | One RAF-driven update/display cycle; fixed config budgets; quality helper is not an adaptive controller                 | Own lifecycle, bounded stepping, render scheduling, diagnostics, and observable automatic quality. Keep optional adapters outside the essential update.                                                                                                                                                         |
+| React FluidField     | Convenient canvas host, lazy dashboard, error callback, initial-only config                                             | Thin optional wrapper over the same runtime/custom element. Document controlled vs initial properties and make external changes observable.                                                                                                                                                                     |
+| Scene tab            | Music appears first, followed by flat technical control groups                                                          | Put medium/preset and a few visible artistic effects first. Move solver tuning into Advanced; make music an optional integration.                                                                                                                                                                               |
+| Materials tab        | Repeated cards for Color/Color B, viscosity, roughness, metallic, sheen, glow                                           | An ink palette with mixture/dilution swatches and clear Add ink/Remove ink behavior. Show opacity/absorption controls appropriate to the medium.                                                                                                                                                                |
+| Emitters tab         | Field/point/pointer cards, rate, numeric UVs and radius; spatial markers                                                | Name sources Dropper, Brush, and Replenishment; give a footprint preview, timed pulse, flow per second, ink selector, and direct placement. Retain coordinate input for precision and keyboard use.                                                                                                             |
+| Wind tab             | Sparse directional/spinning stations and global gain                                                                    | Present as Flow tools: current, stirrer, vortex. Show direction and extent. “Wind station” describes an implementation/source idea more than the artist's task.                                                                                                                                                 |
+| Drivers and graph    | Waves/audio map values onto numeric paths; graph and live readouts; camera/tilt stubs                                   | Optional Automation workspace after the static look works. Show “Swirl moves between gentle and strong every 12 seconds.” Distinguish base, effective, and automated values. Hide unavailable sensor kinds from normal workflows. Provide form controls equivalent to graph gestures.                           |
+| Presets              | Text list; save/load/import/export; load reseeds; errors often console-only                                             | Curated visual recipes, preview image, short purpose, compatible medium version, undoable apply, visible import errors. Separate scene recipe from device quality and editor layout.                                                                                                                            |
+| RangeRow/ItemCard    | Dense numeric editing, Shift fine control, wheel adjustment, clipped help                                               | Units, nonlinear mappings, reset per control, reachable full help, touch targets, and no accidental wheel changes while scrolling. Complete tab-panel associations and keyboard tab navigation.                                                                                                                 |
+| SpatialOverlay       | Full-page portal, draggable labels, radius rings                                                                        | Contain to the instance, align on scroll, match shader math, expose keyboard nudges, and provide an explicit Place/Edit mode distinct from stirring.                                                                                                                                                            |
+| YouTube/audio        | Optional media transport and analysis; user-armed capture                                                               | Keep as a demo/adapter. A reusable ink surface should not need a player or capture instructions to demonstrate its central behavior.                                                                                                                                                                            |
+| Perf HUD             | RAF interval/FPS and grid dimensions                                                                                    | Developer diagnostics: frame pacing, CPU submission, GPU timing where supported, passes, estimated field memory, quality changes and reasons. RAF interval is not GPU duration.                                                                                                                                 |
+| Landing/embed demos  | Live art and installation examples, landing shares saved tuner config                                                   | Deterministic reviewed showcase recipes and realistic embed fixtures: scrolling article, small card, two independent instances, resize and unsupported GPU.                                                                                                                                                     |
 
 ## What believable ink mixing should mean
 
@@ -145,12 +145,12 @@ Recommended first release: **a stylized two-dimensional view of miscible inks mo
 
 Different media require different evidence and models:
 
-| Medium | Important behavior | Additional model |
-| --- | --- | --- |
-| Ink in water | Advected filaments, dilution, absorbing overlap | Existing concentration transport plus improved injection/advection and absorption optics |
-| Ink/watercolor on paper | Wet fronts, staining, drying edges, granulation | Wetness and deposited pigment, substrate transport, drying/deposition rules |
-| Opaque paint | Reflective pigment mixtures and thickness | Scattering/absorption model, potential momentum diffusion and surface model |
-| Oil/water marbling | Persistent separation and interfaces | Phase/interface dynamics; one shared miscible concentration model is insufficient |
+| Medium                  | Important behavior                              | Additional model                                                                         |
+| ----------------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Ink in water            | Advected filaments, dilution, absorbing overlap | Existing concentration transport plus improved injection/advection and absorption optics |
+| Ink/watercolor on paper | Wet fronts, staining, drying edges, granulation | Wetness and deposited pigment, substrate transport, drying/deposition rules              |
+| Opaque paint            | Reflective pigment mixtures and thickness       | Scattering/absorption model, potential momentum diffusion and surface model              |
+| Oil/water marbling      | Persistent separation and interfaces            | Phase/interface dynamics; one shared miscible concentration model is insufficient        |
 
 Do not promise all four behind a single “material” dropdown in the first release. Curtis et al. model watercolor using shallow water, pigment effects, and Kubelka–Munk optical compositing; paper behavior is more than adding a texture to transported RGB. [Computer-Generated Watercolor](https://grail.cs.washington.edu/projects/watercolor/paper_small.pdf).
 
@@ -202,19 +202,19 @@ Keep the first ink shader inexpensive: stable color conversion, concentration ab
 
 The default editor should expose a small set of effects the artist can predict. Suggested first screen: Medium, Ink palette, Ink amount, Flow speed, Swirl size, Mixing, and Quality. Sources remain directly editable on the artwork. Reveal the full schema in Advanced.
 
-| Artist control | Defined effect | Implementation direction |
-| --- | --- | --- |
-| Ink palette | Optical identity of deposited inks | Stable slots plus absorption coefficients; show pairwise mixture and dilution swatches |
-| Ink amount | How much arrives | Normalized source dose per second, independent of display refresh |
-| Dilution | Less colorant per injected volume | Separate source concentration from source flow; don't simply relabel global dye deletion |
-| Flow speed | Motion in domain lengths per second | Velocity units independent of grid resolution; keep automation on its own clock |
-| Swirl size | Width of dominant curls | Calibrated spatial scale with a viewport-relative preview |
-| Turbulence | Amount of small-scale stirring | Bounded forcing/confinement recipe, not an unspecified multiplier stack |
-| Mixing | How quickly concentration gradients soften | Measured diffusion parameter, independent of display contrast |
-| Drag | How quickly stirring settles | Exponential momentum decay with a meaningful settling-time display |
-| Brush size | Visible footprint | Defined falloff radius in CSS pixels or fraction of domain; renderer and marker use the same transform |
-| Persistence | How long ambient ink remains | Explicit washout half-life; infinity is allowed for finite scenes |
-| Quality | Cost versus detail | Auto/Eco/Balanced/High; actual resolution displayed as diagnostics |
+| Artist control | Defined effect                             | Implementation direction                                                                               |
+| -------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
+| Ink palette    | Optical identity of deposited inks         | Stable slots plus absorption coefficients; show pairwise mixture and dilution swatches                 |
+| Ink amount     | How much arrives                           | Normalized source dose per second, independent of display refresh                                      |
+| Dilution       | Less colorant per injected volume          | Separate source concentration from source flow; don't simply relabel global dye deletion               |
+| Flow speed     | Motion in domain lengths per second        | Velocity units independent of grid resolution; keep automation on its own clock                        |
+| Swirl size     | Width of dominant curls                    | Calibrated spatial scale with a viewport-relative preview                                              |
+| Turbulence     | Amount of small-scale stirring             | Bounded forcing/confinement recipe, not an unspecified multiplier stack                                |
+| Mixing         | How quickly concentration gradients soften | Measured diffusion parameter, independent of display contrast                                          |
+| Drag           | How quickly stirring settles               | Exponential momentum decay with a meaningful settling-time display                                     |
+| Brush size     | Visible footprint                          | Defined falloff radius in CSS pixels or fraction of domain; renderer and marker use the same transform |
+| Persistence    | How long ambient ink remains               | Explicit washout half-life; infinity is allowed for finite scenes                                      |
+| Quality        | Cost versus detail                         | Auto/Eco/Balanced/High; actual resolution displayed as diagnostics                                     |
 
 Use seconds, degrees, ratios, and calibrated labels where appropriate. A 0–1 slider is acceptable if its endpoints have observable examples and its mapping is documented. Distinguish live preview, commit, undo, reset, and new seed. Add a “new seed” value rather than treating replay of a deterministic initialization as randomized reseeding.
 
@@ -230,11 +230,11 @@ Use asynchronous disjoint timer queries when supported; discard invalid samples 
 
 Candidate experiments, **not accepted quality presets**:
 
-| Profile | Simulation short side | Dye short side | Pressure iterations | Display pixel ratio cap | Simulation target |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| Eco | 128 | 384 | 12–16 | 1 | 30 Hz |
-| Balanced | 192 | 512 | 16–24 | 1–1.5 | 30–60 Hz |
-| High | 256 | 768 | 24–32 | 1.5–2 | 60 Hz |
+| Profile  | Simulation short side | Dye short side | Pressure iterations | Display pixel ratio cap | Simulation target |
+| -------- | --------------------: | -------------: | ------------------: | ----------------------: | ----------------: |
+| Eco      |                   128 |            384 |               12–16 |                       1 |             30 Hz |
+| Balanced |                   192 |            512 |               16–24 |                   1–1.5 |          30–60 Hz |
+| High     |                   256 |            768 |               24–32 |                   1.5–2 |             60 Hz |
 
 Every profile also needs a total-pixel/maximum-dimension cap so a long portrait or banner cannot grow unchecked. Candidate portable target: roughly 16 MiB of simulation-field storage for Eco; verify actual allocations and adjust from evidence. For the same aspect ratio, replacing 512/40 with 128/16 reduces pressure fragment invocations by about 40 times; 1024→384 reduces dye pixel area about 7.1 times. These are work ratios, not FPS promises.
 
@@ -258,22 +258,26 @@ Illustrative future usage, **not implemented**:
 
 ```html
 <script type="module" src="./fluid-ink.define.js"></script>
-<fluid-ink preset="two-ink-study" quality="auto"
-           interaction="none" aria-hidden="true"
-           style="display:block;width:100%;height:320px">
-  <img slot="fallback" src="./ink-poster.webp" alt="">
+<fluid-ink
+  preset="two-ink-study"
+  quality="auto"
+  interaction="none"
+  aria-hidden="true"
+  style="display:block;width:100%;height:320px"
+>
+  <img slot="fallback" src="./ink-poster.webp" alt="" />
 </fluid-ink>
 ```
 
-| Surface | Proposed contract |
-| --- | --- |
-| Attributes | Small scalar choices: preset, quality, interaction, paused. Boolean `paused` follows presence semantics. |
-| Properties | Versioned structured `config`; stable materials/sources; optional diagnostic settings. No large JSON attributes. |
-| Methods | `play()`, `pause()`, `reset({seed})`, `inject({inkId,position,amount,radius})`, `setConfig(patch)`, `getConfig()`. |
-| Events | `ready`, `configchange`, `qualitychange`, `error`; typed details and explicit bubbling/composed behavior. No mandatory per-frame events. |
-| Styling | Shadow DOM canvas/fallback, host dimensions, documented CSS properties and parts. Editor is separately mounted. |
-| Persistence | Off by default for every feature; application-provided persistence adapter or explicit namespace when enabled. |
-| Failure | Stable error codes, visible fallback, recoverable context loss, no required console inspection. |
+| Surface     | Proposed contract                                                                                                                        |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Attributes  | Small scalar choices: preset, quality, interaction, paused. Boolean `paused` follows presence semantics.                                 |
+| Properties  | Versioned structured `config`; stable materials/sources; optional diagnostic settings. No large JSON attributes.                         |
+| Methods     | `play()`, `pause()`, `reset({seed})`, `inject({inkId,position,amount,radius})`, `setConfig(patch)`, `getConfig()`.                       |
+| Events      | `ready`, `configchange`, `qualitychange`, `error`; typed details and explicit bubbling/composed behavior. No mandatory per-frame events. |
+| Styling     | Shadow DOM canvas/fallback, host dimensions, documented CSS properties and parts. Editor is separately mounted.                          |
+| Persistence | Off by default for every feature; application-provided persistence adapter or explicit namespace when enabled.                           |
+| Failure     | Stable error codes, visible fallback, recoverable context loss, no required console inspection.                                          |
 
 Lifecycle requirements: initialize after connection and valid dimensions; release observers, animation loops, pointer capture, and GPU resources on teardown; reconnect cleanly; coalesce initial attribute/property changes; preserve pre-upgrade properties; handle duplicate registration predictably. Pause intent must remain distinct from visibility suspension so scrolling back onscreen cannot override an explicit pause. Custom elements have dedicated connection/disconnection and attribute callbacks. [MDN custom element lifecycle](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements).
 
@@ -324,13 +328,13 @@ The perfect repository makes a promise traceable: a control has units and a demo
 
 ## Delivery sequence and acceptance gates
 
-| Stage | Deliverable | Acceptance evidence |
-| --- | --- | --- |
-| 1. Correctness baseline | Fix filtering, source timing, stable slots, radius mapping, final projection; separate clocks and make default motion independent of drivers | Equal-time injection checks; slot removal/reuse scenario; footprint agreement; measured divergence; meaningful GPU checks proposed alongside the current CPU suite |
-| 2. Ink vertical slice | One excellent two-ink scene, absorption renderer, stable palette, source dose, sparse stirring | Six visual scenes above reviewed against licensed/project-owned references; dilution and overlap work with glow/metallic/color cycling disabled |
-| 3. Portable runtime | Async startup, resize preservation, adaptive quality, pause/offscreen/reduced-motion, resource recovery | Named Android/iOS traces; proposed Eco gate: p95 frame interval at or below about 35 ms for a 30 Hz target over ten minutes, including thermal behavior; smooth page interaction and no reset during downgrade |
-| 4. Useful studio | Intent controls, direct source manipulation, mixture previews, undo, mobile sheet | Users can create a two-ink composition without touching Jacobi/noise implementation controls; base/live distinction is obvious; keyboard and touch workflows work |
-| 5. Component release | Native element, optional adapters, compiled library, consumer examples, versioned docs | Tarball fixtures pass; two instances independent; reconnect/context-loss/failure cases clean up; unsupported GPU displays fallback; release instructions reproducible |
+| Stage                   | Deliverable                                                                                                                                  | Acceptance evidence                                                                                                                                                                                            |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1. Correctness baseline | Fix filtering, source timing, stable slots, radius mapping, final projection; separate clocks and make default motion independent of drivers | Equal-time injection checks; slot removal/reuse scenario; footprint agreement; measured divergence; meaningful GPU checks proposed alongside the current CPU suite                                             |
+| 2. Ink vertical slice   | One excellent two-ink scene, absorption renderer, stable palette, source dose, sparse stirring                                               | Six visual scenes above reviewed against licensed/project-owned references; dilution and overlap work with glow/metallic/color cycling disabled                                                                |
+| 3. Portable runtime     | Async startup, resize preservation, adaptive quality, pause/offscreen/reduced-motion, resource recovery                                      | Named Android/iOS traces; proposed Eco gate: p95 frame interval at or below about 35 ms for a 30 Hz target over ten minutes, including thermal behavior; smooth page interaction and no reset during downgrade |
+| 4. Useful studio        | Intent controls, direct source manipulation, mixture previews, undo, mobile sheet                                                            | Users can create a two-ink composition without touching Jacobi/noise implementation controls; base/live distinction is obvious; keyboard and touch workflows work                                              |
+| 5. Component release    | Native element, optional adapters, compiled library, consumer examples, versioned docs                                                       | Tarball fixtures pass; two instances independent; reconnect/context-loss/failure cases clean up; unsupported GPU displays fallback; release instructions reproducible                                          |
 
 The numerical targets in Stage 3 are proposed acceptance criteria, not achieved measurements. Select named supported devices and revise the targets using evidence. Proposed browser/GPU tests require a follow-up testing decision because current repository rules intentionally constrain tests to CPU utilities. Do not add unrelated tests or a new framework merely to accompany this review.
 

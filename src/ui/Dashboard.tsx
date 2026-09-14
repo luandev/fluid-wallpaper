@@ -1,10 +1,20 @@
 import { createRoot, type Root } from "react-dom/client";
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { cloneConfig, defaultConfig, type FluidConfig } from "../app/config";
 import type { Engine } from "../app/engine";
 import { saveStoredConfig } from "../app/storage";
 import { attachDraggablePanel, restorePanelPosition } from "../app/dragPanel";
-import { exitCanvasFullscreen, toggleCanvasFullscreen } from "./canvasFullscreen";
+import {
+  exitCanvasFullscreen,
+  toggleCanvasFullscreen,
+} from "./canvasFullscreen";
 import { shortcutFromKey } from "./shortcuts";
 import { SpatialOverlay } from "./spatial/SpatialOverlay";
 import { DriversTab } from "./tabs/DriversTab";
@@ -17,7 +27,14 @@ import { YouTubePlayer } from "./YouTubePlayer";
 import type { PatchFrom } from "./types";
 import "./dashboard.css";
 
-const TABS = ["Scene", "Materials", "Emitters", "Wind", "Drivers", "Presets"] as const;
+const TABS = [
+  "Scene",
+  "Materials",
+  "Emitters",
+  "Wind",
+  "Drivers",
+  "Presets",
+] as const;
 type Tab = (typeof TABS)[number];
 
 type DashboardProps = {
@@ -26,16 +43,24 @@ type DashboardProps = {
   persist?: boolean;
 };
 
-export function Dashboard({ engine, canvas, persist = true }: DashboardProps): ReactNode {
+export function Dashboard({
+  engine,
+  canvas,
+  persist = true,
+}: DashboardProps): ReactNode {
   const [open, setOpen] = useState(true);
   const [tab, setTab] = useState<Tab>("Scene");
   const [config, setConfig] = useState<FluidConfig>(() => engine.getConfig());
   const [live, setLive] = useState<FluidConfig>(() => engine.getLiveConfig());
   const [elapsed, setElapsed] = useState(() => engine.getElapsed());
-  const [selectedEmitterId, setSelectedEmitterId] = useState<string | null>(null);
+  const [selectedEmitterId, setSelectedEmitterId] = useState<string | null>(
+    null,
+  );
   const [selectedWindId, setSelectedWindId] = useState<string | null>(null);
   const [selectedWaveId, setSelectedWaveId] = useState<string | null>(null);
-  const [selectedBindingId, setSelectedBindingId] = useState<string | null>(null);
+  const [selectedBindingId, setSelectedBindingId] = useState<string | null>(
+    null,
+  );
   const dashRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLElement>(null);
   const fabRef = useRef<HTMLButtonElement>(null);
@@ -146,14 +171,21 @@ export function Dashboard({ engine, canvas, persist = true }: DashboardProps): R
     [config.windStations],
   );
 
-  const spatialKind = open && tab === "Emitters" ? "emitters" : open && tab === "Wind" ? "wind" : null;
+  const spatialKind =
+    open && tab === "Emitters"
+      ? "emitters"
+      : open && tab === "Wind"
+        ? "wind"
+        : null;
 
   return (
     <>
       <div ref={dashRef} className="dash" data-open={open ? "true" : "false"}>
         <header ref={headerRef} className="dash__header">
           <h2 className="dash__title">Dashboard</h2>
-          <p className="dash__hint">Drag header to move · H panel · P perf · F fullscreen</p>
+          <p className="dash__hint">
+            Drag header to move · H panel · P perf · F fullscreen
+          </p>
         </header>
         <div className="dash__tabs" role="tablist">
           {TABS.map((name) => (
@@ -171,8 +203,12 @@ export function Dashboard({ engine, canvas, persist = true }: DashboardProps): R
           ))}
         </div>
         <div className="dash__body" data-tab={tab}>
-          {tab === "Scene" ? <SceneTab config={config} live={live} commit={commit} /> : null}
-          {tab === "Materials" ? <MaterialsTab config={config} live={live} patchFrom={patchFrom} /> : null}
+          {tab === "Scene" ? (
+            <SceneTab config={config} live={live} commit={commit} />
+          ) : null}
+          {tab === "Materials" ? (
+            <MaterialsTab config={config} live={live} patchFrom={patchFrom} />
+          ) : null}
           {tab === "Emitters" ? (
             <EmittersTab
               config={config}
@@ -205,11 +241,19 @@ export function Dashboard({ engine, canvas, persist = true }: DashboardProps): R
             />
           ) : null}
           {tab === "Presets" ? (
-            <PresetsTab engine={engine} setConfig={setConfig} persist={persist} />
+            <PresetsTab
+              engine={engine}
+              setConfig={setConfig}
+              persist={persist}
+            />
           ) : null}
         </div>
         <div className="dash__actions">
-          <button type="button" className="dash__btn" onClick={() => engine.reseed()}>
+          <button
+            type="button"
+            className="dash__btn"
+            onClick={() => engine.reseed()}
+          >
             Reseed
           </button>
           <button
@@ -233,7 +277,11 @@ export function Dashboard({ engine, canvas, persist = true }: DashboardProps): R
       >
         Panel
       </button>
-      <YouTubePlayer url={config.youtubeUrl} canvas={view} background={config.backgroundMode === "video"} />
+      <YouTubePlayer
+        url={config.youtubeUrl}
+        canvas={view}
+        background={config.backgroundMode === "video"}
+      />
       <SpatialOverlay
         canvas={view}
         active={spatialKind === "emitters"}
@@ -242,7 +290,9 @@ export function Dashboard({ engine, canvas, persist = true }: DashboardProps): R
         onSelect={setSelectedEmitterId}
         onMove={(id, uv) =>
           patchFrom((current) => ({
-            emitters: current.emitters.map((item) => (item.id === id ? { ...item, uvX: uv.u, uvY: uv.v } : item)),
+            emitters: current.emitters.map((item) =>
+              item.id === id ? { ...item, uvX: uv.u, uvY: uv.v } : item,
+            ),
           }))
         }
       />
@@ -272,7 +322,11 @@ export function mountDashboard(
   root.hidden = false;
   let reactRoot: Root | null = createRoot(root);
   reactRoot.render(
-    <Dashboard engine={engine} canvas={options?.canvas} persist={options?.persist ?? true} />,
+    <Dashboard
+      engine={engine}
+      canvas={options?.canvas}
+      persist={options?.persist ?? true}
+    />,
   );
   return () => {
     reactRoot?.unmount();
@@ -281,7 +335,9 @@ export function mountDashboard(
   };
 }
 
-function resolveViewCanvas(canvas?: HTMLCanvasElement | null): HTMLCanvasElement | null {
+function resolveViewCanvas(
+  canvas?: HTMLCanvasElement | null,
+): HTMLCanvasElement | null {
   if (canvas) {
     return canvas;
   }

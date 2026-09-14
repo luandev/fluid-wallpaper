@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type ReactNode,
+} from "react";
 import { formatNumber } from "./format";
 import { clampNumberField, fineStep, nudgeNumber } from "./rangeMath";
 
@@ -119,9 +125,13 @@ export function RangeRow({
         <span className="dash__label">{label}</span>
         <span className="dash__readouts">
           {driven && live !== undefined ? (
-            <span className="dash__value dash__live">{formatNumber(live, step)}</span>
+            <span className="dash__value dash__live">
+              {formatNumber(live, step)}
+            </span>
           ) : null}
-          {driverName ? <span className="dash__chip">driven by {driverName}</span> : null}
+          {driverName ? (
+            <span className="dash__chip">driven by {driverName}</span>
+          ) : null}
         </span>
       </div>
       <div className="dash__range-controls" ref={controlsRef}>
@@ -189,7 +199,12 @@ type ToggleRowProps = {
   onChange: (next: boolean) => void;
 };
 
-export function ToggleRow({ label, value, help, onChange }: ToggleRowProps): ReactNode {
+export function ToggleRow({
+  label,
+  value,
+  help,
+  onChange,
+}: ToggleRowProps): ReactNode {
   return (
     <label className="dash__row" title={help}>
       <div className="dash__meta">
@@ -214,14 +229,24 @@ type ColorRowProps = {
   onChange: (next: string) => void;
 };
 
-export function ColorRow({ label, value, help, onChange }: ColorRowProps): ReactNode {
+export function ColorRow({
+  label,
+  value,
+  help,
+  onChange,
+}: ColorRowProps): ReactNode {
   return (
     <label className="dash__row" title={help}>
       <div className="dash__meta">
         <span className="dash__label">{label}</span>
         <span className="dash__value">{value}</span>
       </div>
-      <input className="dash__input" type="color" value={value} onChange={(event) => onChange(event.target.value)} />
+      <input
+        className="dash__input"
+        type="color"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      />
       <HelpText help={help} />
     </label>
   );
@@ -236,13 +261,23 @@ type SelectRowProps = {
   onChange: (next: string) => void;
 };
 
-export function SelectRow({ label, value, help, options, onChange }: SelectRowProps): ReactNode {
+export function SelectRow({
+  label,
+  value,
+  help,
+  options,
+  onChange,
+}: SelectRowProps): ReactNode {
   return (
     <label className="dash__row" title={help}>
       <div className="dash__meta">
         <span className="dash__label">{label}</span>
       </div>
-      <select className="dash__input dash__select" value={value} onChange={(event) => onChange(event.target.value)}>
+      <select
+        className="dash__input dash__select"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      >
         {options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
@@ -262,7 +297,13 @@ type TextRowProps = {
   onChange: (next: string) => void;
 };
 
-export function TextRow({ label, value, help, placeholder, onChange }: TextRowProps): ReactNode {
+export function TextRow({
+  label,
+  value,
+  help,
+  placeholder,
+  onChange,
+}: TextRowProps): ReactNode {
   return (
     <label className="dash__row" title={help}>
       <div className="dash__meta">

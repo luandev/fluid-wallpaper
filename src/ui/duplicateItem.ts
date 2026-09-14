@@ -5,7 +5,10 @@ export type NamedItem = {
   name: string;
 };
 
-export function copyName(name: string, existing: ReadonlyArray<{ name: string }>): string {
+export function copyName(
+  name: string,
+  existing: ReadonlyArray<{ name: string }>,
+): string {
   const used = new Set(existing.map((item) => item.name));
   const base = name.replace(/\s+copy(?:\s+\d+)?$/i, "").trim() || "Item";
   const clipped = base.slice(0, 24);

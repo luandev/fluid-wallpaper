@@ -31,14 +31,18 @@ export function PresetsTab({
   const refresh = (id?: string): void => {
     const next = loadPresets();
     setPresets(next);
-    const pick = id && next.some((preset) => preset.id === id) ? id : next[0]?.id ?? "";
+    const pick =
+      id && next.some((preset) => preset.id === id) ? id : (next[0]?.id ?? "");
     setSelectedId(pick);
   };
 
   return (
     <section className="dash__group">
       <h3 className="dash__group-title">Presets</h3>
-      <p className="dash__hint">Saves base config, including the driver graph. Load reseeds. Export/import JSON merges by name.</p>
+      <p className="dash__hint">
+        Saves base config, including the driver graph. Load reseeds.
+        Export/import JSON merges by name.
+      </p>
       <label className="dash__row">
         <span className="dash__label">Name</span>
         <input
@@ -58,7 +62,9 @@ export function PresetsTab({
           disabled={presets.length === 0}
           onChange={(event) => setSelectedId(event.target.value)}
         >
-          {presets.length === 0 ? <option value="">No presets yet</option> : null}
+          {presets.length === 0 ? (
+            <option value="">No presets yet</option>
+          ) : null}
           {presets.map((preset) => (
             <option key={preset.id} value={preset.id}>
               {preset.name}
@@ -139,11 +145,17 @@ export function PresetsTab({
           type="button"
           className="dash__btn"
           disabled={presets.length === 0}
-          onClick={() => downloadPresets(presets, "fluid-wallpaper-presets.json")}
+          onClick={() =>
+            downloadPresets(presets, "fluid-wallpaper-presets.json")
+          }
         >
           Export all
         </button>
-        <button type="button" className="dash__btn" onClick={() => fileRef.current?.click()}>
+        <button
+          type="button"
+          className="dash__btn"
+          onClick={() => fileRef.current?.click()}
+        >
           Import
         </button>
         <input
@@ -164,7 +176,10 @@ export function PresetsTab({
                 console.warn(parsed.reason);
                 return;
               }
-              const merged = mergeImportedPresets(loadPresets(), parsed.presets);
+              const merged = mergeImportedPresets(
+                loadPresets(),
+                parsed.presets,
+              );
               savePresets(merged);
               refresh(merged[0]?.id);
             });

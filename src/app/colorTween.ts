@@ -34,7 +34,10 @@ export function tweenAmount(elapsed: number, speed: number): number {
   return triangleWave(elapsed * speed);
 }
 
-export function tweenMaterial(material: FluidMaterial, t: number): LiveMaterial {
+export function tweenMaterial(
+  material: FluidMaterial,
+  t: number,
+): LiveMaterial {
   return {
     id: material.id,
     enabled: material.enabled,
@@ -47,7 +50,9 @@ export function tweenMaterial(material: FluidMaterial, t: number): LiveMaterial 
   };
 }
 
-export function padLiveMaterials(slots: readonly LiveMaterial[]): LiveMaterial[] {
+export function padLiveMaterials(
+  slots: readonly LiveMaterial[],
+): LiveMaterial[] {
   const next = slots.slice(0, 4);
   while (next.length < 4) {
     next.push({
@@ -64,11 +69,13 @@ export function padLiveMaterials(slots: readonly LiveMaterial[]): LiveMaterial[]
   return next;
 }
 
-export function tweenMaterials(config: FluidConfig, elapsed: number): LiveMaterials {
+export function tweenMaterials(
+  config: FluidConfig,
+  elapsed: number,
+): LiveMaterials {
   const t = tweenAmount(elapsed, config.colorTweenSpeed);
   return {
     slots: config.materials.map((material) => tweenMaterial(material, t)),
     t,
   };
 }
-

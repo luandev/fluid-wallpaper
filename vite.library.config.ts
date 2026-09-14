@@ -7,7 +7,16 @@ export default defineConfig({
   build: {
     outDir: "package-dist",
     lib: {
-      entry: { react: "src/react/index.ts", engine: "src/app/engine.ts", config: "src/app/config.ts", element: "src/element/index.ts", "element-auto": "src/element/auto.ts" },
+      entry: {
+        hero: "src/hero/index.ts",
+        "hero-auto": "src/hero/auto.ts",
+        presets: "src/presets/index.ts",
+        react: "src/react/index.ts",
+        engine: "src/app/engine.ts",
+        config: "src/app/config.ts",
+        element: "src/element/index.ts",
+        "element-auto": "src/element/auto.ts",
+      },
       formats: ["es"],
       fileName: (_format, name) => `${name}.js`,
       cssFileName: "styles",

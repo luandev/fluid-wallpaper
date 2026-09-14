@@ -7,7 +7,9 @@ export type QualityBudgets = {
   pressureIterations: number;
 };
 
-export function phase1Budgets(config: FluidConfig = defaultConfig): QualityBudgets {
+export function phase1Budgets(
+  config: FluidConfig = defaultConfig,
+): QualityBudgets {
   return {
     simResolution: config.simResolution,
     dyeResolution: config.dyeResolution,

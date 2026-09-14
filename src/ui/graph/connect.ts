@@ -18,8 +18,12 @@ export function connectPorts(
   if (!isBindablePath(config, path)) {
     return undefined;
   }
-  const existing = config.valueBindings.find((binding) => binding.path === path);
-  const without = config.valueBindings.filter((binding) => binding.path !== path);
+  const existing = config.valueBindings.find(
+    (binding) => binding.path === path,
+  );
+  const without = config.valueBindings.filter(
+    (binding) => binding.path !== path,
+  );
   if (!existing && without.length >= MAX_VALUE_BINDINGS) {
     return undefined;
   }
@@ -29,12 +33,17 @@ export function connectPorts(
   return [...without, next];
 }
 
-export function removeBinding(bindings: readonly ValueBinding[], id: string): ValueBinding[] {
+export function removeBinding(
+  bindings: readonly ValueBinding[],
+  id: string,
+): ValueBinding[] {
   return bindings.filter((binding) => binding.id !== id);
 }
 
 /** Last binding per path, matching applyDrivers. */
-export function latestBindings(bindings: readonly ValueBinding[]): ValueBinding[] {
+export function latestBindings(
+  bindings: readonly ValueBinding[],
+): ValueBinding[] {
   const latest = new Map<string, ValueBinding>();
   for (const binding of bindings) {
     latest.set(binding.path, binding);

@@ -10,7 +10,7 @@ npm install fluid-wallpaper@next
 ## Web component
 
 ```js
-import { defineFluidInk } from 'fluid-wallpaper/element';
+import { defineFluidInk } from "fluid-wallpaper/element";
 defineFluidInk();
 ```
 
@@ -23,7 +23,10 @@ defineFluidInk();
 For plain HTML without a bundler, use the version-pinned module after that markup:
 
 ```html
-<script type="module" src="https://cdn.jsdelivr.net/npm/fluid-wallpaper@0.1.0-next.0/element-auto.js"></script>
+<script
+  type="module"
+  src="https://cdn.jsdelivr.net/npm/fluid-wallpaper@0.1.0-next.0/element-auto.js"
+></script>
 ```
 
 No React or external stylesheet is required by the element. `defineFluidInk()` explicitly registers it; `/element/auto` registers it on import.
@@ -33,13 +36,15 @@ No React or external stylesheet is required by the element. `defineFluidInk()` e
 Install React 19 and React DOM 19 in your application, then:
 
 ```tsx
-import { FluidField } from 'fluid-wallpaper/react';
-import 'fluid-wallpaper/styles.css';
+import { FluidField } from "fluid-wallpaper/react";
+import "fluid-wallpaper/styles.css";
 
 export function Artwork() {
-  return <div style={{ height: 360 }}>
-    <FluidField config={{ vorticity: 12 }} onError={console.error} />
-  </div>;
+  return (
+    <div style={{ height: 360 }}>
+      <FluidField config={{ vorticity: 12 }} onError={console.error} />
+    </div>
+  );
 }
 ```
 
@@ -54,3 +59,14 @@ Elements expose `play`, `pause`, `reset`, `inject`, `setConfig`, `getConfig`, an
 The element's `scene` property opts into the experimental two-liquid solver. React retains the established single-velocity material solver. Dashboard presets and chrome can share browser storage even with `persist={false}`. No mobile performance or full instance-isolation guarantee is made.
 
 [Live examples and usage](https://luandev.github.io/fluid-wallpaper/usage.html) · [Source and evidence](https://github.com/luandev/fluid-wallpaper) · MIT
+
+## Fluid hero and presets
+
+```jsx
+import { FluidHero } from "fluid-wallpaper/react";
+<FluidHero preset="aurora" config={{ backgroundMode: "transparent" }}>
+  <h1>Your message, in motion.</h1>
+</FluidHero>;
+```
+
+Or import defineFluidHero from fluid-wallpaper/hero and use <fluid-hero>. The hero owns its shadow stylesheet and defaults to adaptive ECO. It pauses offscreen, respects reduced motion, and preserves foreground content without WebGL. Presets are available through fluid-wallpaper/presets: fluidPresets, getFluidPreset(id), getFluidPresetDocument(id). Returned configurations/documents are independent copies. See the [public docs](https://luandev.github.io/fluid-wallpaper/docs/index.html) for complete integration and gallery examples.

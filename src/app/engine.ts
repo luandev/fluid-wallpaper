@@ -11,7 +11,11 @@ import { tweenMaterials } from "./colorTween";
 import { dyeLooksAllBlack, dyeStatsFromRgba8, type DyeStats } from "./dyeMix";
 import { wiggleMotion } from "./wiggle";
 import { PointerInput, type PointerSplat } from "../inputs/pointer";
-import { AudioAnalyser, type AudioSource, type AudioStatus } from "../inputs/audioAnalyser";
+import {
+  AudioAnalyser,
+  type AudioSource,
+  type AudioStatus,
+} from "../inputs/audioAnalyser";
 import type { AudioFrame } from "../inputs/audioMath";
 import { BrowserPlatform } from "../platform/browser";
 import { blitDye } from "../render/display";
@@ -34,10 +38,19 @@ import type { PerfSample } from "./perfHud";
 import { EcoController, ecoGrid, ecoDisplay } from "../quality/eco";
 
 export type EcoStatus = {
-  quality: "eco"; level: number; targetFps: number; simulationSpeed: number;
-  simulation: [number, number]; pigment: [number, number]; display: [number, number]; reason: string;
+  quality: "eco";
+  level: number;
+  targetFps: number;
+  simulationSpeed: number;
+  simulation: [number, number];
+  pigment: [number, number];
+  display: [number, number];
+  reason: string;
 };
-export type EngineOptions = { eco?: boolean; onEcoChange?: (status: EcoStatus | null) => void };
+export type EngineOptions = {
+  eco?: boolean;
+  onEcoChange?: (status: EcoStatus | null) => void;
+};
 
 export class Engine {
   private static readonly FIXED_STEP = 1 / 60;
@@ -65,7 +78,11 @@ export class Engine {
   private ecoPresented = 0;
   private ecoLastDraw = 0;
 
-  constructor(canvas: HTMLCanvasElement, config: FluidConfig = defaultConfig, private readonly options: EngineOptions = {}) {
+  constructor(
+    canvas: HTMLCanvasElement,
+    config: FluidConfig = defaultConfig,
+    private readonly options: EngineOptions = {},
+  ) {
     if (options.eco) this.eco = new EcoController();
     this.baseConfig = clampConfig(cloneConfig(config));
     assertConfig(this.baseConfig);
@@ -136,8 +153,13 @@ export class Engine {
     this.eco = enabled ? new EcoController() : null;
     this.resetPacing();
     this.syncLive(this.elapsed);
-    try { this.resampleSolver(); }
-    catch (error) { this.eco = previous; this.syncLive(this.elapsed); throw error; }
+    try {
+      this.resampleSolver();
+    } catch (error) {
+      this.eco = previous;
+      this.syncLive(this.elapsed);
+      throw error;
+    }
     this.syncCanvas();
     this.draw();
     this.options.onEcoChange?.(this.getEcoStatus());
@@ -146,9 +168,16 @@ export class Engine {
   getEcoStatus(): EcoStatus | null {
     if (!this.eco) return null;
     const grids = this.solver.gridSizes;
-    return { quality: "eco", level: this.eco.level, targetFps: this.eco.budget.fps, simulationSpeed: this.eco.budget.speed,
-      simulation: [grids.simWidth, grids.simHeight], pigment: [grids.dyeWidth, grids.dyeHeight],
-      display: [this.platform.canvas.width, this.platform.canvas.height], reason: this.eco.reason };
+    return {
+      quality: "eco",
+      level: this.eco.level,
+      targetFps: this.eco.budget.fps,
+      simulationSpeed: this.eco.budget.speed,
+      simulation: [grids.simWidth, grids.simHeight],
+      pigment: [grids.dyeWidth, grids.dyeHeight],
+      display: [this.platform.canvas.width, this.platform.canvas.height],
+      reason: this.eco.reason,
+    };
   }
 
   getLiveConfig(): FluidConfig {
@@ -220,8 +249,14 @@ export class Engine {
   }
 
   private syncLive(elapsed: number): void {
-    copyConfigOnto(this.liveConfig, applyDrivers(this.baseConfig, elapsed, this.audio.getFrame()));
-    if (this.eco) Object.assign(this.liveConfig, ecoGrid(this.baseConfig, this.eco.level), { warmupSteps: Math.min(24, this.baseConfig.warmupSteps) });
+    copyConfigOnto(
+      this.liveConfig,
+      applyDrivers(this.baseConfig, elapsed, this.audio.getFrame()),
+    );
+    if (this.eco)
+      Object.assign(this.liveConfig, ecoGrid(this.baseConfig, this.eco.level), {
+        warmupSteps: Math.min(24, this.baseConfig.warmupSteps),
+      });
   }
 
   private chooseFormat(): SimFormat {
@@ -258,7 +293,13 @@ export class Engine {
   private createSolver(): FluidSolver {
     this.gl.bindVertexArray(this.vao);
     const size = this.platform.getSize();
-    return new FluidSolver(this.gl, this.passes, this.format, this.liveConfig, size.aspect);
+    return new FluidSolver(
+      this.gl,
+      this.passes,
+      this.format,
+      this.liveConfig,
+      size.aspect,
+    );
   }
 
   private bootSolver(): void {
@@ -305,7 +346,18 @@ export class Engine {
 
   private syncCanvas(): void {
     const size = this.platform.getSize();
-    this.platform.applyCanvasResolution(this.eco ? { ...size, ...ecoDisplay(size.pixelWidth, size.pixelHeight, this.eco.budget.pixels) } : size);
+    this.platform.applyCanvasResolution(
+      this.eco
+        ? {
+            ...size,
+            ...ecoDisplay(
+              size.pixelWidth,
+              size.pixelHeight,
+              this.eco.budget.pixels,
+            ),
+          }
+        : size,
+    );
   }
 
   private handleResize(): void {
@@ -316,8 +368,10 @@ export class Engine {
     this.syncCanvas();
     const aspect = this.platform.getSize().aspect;
     if (!this.solver.matchesAspect(aspect)) {
-      if (this.eco) { this.resampleSolver(); this.draw(); }
-      else this.reseed();
+      if (this.eco) {
+        this.resampleSolver();
+        this.draw();
+      } else this.reseed();
     }
   }
 
@@ -341,11 +395,19 @@ export class Engine {
     if (this.disposed || this.paused || !this.platform.visible) {
       return;
     }
-    if (this.eco) { this.tickEco(now); return; }
-    const frameDt = this.lastMs === 0 ? Engine.FIXED_STEP : Math.min(this.baseConfig.maxDt, (now - this.lastMs) / 1000);
-    this.frameMs = this.lastMs === 0 ? 16.67 : Math.max(0.01, now - this.lastMs);
+    if (this.eco) {
+      this.tickEco(now);
+      return;
+    }
+    const frameDt =
+      this.lastMs === 0
+        ? Engine.FIXED_STEP
+        : Math.min(this.baseConfig.maxDt, (now - this.lastMs) / 1000);
+    this.frameMs =
+      this.lastMs === 0 ? 16.67 : Math.max(0.01, now - this.lastMs);
     const instantFps = 1000 / this.frameMs;
-    this.fpsEma = this.lastMs === 0 ? instantFps : this.fpsEma * 0.9 + instantFps * 0.1;
+    this.fpsEma =
+      this.lastMs === 0 ? instantFps : this.fpsEma * 0.9 + instantFps * 0.1;
     this.lastMs = now;
     this.audio.sample(frameDt);
     this.simulationAccumulator += frameDt;
@@ -360,7 +422,8 @@ export class Engine {
       const motion = wiggleMotion(this.liveConfig, this.elapsed);
       this.elapsed += Engine.FIXED_STEP * motion.noiseTime;
       this.solver.setLiveMotion(motion);
-      const splat = steps === 0 ? this.manualSplat ?? this.pointer.consume() : null;
+      const splat =
+        steps === 0 ? (this.manualSplat ?? this.pointer.consume()) : null;
       this.solver.step(Engine.FIXED_STEP, this.elapsed, splat);
       this.simulationAccumulator -= Engine.FIXED_STEP;
       steps += 1;
@@ -391,29 +454,45 @@ export class Engine {
   private tickEco(now: number): void {
     const eco = this.eco!;
     const interval = 1000 / eco.budget.fps;
-    if (this.ecoPresented && now - this.ecoPresented < interval - .5) { this.loop(); return; }
+    if (this.ecoPresented && now - this.ecoPresented < interval - 0.5) {
+      this.loop();
+      return;
+    }
     const presentationMs = this.ecoLastDraw ? now - this.ecoLastDraw : interval;
-    this.ecoPresented = this.ecoPresented ? now - (now - this.ecoPresented) % interval : now;
+    this.ecoPresented = this.ecoPresented
+      ? now - ((now - this.ecoPresented) % interval)
+      : now;
     this.ecoLastDraw = now;
     const start = performance.now();
     this.frameMs = presentationMs;
-    this.fpsEma = this.fpsEma * .9 + 1000 / presentationMs * .1;
+    this.fpsEma = this.fpsEma * 0.9 + (1000 / presentationMs) * 0.1;
     // One bounded step per presentation. Slow simulation time, never replay missed work.
-    const dt = Math.min(presentationMs / 1000, 1 / eco.budget.fps, this.baseConfig.maxDt) * eco.budget.speed;
+    const dt =
+      Math.min(
+        presentationMs / 1000,
+        1 / eco.budget.fps,
+        this.baseConfig.maxDt,
+      ) * eco.budget.speed;
     this.audio.sample(dt);
     this.syncLive(this.elapsed);
     const motion = wiggleMotion(this.liveConfig, this.elapsed);
     this.elapsed += dt * motion.noiseTime;
     this.gl.bindVertexArray(this.vao);
     this.solver.setLiveMotion(motion);
-    this.solver.step(dt, this.elapsed, this.manualSplat ?? this.pointer.consume());
+    this.solver.step(
+      dt,
+      this.elapsed,
+      this.manualSplat ?? this.pointer.consume(),
+    );
     this.manualSplat = null;
     this.draw();
     const previousLevel = eco.level;
     if (eco.observe(now, performance.now() - start, presentationMs)) {
       this.syncLive(this.elapsed);
-      try { this.resampleSolver(); this.syncCanvas(); }
-      catch {
+      try {
+        this.resampleSolver();
+        this.syncCanvas();
+      } catch {
         eco.level = previousLevel;
         eco.reason = "ECO resize failed; retained current field";
         this.syncLive(this.elapsed);

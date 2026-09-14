@@ -5,7 +5,7 @@
   height: 100%;
   min-height: 240px;
   overflow: hidden;
-  background: #070708;
+  background: transparent;
 }
 
 .fluid-field__canvas {
@@ -22,7 +22,9 @@
   padding: 1.5rem;
   color: #f2eaea;
   background: #1a1a1a;
-  font: 16px/1.5 system-ui, sans-serif;
+  font:
+    16px/1.5 system-ui,
+    sans-serif;
 }
 
 .fluid-field__perf {
@@ -49,7 +51,12 @@
   border-radius: 12px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(10px);
-  font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font:
+    12px/1.45 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Consolas,
+    monospace;
 }
 
 .fluid-field .perf[data-open="false"] {
@@ -88,7 +95,9 @@
   color: #f4ecec;
   background: #2a1518;
   cursor: pointer;
-  font: 12px/1.4 system-ui, sans-serif;
+  font:
+    12px/1.4 system-ui,
+    sans-serif;
   font-weight: 700;
   touch-action: none;
 }

@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="A complete reference for the forces, materials and choices behind the field."
+    />
+    <title>Settings · fluid-wallpaper</title>
+    <link rel="stylesheet" href="../src/docs/docs.css" />
+  </head>
+  <body data-page="settings" style="--accent: #b9ddeb">
+    <a class="skip button" href="#content">Skip to content</a>
+    <header class="site-nav">
+      <a class="brand" href="../index.html">fluid<span>—</span>wallpaper</a
+      ><button
+        class="menu-toggle"
+        aria-expanded="false"
+        aria-controls="docs-nav"
+      >
+        Menu
+      </button>
+      <nav class="nav-links" id="docs-nav" aria-label="Documentation">
+        <a href="./index.html">Start</a><a href="./settings.html">Settings</a
+        ><a href="./hero.html">Fluid hero</a><a href="./gallery.html">Gallery</a
+        ><a href="./contributing-presets.html">Contribute</a
+        ><a href="../play.html">Open tuner ↗</a>
+      </nav>
+    </header>
+    <main id="content">
+      <fluid-hero id="page-hero" preset="porcelain"
+        ><p class="eyebrow">fluid-wallpaper / Settings</p>
+        <h1>
+          Every detail.<br />
+          Every possibility.
+        </h1>
+        <p>
+          A complete reference for the forces, materials and choices behind the
+          field.
+        </p>
+        <div class="hero-links">
+          <a class="button" href="./gallery.html">Explore the gallery</a
+          ><a href="./hero.html">Build with fluid-hero ↗</a>
+        </div></fluid-hero
+      >
+      <p class="lead">
+        Everything you can shape, and what it changes. Authored defaults below
+        are separate from the effective budgets selected by ECO.
+      </p>
+      <label for="setting-search">Find a setting or effect</label
+      ><input
+        class="search"
+        id="setting-search"
+        type="search"
+        placeholder="Try viscosity, transparent, wind, or quality…"
+      />
+      <p class="result-count" id="result-count" role="status"></p>
+      <div class="reference-layout">
+        <nav
+          class="reference-nav"
+          id="reference-nav"
+          aria-label="Setting categories"
+        ></nav>
+        <div id="reference"></div>
+      </div>
+      <article id="component-apis">
+        <h2>Component APIs</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Interface</th>
+              <th>Options and behavior</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>FluidHero / fluid-hero</td>
+              <td>
+                preset: aurora by default; config: overrides that preset;
+                quality: eco by default, also auto/balanced/high; paused: false;
+                interactive: false. HTML content uses the default slot; React
+                uses children, className and style.
+              </td>
+            </tr>
+            <tr>
+              <td>Hero methods and events</td>
+              <td>
+                play(), pause(), reset(); qualityStatus readout. ready, error,
+                configchange, qualitychange events; React onReady, onError,
+                onConfigChange, onQualityChange receive CustomEvent. React props
+                update the hero after mounting.
+              </td>
+            </tr>
+            <tr>
+              <td>fluid-ink</td>
+              <td>
+                config property / setConfig(patch) / getConfig(); quality
+                attribute (auto default); paused attribute; play(), pause(),
+                reset(), inject({position:{x,y},velocity?:{x,y}}). Config
+                patches automatically rebuild when required. Four pigment slots.
+                ready/error/configchange/qualitychange events.
+              </td>
+            </tr>
+            <tr>
+              <td>Experimental element</td>
+              <td>
+                scene property selects fluid-ink.scene.v1; updateScene(scene)
+                preserves carrier identities; scenechange event; qualityStatus
+                includes diagnostics. Legacy controls do not migrate into
+                physical scene settings.
+              </td>
+            </tr>
+            <tr>
+              <td>FluidField (React)</td>
+              <td>
+                config is initial-only. dashboard, perf, persist default false.
+                className/style; onEngine exposes Engine; onError receives a
+                message. Import styles.css. Base persistence is opt-in;
+                dashboard preset and chrome storage can still be shared.
+              </td>
+            </tr>
+            <tr>
+              <td>Engine</td>
+              <td>
+                new Engine(canvas, config, {eco,onEcoChange}); start(), pause(),
+                resume(), dispose(); applyConfig(patch), reseed(),
+                inject(splat); getConfig(), getLiveConfig(), getElapsed(),
+                getPerfSample(); setEcoMode(boolean), getEcoStatus();
+                getAudioFrame(), getAudioSource(), getAudioStatus(),
+                setAudioSource(source).
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <h2>Audio and music</h2>
+        <p>
+          Music video requests muted autoplay when loaded or selected. Enable
+          sound is an explicit click; Play video and the embedded controls
+          remain available if autoplay is blocked. Other backgrounds do not
+          start music automatically. Listening remains separate: use the Drivers
+          panel to select tab audio or microphone. Denial leaves silent input;
+          stop listening to release capture. Camera/tilt are inactive
+          placeholders.
+        </p>
+        <h2>ECO and resets</h2>
+        <p>
+          ECO scales the established short-side grids from 192/384 down to
+          64/128, caps output pixels, targets 30 down to 20 FPS, and slows
+          simulation speed to 0.5 under sustained overload. Recovery is gradual.
+          These are ceilings, not frame-rate guarantees. Web components handle
+          required config rebuilds; direct Engine.applyConfig requires reseed
+          for resolution or seed changes. Color/background edits do not reset
+          the fluid.
+        </p>
+        <h2>Presets and coordinates</h2>
+        <p>
+          Preset documents use <code>fluid-wallpaper.preset.v1</code>,
+          containing named configs. Tuner imports merge by name; the saved list
+          holds up to 32 presets. Emitter positions use UV coordinates: x=0
+          left, y=0 bottom. Pointer handling maps the canvas rectangle to UV.
+          Use the gallery to download complete examples.
+        </p>
+        <p>
+          <a
+            href="https://github.com/luandev/fluid-wallpaper/blob/main/docs/ECO.md"
+            >ECO implementation evidence</a
+          >
+          ·
+          <a
+            href="https://github.com/luandev/fluid-wallpaper/blob/main/docs/TWO_LIQUID.md"
+            >Experimental evidence and remaining gates</a
+          >
+        </p>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <span>fluid-wallpaper · Living color, thoughtfully embedded.</span
+      ><a href="https://github.com/luandev/fluid-wallpaper"
+        >Source &amp; contributions ↗</a
+      >
+    </footer>
+    <script type="module" src="../src/docs/main.ts"></script>
+  </body>
+</html>

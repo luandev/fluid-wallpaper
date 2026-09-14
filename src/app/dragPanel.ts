@@ -104,7 +104,12 @@ export function attachDraggablePanel(options: {
     element.dataset.dragging = "false";
     if (moved) {
       const rect = element.getBoundingClientRect();
-      const pos = clampPanelPos(rect.left, rect.top, measurePanel(element, PANEL_SIZE_FALLBACK[id]), viewportSize());
+      const pos = clampPanelPos(
+        rect.left,
+        rect.top,
+        measurePanel(element, PANEL_SIZE_FALLBACK[id]),
+        viewportSize(),
+      );
       writePos(element, pos.left, pos.top);
       savePanelPos(id, pos);
     }

@@ -22,11 +22,11 @@ assignees: ""
 
 ## Options to compare
 
-- 
+-
 
 ## Decision criteria
 
-- 
+-
 
 ## Deliverable
 

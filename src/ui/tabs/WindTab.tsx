@@ -33,7 +33,13 @@ export function WindTab({
       <div className="dash__group-head">
         <h3 className="dash__group-title">Wind</h3>
         <div className="dash__inline-actions" style={{ margin: 0 }}>
-          <button type="button" className="dash__btn" onClick={() => patchFrom(() => ({ windStations: scatterWindStations(4) }))}>
+          <button
+            type="button"
+            className="dash__btn"
+            onClick={() =>
+              patchFrom(() => ({ windStations: scatterWindStations(4) }))
+            }
+          >
             Scatter
           </button>
           <button
@@ -43,7 +49,9 @@ export function WindTab({
             onClick={() =>
               patchFrom((current) => {
                 const station = createWindStation(current.windStations);
-                return station ? { windStations: [...current.windStations, station] } : {};
+                return station
+                  ? { windStations: [...current.windStations, station] }
+                  : {};
               })
             }
           >
@@ -51,9 +59,13 @@ export function WindTab({
           </button>
         </div>
       </div>
-      <p className="dash__hint">2D stations like sparse wind data: heading/speed for stream, spin for vorticity. Live weather files stay later.</p>
+      <p className="dash__hint">
+        2D stations like sparse wind data: heading/speed for stream, spin for
+        vorticity. Live weather files stay later.
+      </p>
       {config.windStations.map((station) => {
-        const liveStation = live.windStations.find((item) => item.id === station.id) ?? station;
+        const liveStation =
+          live.windStations.find((item) => item.id === station.id) ?? station;
         return (
           <ItemCard
             key={station.id}
@@ -64,7 +76,12 @@ export function WindTab({
             onSelect={() => onSelect(station.id)}
             onDuplicate={() =>
               patchFrom((current) => {
-                const next = duplicateById(current.windStations, station.id, "wind", MAX_WIND_STATIONS);
+                const next = duplicateById(
+                  current.windStations,
+                  station.id,
+                  "wind",
+                  MAX_WIND_STATIONS,
+                );
                 if (!next) {
                   return {};
                 }
@@ -74,7 +91,9 @@ export function WindTab({
             }
             onRemove={() =>
               patchFrom((current) => ({
-                windStations: current.windStations.filter((item) => item.id !== station.id),
+                windStations: current.windStations.filter(
+                  (item) => item.id !== station.id,
+                ),
               }))
             }
             nameSlot={
@@ -86,7 +105,9 @@ export function WindTab({
                 onBlur={(event) =>
                   patchFrom((current) => ({
                     windStations: current.windStations.map((item) =>
-                      item.id === station.id ? { ...item, name: event.target.value } : item,
+                      item.id === station.id
+                        ? { ...item, name: event.target.value }
+                        : item,
                     ),
                   }))
                 }
@@ -97,7 +118,9 @@ export function WindTab({
               label="Enabled"
               help={WIND_FIELD_HELP.enabled}
               value={station.enabled}
-              onChange={(enabled) => patchWind(patchFrom, station.id, { enabled })}
+              onChange={(enabled) =>
+                patchWind(patchFrom, station.id, { enabled })
+              }
             />
             <WindRange
               station={station}
@@ -178,9 +201,15 @@ export function WindTab({
   );
 }
 
-function patchWind(patchFrom: PatchFrom, id: string, patch: Partial<WindStation>): void {
+function patchWind(
+  patchFrom: PatchFrom,
+  id: string,
+  patch: Partial<WindStation>,
+): void {
   patchFrom((current) => ({
-    windStations: current.windStations.map((item) => (item.id === id ? { ...item, ...patch } : item)),
+    windStations: current.windStations.map((item) =>
+      item.id === id ? { ...item, ...patch } : item,
+    ),
   }));
 }
 

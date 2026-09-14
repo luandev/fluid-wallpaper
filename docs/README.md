@@ -56,3 +56,5 @@ Folder READMEs are local architecture; scoped AGENTS.md files guide edits. They 
 [RELEASE.md](RELEASE.md) owns compiled-package artifacts, CI publication, bootstrap instructions and validation status. [PACKAGE_README.md](PACKAGE_README.md) is copied into the npm artifact.
 
 [ECO.md](ECO.md) owns adaptive ECO resolution, pacing, simulation speed, continuity and measurement limits.
+
+The public browser documentation lives at [index.html](index.html): [settings](settings.html), [hero](hero.html), [gallery](gallery.html), and [preset contribution guide](contributing-presets.html). Engineering Markdown remains repository documentation.

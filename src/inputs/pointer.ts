@@ -24,7 +24,10 @@ export class PointerInput {
   }
 
   consume(): PointerSplat | null {
-    if (!this.enabled || Math.abs(this.pendingDeltaX) + Math.abs(this.pendingDeltaY) <= 1e-6) {
+    if (
+      !this.enabled ||
+      Math.abs(this.pendingDeltaX) + Math.abs(this.pendingDeltaY) <= 1e-6
+    ) {
       this.pendingDeltaX = 0;
       this.pendingDeltaY = 0;
       return null;

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="Turn an experiment into a starting point for everyone."
+    />
+    <title>Contribute · fluid-wallpaper</title>
+    <link rel="stylesheet" href="../src/docs/docs.css" />
+  </head>
+  <body data-page="contributing-presets" style="--accent: #ff977b">
+    <a class="skip button" href="#content">Skip to content</a>
+    <header class="site-nav">
+      <a class="brand" href="../index.html">fluid<span>—</span>wallpaper</a
+      ><button
+        class="menu-toggle"
+        aria-expanded="false"
+        aria-controls="docs-nav"
+      >
+        Menu
+      </button>
+      <nav class="nav-links" id="docs-nav" aria-label="Documentation">
+        <a href="./index.html">Start</a><a href="./settings.html">Settings</a
+        ><a href="./hero.html">Fluid hero</a><a href="./gallery.html">Gallery</a
+        ><a href="./contributing-presets.html">Contribute</a
+        ><a href="../play.html">Open tuner ↗</a>
+      </nav>
+    </header>
+    <main id="content">
+      <fluid-hero id="page-hero" preset="ember"
+        ><p class="eyebrow">fluid-wallpaper / Contribute</p>
+        <h1>
+          Your current.<br />
+          Our collection.
+        </h1>
+        <p>Turn an experiment into a starting point for everyone.</p>
+        <div class="hero-links">
+          <a class="button" href="./gallery.html">Explore the gallery</a
+          ><a href="./hero.html">Build with fluid-hero ↗</a>
+        </div></fluid-hero
+      >
+      <article>
+        <p class="lead">
+          Make something worth getting lost in. Share it so someone else can
+          build on it.
+        </p>
+        <h2>01. Find your composition</h2>
+        <p>
+          Start in the <a href="./gallery.html">gallery</a> or
+          <a href="../play.html">tuner</a>. Explore colors, material contrast,
+          point emitters, wind and slow drivers. Choose a solid, gradient or
+          transparent background. Gallery contributions must work without
+          external video, audio capture, camera or tilt.
+        </p>
+        <h2>02. Export a full preset</h2>
+        <p>
+          In the tuner’s Presets tab, save a named preset and export its JSON.
+          Keep the existing <code>fluid-wallpaper.preset.v1</code> format. A
+          contribution contains exactly one preset, with a stable lowercase slug
+          and matching name in its metadata.
+        </p>
+        <h2>03. Add your folder</h2>
+        <pre><code>presets/your-preset/
+  preset.json     # exported full configuration
+  metadata.json   # description and attribution
+  preview.png     # captured from the actual field</code></pre>
+        <pre><code>{
+  &quot;id&quot;: &quot;your-preset&quot;,
+  &quot;name&quot;: &quot;Your Preset&quot;,
+  &quot;description&quot;: &quot;Describe its color and motion.&quot;,
+  &quot;character&quot;: &quot;Soft / luminous / slow&quot;,
+  &quot;accent&quot;: &quot;#7aefdc&quot;,
+  &quot;author&quot;: &quot;Your public name&quot;,
+  &quot;license&quot;: &quot;MIT&quot;,
+  &quot;tags&quot;: [&quot;soft&quot;, &quot;luminous&quot;, &quot;slow&quot;]
+}</code></pre>
+        <p>
+          Set the exported preset’s ID to the folder slug and its name to the
+          metadata name. Keep its numeric updatedAt timestamp. Preserve material
+          IDs and emitter/binding references. Unknown fields and silently
+          clamped values are rejected; export using the current tuner.
+        </p>
+        <h2>04. Capture and check</h2>
+        <p>
+          Capture the actual field without editor chrome as a 640 × 400 PNG
+          preview. Do not use a rendered mockup that differs from the preset.
+          Preview images are source artwork for the gallery, not part of the npm
+          runtime.
+        </p>
+        <pre><code>yarn test
+yarn build</code></pre>
+        <p>
+          Both commands validate the discovered collection. Check the gallery at
+          desktop and mobile widths, try ECO, and inspect the composition after
+          it has evolved. Include browser/device details with performance
+          observations; do not claim a guaranteed FPS.
+        </p>
+        <h2>05. Open a pull request</h2>
+        <p>
+          Include the preset folder, a short explanation of its palette and
+          motion, validation results, and any known visual limitations. The
+          catalog discovers new folders automatically. Submit only original work
+          you can contribute under MIT; use a public attribution name and do not
+          include private URLs or credentials.
+        </p>
+        <p class="note">
+          Review checks visual distinction, reference integrity, useful
+          defaults, no required external media, readable metadata, and a
+          representative preview. Experimental two-liquid scenes have a
+          different contract and are not accepted into this established-renderer
+          collection.
+        </p>
+        <p>
+          <a href="https://github.com/luandev/fluid-wallpaper/compare"
+            >Open a contribution on GitHub ↗</a
+          >
+        </p>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <span>fluid-wallpaper · Living color, thoughtfully embedded.</span
+      ><a href="https://github.com/luandev/fluid-wallpaper"
+        >Source &amp; contributions ↗</a
+      >
+    </footer>
+    <script type="module" src="../src/docs/main.ts"></script>
+  </body>
+</html>

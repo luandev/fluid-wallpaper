@@ -7,7 +7,11 @@ Status: **experimental implementation; the full adaptive two-liquid plan is not 
 Use `yarn dev`, then open `/liquid.html` for the studio or `/diagnostics.html` for GPU probes. Production builds include both pages with relative URLs. The existing tuner, landing and React embed retain legacy scenes.
 
 ```ts
-import { defineFluidInk, defaultLiquidScene, type FluidInkElement } from "fluid-wallpaper/element";
+import {
+  defineFluidInk,
+  defaultLiquidScene,
+  type FluidInkElement,
+} from "fluid-wallpaper/element";
 defineFluidInk();
 const element = document.createElement("fluid-ink") as FluidInkElement;
 element.scene = defaultLiquidScene(); // Set before connecting to avoid legacy initialization.
@@ -17,7 +21,12 @@ if (next) {
   next.absorption = 1.4;
   element.updateScene(next); // Keeps field state and identities.
 }
-element.inject({ position: { x: 0.5, y: 0.5 }, pigmentSlot: 0, fraction: 0.2, radius: 0.04 });
+element.inject({
+  position: { x: 0.5, y: 0.5 },
+  pigmentSlot: 0,
+  fraction: 0.2,
+  radius: 0.04,
+});
 ```
 
 Assigning `scene` creates a new composition. `updateScene` preserves state and rejects slot ID/carrier changes. Assign `null` to return to legacy configuration. Legacy damping, contrast and dose have no automatic physical migration. `setConfig` rejects liquid-scene edits. `play`, `pause`, `reset` and `inject` remain available. `qualityStatus` and `qualitychange` expose requested/effective FPS, dimensions, effects, discarded simulation time, reason, allocations and timing. Reduced motion starts with a static composition until explicitly played. The root package remains private; compiled preview distribution is owned by [RELEASE.md](RELEASE.md).

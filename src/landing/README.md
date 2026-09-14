@@ -61,3 +61,5 @@ All use two complementary full-field sources for immediate coverage, localized a
 ## Validation (2026-09-14)
 
 `yarn test`: 108 tests passed. `yarn build`: package and all seven pages passed. Headless Chrome on Windows rendered all three direct scene links at 1100x800 using ANGLE/Vulkan SwiftShader with no reported startup error. Review captures limited requestAnimationFrame to one frame after the normal 36-step warmup, so these validate initial compositions and desktop layout, not sustained animation or mobile performance. An earlier continuous-render screenshot attempt overloaded software rendering and timed out; the test browser was stopped. The final Obsidian fine-detail adjustment was re-rendered under the same conditions and visually reviewed; its finer branching folds remained visible at startup.
+
+DEC-018 moves the three existing landing configurations into the shared preset collection. Landing selection and existing IDs remain unchanged; each look now has a matching background palette.

@@ -1,10 +1,17 @@
 import { describe, expect, it } from "vitest";
 import { defaultConfig } from "../src/app/config";
-import { resolveFieldConfig, resolveFieldOptions } from "../src/react/resolveFieldOptions";
+import {
+  resolveFieldConfig,
+  resolveFieldOptions,
+} from "../src/react/resolveFieldOptions";
 
 describe("FluidField options", () => {
   it("defaults dashboard, perf, and persist off", () => {
-    expect(resolveFieldOptions()).toEqual({ dashboard: false, perf: false, persist: false });
+    expect(resolveFieldOptions()).toEqual({
+      dashboard: false,
+      perf: false,
+      persist: false,
+    });
   });
 
   it("treats missing flags as off", () => {

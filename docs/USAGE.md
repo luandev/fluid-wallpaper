@@ -73,14 +73,14 @@ Initial look (ignored if `persist` is on and a stored config already exists):
 
 Give the host a size. `FluidField` fills 100% of its parent (`min-height: 240px`).
 
-| Prop | Default | Meaning |
-| --- | --- | --- |
-| `config` | hard-mix defaults | Initial **base** look |
-| `dashboard` | `false` | Mount the artist panel |
-| `perf` | `false` | Mount the perf HUD |
-| `persist` | `false` | Read/write wallpaper `localStorage` |
-| `onEngine` | — | Running `Engine` after start |
-| `onError` | — | WebGL2 / init failure |
+| Prop        | Default           | Meaning                             |
+| ----------- | ----------------- | ----------------------------------- |
+| `config`    | hard-mix defaults | Initial **base** look               |
+| `dashboard` | `false`           | Mount the artist panel              |
+| `perf`      | `false`           | Mount the perf HUD                  |
+| `persist`   | `false`           | Read/write wallpaper `localStorage` |
+| `onEngine`  | —                 | Running `Engine` after start        |
+| `onError`   | —                 | WebGL2 / init failure               |
 
 `config` is applied **once** on mount. Later edits go through `engine.applyConfig` or the dashboard.
 
@@ -132,7 +132,10 @@ Later. Import **`dist/play.html`** from a production `yarn build`, not the Git t
 
 ```html
 <fluid-ink quality="eco" style="height:320px"></fluid-ink>
-<script type="module" src="https://cdn.jsdelivr.net/npm/fluid-wallpaper@0.1.0-next.0/element-auto.js"></script>
+<script
+  type="module"
+  src="https://cdn.jsdelivr.net/npm/fluid-wallpaper@0.1.0-next.0/element-auto.js"
+></script>
 ```
 
 The CDN URL becomes available after publication. Modules support import without a DOM; construct/mount components only in the browser. Use a client boundary in server-component frameworks. The element has shadow styles; React requires the exported CSS. WebGL2 failure exposes fallback content. No mobile-device certification or full dashboard instance-isolation guarantee is claimed.
@@ -141,7 +144,7 @@ The CDN URL becomes available after publication. Modules support import without 
 
 On the tuner, **Scene > Background** selects **Music video**, **Solid color**, or **Gradient**. Color pickers edit the solid color or both ends of a diagonal gradient. Changes persist with presets and do not reseed. Older presets without a background selection migrate to video with empty-ink transparency.
 
-Music video fills the area behind the canvas. Use **Play / control music** to route clicks to the player, then **Return to fluid** to stir again. Playback remains user initiated; the iframe cannot feed the audio analyzer directly. Solid/gradient modes retain a compact player. Fullscreen includes the video layer. Landing scenes use gradients without mounting a player.
+Music video fills the area behind the canvas. Use **Play / control music** to route clicks to the player, then **Return to fluid** to stir again. Video requests muted autoplay; enabling sound is user initiated; the iframe cannot feed the audio analyzer directly. Solid/gradient modes retain a compact player. Fullscreen includes the video layer. Landing scenes use gradients without mounting a player.
 
 Solid and gradient backgrounds also work in native and React component configs:
 
@@ -149,7 +152,7 @@ Solid and gradient backgrounds also work in native and React component configs:
 field.config = {
   backgroundMode: "gradient",
   backgroundColor: "#101827",
-  backgroundColorB: "#59355f"
+  backgroundColorB: "#59355f",
 };
 ```
 
@@ -160,3 +163,24 @@ Browser checks verify shader colors/alpha and tuner placement/control routing wi
 ## Adaptive ECO
 
 `quality="eco"` progressively lowers effective resolution, frame rate and simulation speed under sustained load, then recovers slowly. Authored settings remain unchanged. See [ECO policy and evidence](ECO.md).
+
+## Public docs and fluid hero
+
+The browser documentation starts at [docs/index.html](index.html), with [all settings](settings.html), [hero integration](hero.html), [gallery](gallery.html) and [preset contributions](contributing-presets.html). `usage.html` remains a compatibility link.
+
+```js
+import { defineFluidHero } from "fluid-wallpaper/hero";
+import { getFluidPreset, fluidPresets } from "fluid-wallpaper/presets";
+defineFluidHero();
+// <fluid-hero preset="aurora"><h1>Your headline</h1></fluid-hero>
+const hero = document.querySelector("fluid-hero");
+hero.config = { backgroundMode: "transparent" };
+```
+
+`fluid-wallpaper/hero/auto` registers the element; plain HTML can use the published `hero-auto.js` URL. React exports `FluidHero` with children, preset/config/quality/paused/interactive, className/style and onReady/onError/onConfigChange/onQualityChange callbacks receiving CustomEvent. Unlike the existing FluidField's initial-only config, hero config updates are reactive. Hero config overrides its preset; changing presets starts a new composition. Native methods are play(), pause(), reset(); qualityStatus is a readout.
+
+Default heroes use Aurora, adaptive ECO, decorative pointer handling and scoped shadow styles (no CSS import needed). Foreground content is caller-owned. CSS variables: --fluid-hero-height, --fluid-hero-radius, --fluid-hero-content-width, --fluid-hero-overlay. Hidden/offscreen heroes pause; reduced motion shows a static background and explicit Play animation. Disconnection disposes the field. Native hero imports do not require React and module imports are SSR-safe.
+
+Transparent is a fourth background mode, available in the tuner and all established-renderer components. Empty pigment has zero alpha; sparse pigment is translucent. It ignores videoReveal, creates no media, and does not pass pointer events through automatically. Use pointer-events:none for a decorative overlay over clickable content. Transparent heroes have no default scrim or colored fallback; caller-supplied styles remain caller-owned.
+
+Music video now requests muted autoplay on load/selection. Enable sound is explicit; Play video and native iframe controls remain available when autoplay is blocked. Solid/gradient/transparent modes do not initiate playback. Existing playing music remains optional and independent of capture. The official [YouTube iframe API](https://developers.google.com/youtube/iframe_api_reference) controls sound and reports playback; availability and autoplay permission depend on the host/browser.

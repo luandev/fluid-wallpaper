@@ -71,3 +71,5 @@ flowchart TB
 - `shortcuts.ts` — H/P/F/Esc mapping (shared with perf HUD)
 - `dashboard.css` — centered ~960px glass panel
 - `presetFile.ts` — download JSON
+
+Scene offers video, solid, gradient and transparent backgrounds. Music video uses the optional official iframe API for muted autoplay and explicit sound/playback control; autoplay denial does not stop the simulation.

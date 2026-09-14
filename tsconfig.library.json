@@ -6,6 +6,16 @@
     "rootDir": "src",
     "outDir": "package-dist/types"
   },
-  "include": ["src/react/index.ts", "src/element/index.ts", "src/element/auto.ts", "src/app/engine.ts", "src/app/config.ts", "src/vite-env.d.ts"],
+  "include": [
+    "src/hero/index.ts",
+    "src/hero/auto.ts",
+    "src/presets/index.ts",
+    "src/react/index.ts",
+    "src/element/index.ts",
+    "src/element/auto.ts",
+    "src/app/engine.ts",
+    "src/app/config.ts",
+    "src/vite-env.d.ts"
+  ],
   "exclude": ["tests"]
 }

@@ -1,121 +1,325 @@
-<!doctype html><html lang="en"><meta charset="utf-8"><title>ECO regression probe</title>
-<canvas id="canvas" style="width:400px;height:300px"></canvas>
-<script type="module">
-import { Engine } from '/package/engine.js';
-import { defaultConfig, sanitizeConfig } from '/package/config.js';
-import { defineFluidInk } from '/package/element.js';
+<!doctype html>
+<html lang="en">
+  <meta charset="utf-8" /><title>ECO regression probe</title>
+  <canvas id="canvas" style="width: 400px; height: 300px"></canvas>
+  <script type="module">
+    import { Engine } from "/package/engine.js";
+    import { defaultConfig, sanitizeConfig } from "/package/config.js";
+    import { defineFluidInk } from "/package/element.js";
+    import { defineFluidHero } from "/package/hero.js";
 
-// Controlled scheduling: no unbounded animation or busy-loop stress in this probe.
-let ticket = 0;
-window.requestAnimationFrame = () => ++ticket;
-window.cancelAnimationFrame = () => {};
-const assert = (condition, message) => { if (!condition) throw new Error(message); };
-window.runEcoProbe = async () => {
-  const material = defaultConfig.materials[0];
-  const config = sanitizeConfig({ ...defaultConfig, simResolution:192, dyeResolution:384, warmupSteps:0,
-    noiseTime:.3, valueEmitters:[], valueBindings:[], pointerEnabled:false,
-    emitters:[{...defaultConfig.emitters[0], kind:'field', materialId:material.id, rate:1}] });
-  const changes = [];
-  const engine = new Engine(document.querySelector('canvas'), config, {eco:true,onEcoChange:s=>changes.push(s)});
-  const authored = JSON.stringify(engine.getConfig());
-  const gl = engine.gl;
-  const results = { renderer:gl.getParameter(gl.RENDERER), userAgent:navigator.userAgent, levels:[], assertions:[] };
-  const extension = gl.getExtension('WEBGL_debug_renderer_info');
-  if (extension) results.renderer = gl.getParameter(extension.UNMASKED_RENDERER_WEBGL);
-  try {
-    assert(engine.getEcoStatus().simulation[1] <= 192, 'ECO allocates within its initial ceiling');
-    // TypeScript private fields are inspected only here; they are not a supported public API.
-    const originalDraw = engine.draw;
-    const solverStep = engine.solver.step;
-    let steps=0;
-    engine.solver.step=()=>{steps++}; engine.draw=()=>{};
-    engine.start();
-    for(let frame=0;frame<120;frame++) engine.tick(1000+frame*1000/120);
-    assert(steps >= 29 && steps <= 31, '120 Hz host should submit about 30 ECO steps');
-    engine.tick(10000);
-    assert(steps <= 32, 'A long stall must not cause catch-up steps');
-    engine.draw=originalDraw; engine.solver.step=solverStep; engine.pause();
-    results.assertions.push('120 Hz pacing and no catch-up burst');
+    // Controlled scheduling: no unbounded animation or busy-loop stress in this probe.
+    let ticket = 0;
+    window.requestAnimationFrame = () => ++ticket;
+    window.cancelAnimationFrame = () => {};
+    const assert = (condition, message) => {
+      if (!condition) throw new Error(message);
+    };
+    window.runEcoProbe = async () => {
+      const material = defaultConfig.materials[0];
+      const config = sanitizeConfig({
+        ...defaultConfig,
+        simResolution: 192,
+        dyeResolution: 384,
+        warmupSteps: 0,
+        noiseTime: 0.3,
+        valueEmitters: [],
+        valueBindings: [],
+        pointerEnabled: false,
+        emitters: [
+          {
+            ...defaultConfig.emitters[0],
+            kind: "field",
+            materialId: material.id,
+            rate: 1,
+          },
+        ],
+      });
+      const changes = [];
+      const engine = new Engine(document.querySelector("canvas"), config, {
+        eco: true,
+        onEcoChange: (s) => changes.push(s),
+      });
+      const authored = JSON.stringify(engine.getConfig());
+      const gl = engine.gl;
+      const results = {
+        renderer: gl.getParameter(gl.RENDERER),
+        userAgent: navigator.userAgent,
+        levels: [],
+        assertions: [],
+      };
+      const extension = gl.getExtension("WEBGL_debug_renderer_info");
+      if (extension)
+        results.renderer = gl.getParameter(extension.UNMASKED_RENDERER_WEBGL);
+      try {
+        assert(
+          engine.getEcoStatus().simulation[1] <= 192,
+          "ECO allocates within its initial ceiling",
+        );
+        // TypeScript private fields are inspected only here; they are not a supported public API.
+        const originalDraw = engine.draw;
+        const solverStep = engine.solver.step;
+        let steps = 0;
+        engine.solver.step = () => {
+          steps++;
+        };
+        engine.draw = () => {};
+        engine.start();
+        for (let frame = 0; frame < 120; frame++)
+          engine.tick(1000 + (frame * 1000) / 120);
+        assert(
+          steps >= 29 && steps <= 31,
+          "120 Hz host should submit about 30 ECO steps",
+        );
+        engine.tick(10000);
+        assert(steps <= 32, "A long stall must not cause catch-up steps");
+        engine.draw = originalDraw;
+        engine.solver.step = solverStep;
+        engine.pause();
+        results.assertions.push("120 Hz pacing and no catch-up burst");
 
-    const marker=[.2,.4,.6,.8];
-    const seedMarker=()=>{
-      gl.bindFramebuffer(gl.FRAMEBUFFER,engine.solver.dyeRead.framebuffer);
-      gl.clearBufferfv(gl.COLOR,0,new Float32Array(marker));
-    };
-    const readMarker=()=>{
-      const field=engine.solver.dyeRead;
-      gl.bindFramebuffer(gl.FRAMEBUFFER,field.framebuffer);
-      const out=new Float32Array(4);
-      gl.readPixels(Math.floor(field.width/2),Math.floor(field.height/2),1,1,gl.RGBA,gl.FLOAT,out);
-      assert(gl.getError()===gl.NO_ERROR,'GPU marker readback');
-      for(let c=0;c<4;c++) assert(Math.abs(out[c]-marker[c])<.003,'Pigment channel lost during adaptive resize');
-      return Array.from(out);
-    };
-    let now=20000;
-    for(let level=0;level<4;level++) {
-      if(level) {
+        const marker = [0.2, 0.4, 0.6, 0.8];
+        const seedMarker = () => {
+          gl.bindFramebuffer(gl.FRAMEBUFFER, engine.solver.dyeRead.framebuffer);
+          gl.clearBufferfv(gl.COLOR, 0, new Float32Array(marker));
+        };
+        const readMarker = () => {
+          const field = engine.solver.dyeRead;
+          gl.bindFramebuffer(gl.FRAMEBUFFER, field.framebuffer);
+          const out = new Float32Array(4);
+          gl.readPixels(
+            Math.floor(field.width / 2),
+            Math.floor(field.height / 2),
+            1,
+            1,
+            gl.RGBA,
+            gl.FLOAT,
+            out,
+          );
+          assert(gl.getError() === gl.NO_ERROR, "GPU marker readback");
+          for (let c = 0; c < 4; c++)
+            assert(
+              Math.abs(out[c] - marker[c]) < 0.003,
+              "Pigment channel lost during adaptive resize",
+            );
+          return Array.from(out);
+        };
+        let now = 20000;
+        for (let level = 0; level < 4; level++) {
+          if (level) {
+            seedMarker();
+            // Force sustained measured overload without deliberately burning CPU/GPU time.
+            const q = engine.eco;
+            q.suspend();
+            q.observe(now, 100, 100);
+            q.observe(now + 1000, 100, 100);
+            engine.paused = false;
+            engine.solver.step = () => {};
+            const realNow = performance.now.bind(performance);
+            let cpu = 0;
+            Object.defineProperty(performance, "now", {
+              configurable: true,
+              value: () => (cpu += 100),
+            });
+            try {
+              engine.tick(now + 2000);
+            } finally {
+              Object.defineProperty(performance, "now", {
+                configurable: true,
+                value: realNow,
+              });
+            }
+            assert(
+              engine.getEcoStatus().level === level,
+              "Sustained overload must downgrade one level",
+            );
+            readMarker();
+            engine.solver.step = solverStep;
+            engine.pause();
+            now += 8000;
+          }
+          const status = engine.getEcoStatus();
+          assert(
+            status.targetFps <= 30 && status.targetFps >= 20,
+            "Bounded ECO frame target",
+          );
+          assert(
+            status.simulationSpeed <= 1 && status.simulationSpeed >= 0.5,
+            "Bounded simulation speed",
+          );
+          const timings = [];
+          for (let sample = 0; sample < 3; sample++) {
+            const start = performance.now();
+            engine.syncLive(engine.getElapsed());
+            gl.bindVertexArray(engine.vao);
+            engine.solver.setLiveMotion({
+              noiseTime: 0.3,
+              noiseScale: config.noiseScale,
+            });
+            engine.solver.step(0.016, engine.getElapsed(), null);
+            engine.draw();
+            gl.readPixels(
+              0,
+              0,
+              1,
+              1,
+              gl.RGBA,
+              gl.UNSIGNED_BYTE,
+              new Uint8Array(4),
+            );
+            timings.push(performance.now() - start);
+          }
+          assert(
+            gl.getError() === gl.NO_ERROR,
+            "No WebGL errors after actual solver/render work",
+          );
+          results.levels.push({ ...status, synchronousProbeMs: timings });
+        }
+        assert(
+          results.levels[3].simulation[1] === 64 &&
+            results.levels[3].pigment[1] === 128,
+          "Emergency resolution floor",
+        );
+        assert(
+          results.levels[3].display[0] * results.levels[3].display[1] <= 65536,
+          "Emergency display budget",
+        );
+        assert(
+          JSON.stringify(engine.getConfig()) === authored,
+          "Adaptive overrides must not alter authored config",
+        );
+        assert(changes.length === 3, "Each downgrade must report status");
+        results.assertions.push(
+          "All overload levels, GPU resampling, pixel floors and authored-state isolation",
+        );
+        // Validate background composition on the real display shader with empty dye.
+        const pixel = (x, y) => {
+          const p = new Uint8Array(4);
+          gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, p);
+          return p;
+        };
+        gl.bindFramebuffer(gl.FRAMEBUFFER, engine.solver.dyeRead.framebuffer);
+        gl.clearBufferfv(gl.COLOR, 0, new Float32Array(4));
+        engine.applyConfig({
+          backgroundMode: "solid",
+          backgroundColor: "#ff0000",
+        });
+        engine.draw();
+        let p = pixel(2, 2);
+        assert(
+          p[0] > 250 && p[1] < 3 && p[3] === 255,
+          "Opaque solid background",
+        );
+        engine.applyConfig({
+          backgroundMode: "gradient",
+          backgroundColorB: "#0000ff",
+        });
+        engine.draw();
+        const a = pixel(2, engine.platform.canvas.height - 3),
+          b = pixel(engine.platform.canvas.width - 3, 2);
+        assert(
+          a[0] > b[0] && a[2] < b[2] && a[3] === 255 && b[3] === 255,
+          "Gradient direction and opacity",
+        );
+        engine.applyConfig({ backgroundMode: "video", videoReveal: 1 });
+        engine.draw();
+        assert(pixel(2, 2)[3] === 0, "Empty pigment reveals music video");
+        engine.applyConfig({ backgroundMode: "transparent", videoReveal: 0 });
+        engine.draw();
+        assert(pixel(2, 2)[3] === 0, "Transparent ignores video reveal");
+        gl.bindFramebuffer(gl.FRAMEBUFFER, engine.solver.dyeRead.framebuffer);
+        gl.clearBufferfv(gl.COLOR, 0, new Float32Array([0.12, 0, 0, 0]));
+        engine.draw();
+        const translucent = pixel(2, 2);
+        assert(
+          translucent[3] > 0 && translucent[3] < 255,
+          "Sparse ink is partially transparent",
+        );
+        results.assertions.push(
+          "Solid/gradient pixels, video alpha, and independent partial transparency",
+        );
         seedMarker();
-        // Force sustained measured overload without deliberately burning CPU/GPU time.
-        const q=engine.eco;
-        q.suspend(); q.observe(now,100,100); q.observe(now+1000,100,100);
-        engine.paused=false;
-        engine.solver.step=()=>{};
-        const realNow=performance.now.bind(performance); let cpu=0;
-        Object.defineProperty(performance,'now',{configurable:true,value:()=>cpu+=100});
-        try { engine.tick(now+2000); } finally { Object.defineProperty(performance,'now',{configurable:true,value:realNow}); }
-        assert(engine.getEcoStatus().level===level,'Sustained overload must downgrade one level');
+        const elapsed = engine.getElapsed();
+        engine.setEcoMode(false);
         readMarker();
-        engine.solver.step=solverStep;
-        engine.pause(); now+=8000;
+        assert(
+          engine.getEcoStatus() === null && engine.getElapsed() === elapsed,
+          "Leaving ECO must not reset time",
+        );
+        assert(
+          engine.solver.gridSizes.simHeight === config.simResolution,
+          "Leaving ECO restores authored grid",
+        );
+        results.assertions.push("State/time preserved when leaving ECO");
+      } finally {
+        engine.dispose();
       }
-      const status=engine.getEcoStatus();
-      assert(status.targetFps<=30 && status.targetFps>=20,'Bounded ECO frame target');
-      assert(status.simulationSpeed<=1 && status.simulationSpeed>=.5,'Bounded simulation speed');
-      const timings=[];
-      for(let sample=0;sample<3;sample++) {
-        const start=performance.now();
-        engine.syncLive(engine.getElapsed()); gl.bindVertexArray(engine.vao);
-        engine.solver.setLiveMotion({noiseTime:.3,noiseScale:config.noiseScale});
-        engine.solver.step(.016,engine.getElapsed(),null); engine.draw();
-        gl.readPixels(0,0,1,1,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array(4));
-        timings.push(performance.now()-start);
-      }
-      assert(gl.getError()===gl.NO_ERROR,'No WebGL errors after actual solver/render work');
-      results.levels.push({...status, synchronousProbeMs:timings});
-    }
-    assert(results.levels[3].simulation[1]===64 && results.levels[3].pigment[1]===128,'Emergency resolution floor');
-    assert(results.levels[3].display[0]*results.levels[3].display[1]<=65536,'Emergency display budget');
-    assert(JSON.stringify(engine.getConfig())===authored,'Adaptive overrides must not alter authored config');
-    assert(changes.length===3,'Each downgrade must report status');
-    results.assertions.push('All overload levels, GPU resampling, pixel floors and authored-state isolation');
-    // Validate background composition on the real display shader with empty dye.
-    const pixel=(x,y)=>{const p=new Uint8Array(4);gl.readPixels(x,y,1,1,gl.RGBA,gl.UNSIGNED_BYTE,p);return p;};
-    gl.bindFramebuffer(gl.FRAMEBUFFER,engine.solver.dyeRead.framebuffer);gl.clearBufferfv(gl.COLOR,0,new Float32Array(4));
-    engine.applyConfig({backgroundMode:'solid',backgroundColor:'#ff0000'});engine.draw();
-    let p=pixel(2,2);assert(p[0]>250 && p[1]<3 && p[3]===255,'Opaque solid background');
-    engine.applyConfig({backgroundMode:'gradient',backgroundColorB:'#0000ff'});engine.draw();
-    const a=pixel(2,engine.platform.canvas.height-3),b=pixel(engine.platform.canvas.width-3,2);
-    assert(a[0]>b[0] && a[2]<b[2] && a[3]===255 && b[3]===255,'Gradient direction and opacity');
-    engine.applyConfig({backgroundMode:'video',videoReveal:1});engine.draw();
-    assert(pixel(2,2)[3]===0,'Empty pigment reveals music video');
-    results.assertions.push('Solid/gradient pixels and video alpha');
-    seedMarker(); const elapsed=engine.getElapsed(); engine.setEcoMode(false); readMarker();
-    assert(engine.getEcoStatus()===null && engine.getElapsed()===elapsed,'Leaving ECO must not reset time');
-    assert(engine.solver.gridSizes.simHeight===config.simResolution,'Leaving ECO restores authored grid');
-    results.assertions.push('State/time preserved when leaving ECO');
-  } finally { engine.dispose(); }
 
-  defineFluidInk();
-  const element=document.createElement('fluid-ink');
-  element.setAttribute('quality','eco'); element.setAttribute('paused','');
-  element.style.cssText='display:block;width:160px;height:120px'; element.config=config;
-  document.body.append(element);
-  assert(element.qualityStatus?.quality==='eco','Element enables ECO during initialization');
-  element.removeAttribute('quality');
-  assert(element.qualityStatus===null,'Removing quality exits ECO');
-  element.setAttribute('quality','eco'); element.remove(); document.body.append(element);
-  assert(element.qualityStatus?.quality==='eco','ECO reconnect'); element.remove();
-  results.assertions.push('Native element ECO entry/exit/reconnect');
-  return results;
-};
-</script></html>
+      defineFluidInk();
+      const element = document.createElement("fluid-ink");
+      element.setAttribute("quality", "eco");
+      element.setAttribute("paused", "");
+      element.style.cssText = "display:block;width:160px;height:120px";
+      element.config = config;
+      document.body.append(element);
+      assert(
+        element.qualityStatus?.quality === "eco",
+        "Element enables ECO during initialization",
+      );
+      element.removeAttribute("quality");
+      assert(element.qualityStatus === null, "Removing quality exits ECO");
+      element.setAttribute("quality", "eco");
+      element.remove();
+      document.body.append(element);
+      assert(element.qualityStatus?.quality === "eco", "ECO reconnect");
+      element.remove();
+      results.assertions.push("Native element ECO entry/exit/reconnect");
+      defineFluidHero();
+      const hero = document.createElement("fluid-hero");
+      hero.setAttribute("paused", "");
+      hero.config = { ...config, backgroundMode: "transparent" };
+      hero.innerHTML = "<h2>Foreground stays accessible</h2>";
+      document.body.append(hero);
+      assert(
+        !hero.shadowRoot.querySelector("fluid-ink"),
+        "Paused hero allocates no GPU field",
+      );
+      hero.visible = true;
+      hero.play();
+      const inner = hero.shadowRoot.querySelector("fluid-ink");
+      assert(
+        inner && !inner.hasAttribute("paused"),
+        "Explicit play creates and runs field",
+      );
+      assert(
+        getComputedStyle(hero.shadowRoot.querySelector(".surface"))
+          .backgroundColor === "rgba(0, 0, 0, 0)",
+        "Transparent hero has no opaque backing",
+      );
+      assert(
+        getComputedStyle(inner).backgroundColor === "rgba(0, 0, 0, 0)",
+        "Transparent native field has no opaque backing",
+      );
+      const original = inner.engine.solver;
+      hero.config = { ...config, backgroundMode: "transparent", contrast: 2 };
+      assert(
+        inner.engine.solver === original,
+        "Display-only hero patch must not reseed",
+      );
+      hero.visible = false;
+      hero.sync();
+      assert(inner.hasAttribute("paused"), "Offscreen hero pauses");
+      hero.remove();
+      assert(
+        !hero.shadowRoot.querySelector("fluid-ink"),
+        "Disconnect releases child",
+      );
+      document.body.append(hero);
+      hero.remove();
+      results.assertions.push(
+        "Hero deferred allocation, live patch continuity, transparency, offscreen pause and cleanup",
+      );
+      return results;
+    };
+  </script>
+</html>

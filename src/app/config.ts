@@ -26,8 +26,17 @@ export const VALUE_EMITTER_KINDS = [
   "tilt",
 ] as const;
 export type ValueEmitterKind = (typeof VALUE_EMITTER_KINDS)[number];
-export const VALUE_EMITTER_WAVE_KINDS = ["sine", "triangle", "saw", "square", "noise"] as const;
-export const VALUE_EMITTER_AUDIO_KINDS = ["audioPulse", "audioSpectrum"] as const;
+export const VALUE_EMITTER_WAVE_KINDS = [
+  "sine",
+  "triangle",
+  "saw",
+  "square",
+  "noise",
+] as const;
+export const VALUE_EMITTER_AUDIO_KINDS = [
+  "audioPulse",
+  "audioSpectrum",
+] as const;
 export const VALUE_EMITTER_STUB_KINDS = ["camera", "tilt"] as const;
 
 export const CRIMSON_MATERIAL_ID = "mat-crimson";
@@ -41,7 +50,10 @@ export function noiseTypeIndex(type: NoiseType): number {
 }
 
 export function sanitizeNoiseType(value: unknown): NoiseType {
-  if (typeof value === "string" && (NOISE_TYPES as readonly string[]).includes(value)) {
+  if (
+    typeof value === "string" &&
+    (NOISE_TYPES as readonly string[]).includes(value)
+  ) {
     return value as NoiseType;
   }
   return "perlin";
@@ -51,14 +63,20 @@ export function sanitizeValueEmitterKind(value: unknown): ValueEmitterKind {
   if (value === "mic") {
     return "audioPulse";
   }
-  if (typeof value === "string" && (VALUE_EMITTER_KINDS as readonly string[]).includes(value)) {
+  if (
+    typeof value === "string" &&
+    (VALUE_EMITTER_KINDS as readonly string[]).includes(value)
+  ) {
     return value as ValueEmitterKind;
   }
   return "sine";
 }
 
 export function sanitizeEmitterKind(value: unknown): EmitterKind {
-  if (typeof value === "string" && (EMITTER_KINDS as readonly string[]).includes(value)) {
+  if (
+    typeof value === "string" &&
+    (EMITTER_KINDS as readonly string[]).includes(value)
+  ) {
     return value as EmitterKind;
   }
   return "field";
@@ -157,7 +175,7 @@ export type FluidConfig = {
   colorTweenSpeed: number;
   wiggleAmount: number;
   windStrength: number;
-  backgroundMode: "video" | "solid" | "gradient";
+  backgroundMode: "video" | "solid" | "gradient" | "transparent";
   backgroundColor: string;
   backgroundColorB: string;
   videoReveal: number;
@@ -419,7 +437,10 @@ export function defaultValueBindings(): ValueBinding[] {
   ];
 }
 
-export function materialSlotIndex(materialId: string, materials: readonly FluidMaterial[]): number {
+export function materialSlotIndex(
+  materialId: string,
+  materials: readonly FluidMaterial[],
+): number {
   return materials.findIndex((material) => material.id === materialId);
 }
 
@@ -728,7 +749,9 @@ export const controlSchema: ControlDef[] = [
 ];
 
 export const RESEED_KEYS: ReadonlySet<keyof FluidConfig> = new Set(
-  controlSchema.filter((control) => control.reseed).map((control) => control.key),
+  controlSchema
+    .filter((control) => control.reseed)
+    .map((control) => control.key),
 );
 
 export type DriveField = {
@@ -763,7 +786,10 @@ export const WIND_DRIVE_FIELDS: readonly DriveField[] = [
   { key: "radius", label: "Radius", min: 0.04, max: 0.45 },
 ];
 
-function driveField(fields: readonly DriveField[], key: string): DriveField | undefined {
+function driveField(
+  fields: readonly DriveField[],
+  key: string,
+): DriveField | undefined {
   return fields.find((field) => field.key === key);
 }
 
@@ -773,7 +799,9 @@ function isNestedDrivePath(
   items: ReadonlyArray<{ id: string }>,
   fields: readonly DriveField[],
 ): boolean {
-  return items.some((item) => item.id === id) && Boolean(driveField(fields, field));
+  return (
+    items.some((item) => item.id === id) && Boolean(driveField(fields, field))
+  );
 }
 
 export function isBindablePath(config: FluidConfig, path: string): boolean {
@@ -785,10 +813,10 @@ export function isBindablePath(config: FluidConfig, path: string): boolean {
     const control = controlSchema.find((item) => item.key === parts[0]);
     return Boolean(
       control &&
-        control.kind === "range" &&
-        control.min !== undefined &&
-        control.max !== undefined &&
-        !RESEED_KEYS.has(control.key),
+      control.kind === "range" &&
+      control.min !== undefined &&
+      control.max !== undefined &&
+      !RESEED_KEYS.has(control.key),
     );
   }
   if (parts.length !== 3) {
@@ -796,7 +824,12 @@ export function isBindablePath(config: FluidConfig, path: string): boolean {
   }
   const [group, id, field] = parts;
   if (group === "materials") {
-    return isNestedDrivePath(id, field, config.materials, MATERIAL_DRIVE_FIELDS);
+    return isNestedDrivePath(
+      id,
+      field,
+      config.materials,
+      MATERIAL_DRIVE_FIELDS,
+    );
   }
   if (group === "emitters") {
     return isNestedDrivePath(id, field, config.emitters, EMITTER_DRIVE_FIELDS);
@@ -842,7 +875,10 @@ export function cloneConfig(config: FluidConfig): FluidConfig {
   };
 }
 
-export function mergeConfig(base: FluidConfig, patch: Partial<FluidConfig>): FluidConfig {
+export function mergeConfig(
+  base: FluidConfig,
+  patch: Partial<FluidConfig>,
+): FluidConfig {
   const next = cloneConfig(base);
   for (const key of Object.keys(patch) as (keyof FluidConfig)[]) {
     const value = patch[key];
@@ -883,7 +919,12 @@ export function assertConfig(config: FluidConfig): void {
   }
 }
 
-function clampNumber(value: unknown, fallback: number, min: number, max: number): number {
+function clampNumber(
+  value: unknown,
+  fallback: number,
+  min: number,
+  max: number,
+): number {
   if (typeof value !== "number" || !Number.isFinite(value)) {
     return fallback;
   }
@@ -907,8 +948,13 @@ function sanitizeName(value: unknown, fallback: string): string {
   return fallback;
 }
 
-export function sanitizeMaterial(raw: unknown, fallback: FluidMaterial, usedIds: Set<string>): FluidMaterial {
-  const input = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
+export function sanitizeMaterial(
+  raw: unknown,
+  fallback: FluidMaterial,
+  usedIds: Set<string>,
+): FluidMaterial {
+  const input =
+    raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
   let id = sanitizeId(input.id, fallback.id);
   if (usedIds.has(id)) {
     id = createItemId("mat");
@@ -917,7 +963,8 @@ export function sanitizeMaterial(raw: unknown, fallback: FluidMaterial, usedIds:
   return {
     id,
     name: sanitizeName(input.name, fallback.name),
-    enabled: typeof input.enabled === "boolean" ? input.enabled : fallback.enabled,
+    enabled:
+      typeof input.enabled === "boolean" ? input.enabled : fallback.enabled,
     color: sanitizeHex(input.color, fallback.color),
     colorB: sanitizeHex(input.colorB, fallback.colorB),
     viscosity: clampNumber(input.viscosity, fallback.viscosity, 0, 1),
@@ -934,7 +981,8 @@ export function sanitizeEmitter(
   materialIds: ReadonlySet<string>,
   usedIds: Set<string>,
 ): FluidEmitter {
-  const input = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
+  const input =
+    raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
   let id = sanitizeId(input.id, fallback.id);
   if (usedIds.has(id)) {
     id = createItemId("emit");
@@ -946,11 +994,12 @@ export function sanitizeEmitter(
       : fallback.materialId;
   const materialId = materialIds.has(requestedMaterial)
     ? requestedMaterial
-    : [...materialIds][0] ?? CRIMSON_MATERIAL_ID;
+    : ([...materialIds][0] ?? CRIMSON_MATERIAL_ID);
   return {
     id,
     name: sanitizeName(input.name, fallback.name),
-    enabled: typeof input.enabled === "boolean" ? input.enabled : fallback.enabled,
+    enabled:
+      typeof input.enabled === "boolean" ? input.enabled : fallback.enabled,
     materialId,
     kind: sanitizeEmitterKind(input.kind),
     rate: clampNumber(input.rate, fallback.rate, 0, 1),
@@ -961,7 +1010,10 @@ export function sanitizeEmitter(
   };
 }
 
-function sanitizeMaterials(raw: unknown, legacy?: Record<string, unknown>): FluidMaterial[] {
+function sanitizeMaterials(
+  raw: unknown,
+  legacy?: Record<string, unknown>,
+): FluidMaterial[] {
   const fallbacks = defaultMaterials();
   if (!Array.isArray(raw)) {
     const migrated = fallbacks.map(cloneMaterial);
@@ -982,7 +1034,8 @@ function sanitizeMaterials(raw: unknown, legacy?: Record<string, unknown>): Flui
   const usedIds = new Set<string>();
   const out: FluidMaterial[] = [];
   for (let i = 0; i < raw.length && out.length < MAX_MATERIALS; i += 1) {
-    const fallback = fallbacks[Math.min(i, fallbacks.length - 1)] ?? fallbacks[0];
+    const fallback =
+      fallbacks[Math.min(i, fallbacks.length - 1)] ?? fallbacks[0];
     out.push(sanitizeMaterial(raw[i], fallback, usedIds));
   }
   if (out.length < MIN_MATERIALS) {
@@ -991,34 +1044,51 @@ function sanitizeMaterials(raw: unknown, legacy?: Record<string, unknown>): Flui
   return out;
 }
 
-function sanitizeEmitters(raw: unknown, materials: readonly FluidMaterial[]): FluidEmitter[] {
+function sanitizeEmitters(
+  raw: unknown,
+  materials: readonly FluidMaterial[],
+): FluidEmitter[] {
   const fallbacks = defaultEmitters();
   const materialIds = new Set(materials.map((material) => material.id));
   if (!Array.isArray(raw)) {
     return fallbacks.map((emitter) => ({
       ...cloneEmitter(emitter),
-      materialId: materialIds.has(emitter.materialId) ? emitter.materialId : [...materialIds][0] ?? emitter.materialId,
+      materialId: materialIds.has(emitter.materialId)
+        ? emitter.materialId
+        : ([...materialIds][0] ?? emitter.materialId),
     }));
   }
   const usedIds = new Set<string>();
   const out: FluidEmitter[] = [];
   for (let i = 0; i < raw.length && out.length < MAX_EMITTERS; i += 1) {
-    const fallback = fallbacks[Math.min(i, fallbacks.length - 1)] ?? fallbacks[0];
+    const fallback =
+      fallbacks[Math.min(i, fallbacks.length - 1)] ?? fallbacks[0];
     out.push(sanitizeEmitter(raw[i], fallback, materialIds, usedIds));
   }
   return out;
 }
 
-export function createMaterial(existing: readonly FluidMaterial[]): FluidMaterial | undefined {
+export function createMaterial(
+  existing: readonly FluidMaterial[],
+): FluidMaterial | undefined {
   if (existing.length >= MAX_MATERIALS) {
     return undefined;
   }
-  const template = EXTRA_MATERIAL_TEMPLATES[existing.length - 2] ?? EXTRA_MATERIAL_TEMPLATES[1];
+  const template =
+    EXTRA_MATERIAL_TEMPLATES[existing.length - 2] ??
+    EXTRA_MATERIAL_TEMPLATES[1];
   const usedIds = new Set(existing.map((material) => material.id));
-  return sanitizeMaterial({ ...template, id: createItemId("mat") }, { ...template, id: "mat-new" }, usedIds);
+  return sanitizeMaterial(
+    { ...template, id: createItemId("mat") },
+    { ...template, id: "mat-new" },
+    usedIds,
+  );
 }
 
-export function createEmitter(existing: readonly FluidEmitter[], materials: readonly FluidMaterial[]): FluidEmitter | undefined {
+export function createEmitter(
+  existing: readonly FluidEmitter[],
+  materials: readonly FluidMaterial[],
+): FluidEmitter | undefined {
   if (existing.length >= MAX_EMITTERS) {
     return undefined;
   }
@@ -1036,7 +1106,12 @@ export function createEmitter(existing: readonly FluidEmitter[], materials: read
     uvY: 0.5,
     noiseOffset: 0,
   };
-  return sanitizeEmitter({ ...fallback, id: createItemId("emit") }, fallback, new Set(materials.map((m) => m.id)), usedIds);
+  return sanitizeEmitter(
+    { ...fallback, id: createItemId("emit") },
+    fallback,
+    new Set(materials.map((m) => m.id)),
+    usedIds,
+  );
 }
 
 const FALLBACK_WIND: WindStation = {
@@ -1051,8 +1126,13 @@ const FALLBACK_WIND: WindStation = {
   radius: 0.18,
 };
 
-export function sanitizeWindStation(raw: unknown, fallback: WindStation, usedIds: Set<string>): WindStation {
-  const input = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
+export function sanitizeWindStation(
+  raw: unknown,
+  fallback: WindStation,
+  usedIds: Set<string>,
+): WindStation {
+  const input =
+    raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
   let id = sanitizeId(input.id, fallback.id);
   if (usedIds.has(id)) {
     id = createItemId("wind");
@@ -1061,7 +1141,8 @@ export function sanitizeWindStation(raw: unknown, fallback: WindStation, usedIds
   return {
     id,
     name: sanitizeName(input.name, fallback.name),
-    enabled: typeof input.enabled === "boolean" ? input.enabled : fallback.enabled,
+    enabled:
+      typeof input.enabled === "boolean" ? input.enabled : fallback.enabled,
     uvX: clampNumber(input.uvX, fallback.uvX, 0, 1),
     uvY: clampNumber(input.uvY, fallback.uvY, 0, 1),
     heading: clampNumber(input.heading, fallback.heading, 0, 1),
@@ -1083,7 +1164,9 @@ function sanitizeWindStations(raw: unknown): WindStation[] {
   return out;
 }
 
-export function createWindStation(existing: readonly WindStation[]): WindStation | undefined {
+export function createWindStation(
+  existing: readonly WindStation[],
+): WindStation | undefined {
   if (existing.length >= MAX_WIND_STATIONS) {
     return undefined;
   }
@@ -1099,7 +1182,10 @@ export function createWindStation(existing: readonly WindStation[]): WindStation
   );
 }
 
-export function scatterWindStations(count = 4, random: () => number = Math.random): WindStation[] {
+export function scatterWindStations(
+  count = 4,
+  random: () => number = Math.random,
+): WindStation[] {
   const n = Math.min(MAX_WIND_STATIONS, Math.max(1, Math.round(count)));
   const usedIds = new Set<string>();
   const out: WindStation[] = [];
@@ -1145,8 +1231,13 @@ const FALLBACK_VALUE_BINDING: ValueBinding = {
   amount: 1,
 };
 
-export function sanitizeValueEmitter(raw: unknown, fallback: ValueEmitter, usedIds: Set<string>): ValueEmitter {
-  const input = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
+export function sanitizeValueEmitter(
+  raw: unknown,
+  fallback: ValueEmitter,
+  usedIds: Set<string>,
+): ValueEmitter {
+  const input =
+    raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
   let id = sanitizeId(input.id, fallback.id);
   if (usedIds.has(id)) {
     id = createItemId("wave");
@@ -1155,7 +1246,8 @@ export function sanitizeValueEmitter(raw: unknown, fallback: ValueEmitter, usedI
   return {
     id,
     name: sanitizeName(input.name, fallback.name),
-    enabled: typeof input.enabled === "boolean" ? input.enabled : fallback.enabled,
+    enabled:
+      typeof input.enabled === "boolean" ? input.enabled : fallback.enabled,
     kind: sanitizeValueEmitterKind(input.kind),
     rate: clampNumber(input.rate, fallback.rate, 0, 8),
     phase: clampNumber(input.phase, fallback.phase, 0, 1),
@@ -1184,12 +1276,14 @@ export function sanitizeValueBinding(
   config: FluidConfig,
   usedIds: Set<string>,
 ): ValueBinding | undefined {
-  const input = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
+  const input =
+    raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
   const emitterId = sanitizeId(input.emitterId, fallback.emitterId);
   if (!config.valueEmitters.some((emitter) => emitter.id === emitterId)) {
     return undefined;
   }
-  const path = typeof input.path === "string" ? input.path.trim() : fallback.path;
+  const path =
+    typeof input.path === "string" ? input.path.trim() : fallback.path;
   if (!isBindablePath(config, path)) {
     return undefined;
   }
@@ -1206,14 +1300,22 @@ export function sanitizeValueBinding(
   };
 }
 
-function sanitizeValueBindings(raw: unknown, config: FluidConfig): ValueBinding[] {
+function sanitizeValueBindings(
+  raw: unknown,
+  config: FluidConfig,
+): ValueBinding[] {
   if (!Array.isArray(raw)) {
     return [];
   }
   const usedIds = new Set<string>();
   const out: ValueBinding[] = [];
   for (let i = 0; i < raw.length && out.length < MAX_VALUE_BINDINGS; i += 1) {
-    const binding = sanitizeValueBinding(raw[i], FALLBACK_VALUE_BINDING, config, usedIds);
+    const binding = sanitizeValueBinding(
+      raw[i],
+      FALLBACK_VALUE_BINDING,
+      config,
+      usedIds,
+    );
     if (binding) {
       out.push(binding);
     }
@@ -1221,7 +1323,9 @@ function sanitizeValueBindings(raw: unknown, config: FluidConfig): ValueBinding[
   return out;
 }
 
-export function createValueEmitter(existing: readonly ValueEmitter[]): ValueEmitter | undefined {
+export function createValueEmitter(
+  existing: readonly ValueEmitter[],
+): ValueEmitter | undefined {
   if (existing.length >= MAX_VALUE_EMITTERS) {
     return undefined;
   }
@@ -1237,7 +1341,10 @@ export function createValueEmitter(existing: readonly ValueEmitter[]): ValueEmit
   );
 }
 
-export function createValueBinding(config: FluidConfig, path: string): ValueBinding | undefined {
+export function createValueBinding(
+  config: FluidConfig,
+  path: string,
+): ValueBinding | undefined {
   if (config.valueBindings.length >= MAX_VALUE_BINDINGS) {
     return undefined;
   }
@@ -1263,11 +1370,25 @@ export function clampConfig(config: FluidConfig): FluidConfig {
   const next = cloneConfig(config);
   next.noiseType = sanitizeNoiseType(next.noiseType);
   next.youtubeUrl = sanitizeYoutubeUrl(next.youtubeUrl);
-  next.backgroundMode = ["video", "solid", "gradient"].includes(next.backgroundMode) ? next.backgroundMode : defaultConfig.backgroundMode;
-  next.backgroundColor = sanitizeHex(next.backgroundColor, defaultConfig.backgroundColor);
-  next.backgroundColorB = sanitizeHex(next.backgroundColorB, defaultConfig.backgroundColorB);
+  next.backgroundMode = ["video", "solid", "gradient", "transparent"].includes(
+    next.backgroundMode,
+  )
+    ? next.backgroundMode
+    : defaultConfig.backgroundMode;
+  next.backgroundColor = sanitizeHex(
+    next.backgroundColor,
+    defaultConfig.backgroundColor,
+  );
+  next.backgroundColorB = sanitizeHex(
+    next.backgroundColorB,
+    defaultConfig.backgroundColorB,
+  );
   for (const control of controlSchema) {
-    if (control.kind !== "range" || control.min === undefined || control.max === undefined) {
+    if (
+      control.kind !== "range" ||
+      control.min === undefined ||
+      control.max === undefined
+    ) {
       continue;
     }
     const value = next[control.key];
@@ -1278,31 +1399,49 @@ export function clampConfig(config: FluidConfig): FluidConfig {
       control.step && control.step >= 1
         ? Math.round(value / control.step) * control.step
         : value;
-    (next[control.key] as number) = Math.min(control.max, Math.max(control.min, stepped));
+    (next[control.key] as number) = Math.min(
+      control.max,
+      Math.max(control.min, stepped),
+    );
   }
   if (next.dyeResolution < next.simResolution) {
     next.dyeResolution = next.simResolution;
   }
   const usedMaterialIds = new Set<string>();
-  next.materials = next.materials.slice(0, MAX_MATERIALS).map((material, index) =>
-    sanitizeMaterial(material, defaultMaterials()[Math.min(index, 1)], usedMaterialIds),
-  );
+  next.materials = next.materials
+    .slice(0, MAX_MATERIALS)
+    .map((material, index) =>
+      sanitizeMaterial(
+        material,
+        defaultMaterials()[Math.min(index, 1)],
+        usedMaterialIds,
+      ),
+    );
   if (next.materials.length < MIN_MATERIALS) {
     next.materials = defaultMaterials();
   }
   const materialIds = new Set(next.materials.map((material) => material.id));
   const usedEmitterIds = new Set<string>();
-  next.emitters = next.emitters.slice(0, MAX_EMITTERS).map((emitter, index) =>
-    sanitizeEmitter(emitter, defaultEmitters()[Math.min(index, defaultEmitters().length - 1)], materialIds, usedEmitterIds),
-  );
+  next.emitters = next.emitters
+    .slice(0, MAX_EMITTERS)
+    .map((emitter, index) =>
+      sanitizeEmitter(
+        emitter,
+        defaultEmitters()[Math.min(index, defaultEmitters().length - 1)],
+        materialIds,
+        usedEmitterIds,
+      ),
+    );
   const usedWindIds = new Set<string>();
-  next.windStations = (next.windStations ?? []).slice(0, MAX_WIND_STATIONS).map((station) =>
-    sanitizeWindStation(station, FALLBACK_WIND, usedWindIds),
-  );
+  next.windStations = (next.windStations ?? [])
+    .slice(0, MAX_WIND_STATIONS)
+    .map((station) => sanitizeWindStation(station, FALLBACK_WIND, usedWindIds));
   const usedWaveIds = new Set<string>();
-  next.valueEmitters = (next.valueEmitters ?? []).slice(0, MAX_VALUE_EMITTERS).map((emitter) =>
-    sanitizeValueEmitter(emitter, FALLBACK_VALUE_EMITTER, usedWaveIds),
-  );
+  next.valueEmitters = (next.valueEmitters ?? [])
+    .slice(0, MAX_VALUE_EMITTERS)
+    .map((emitter) =>
+      sanitizeValueEmitter(emitter, FALLBACK_VALUE_EMITTER, usedWaveIds),
+    );
   next.valueBindings = sanitizeValueBindings(next.valueBindings ?? [], next);
   return next;
 }
@@ -1332,7 +1471,11 @@ export function sanitizeConfig(raw: unknown): FluidConfig {
       next.noiseType = sanitizeNoiseType(value);
       continue;
     }
-    if (key === "backgroundMode" || key === "backgroundColor" || key === "backgroundColorB") {
+    if (
+      key === "backgroundMode" ||
+      key === "backgroundColor" ||
+      key === "backgroundColorB"
+    ) {
       (next as unknown as Record<string, unknown>)[key] = value;
       continue;
     }
@@ -1340,9 +1483,16 @@ export function sanitizeConfig(raw: unknown): FluidConfig {
       next.youtubeUrl = sanitizeYoutubeUrl(value);
       continue;
     }
-    if (typeof defaultConfig[key] === "number" && typeof value === "number" && Number.isFinite(value)) {
+    if (
+      typeof defaultConfig[key] === "number" &&
+      typeof value === "number" &&
+      Number.isFinite(value)
+    ) {
       (next[key] as number) = value;
-    } else if (typeof defaultConfig[key] === "boolean" && typeof value === "boolean") {
+    } else if (
+      typeof defaultConfig[key] === "boolean" &&
+      typeof value === "boolean"
+    ) {
       (next[key] as boolean) = value;
     }
   }

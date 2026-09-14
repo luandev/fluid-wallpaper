@@ -6,7 +6,9 @@ export function yarnRequiredMessage() {
   return "This repository uses Yarn. Do not use npm, pnpm, or bun.\n  yarn install";
 }
 
-export function assertYarn(userAgent = process.env.npm_config_user_agent ?? "") {
+export function assertYarn(
+  userAgent = process.env.npm_config_user_agent ?? "",
+) {
   if (!isYarnUserAgent(userAgent)) {
     throw new Error(yarnRequiredMessage());
   }
@@ -20,7 +22,9 @@ if (invokedDirectly) {
   try {
     assertYarn();
   } catch (error) {
-    console.error(error instanceof Error ? error.message : yarnRequiredMessage());
+    console.error(
+      error instanceof Error ? error.message : yarnRequiredMessage(),
+    );
     process.exit(1);
   }
 }

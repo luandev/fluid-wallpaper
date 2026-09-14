@@ -38,7 +38,10 @@ export function logBandEnergies(
       continue;
     }
     const t = (Math.log(hz) - logMin) / logRange;
-    const index = Math.min(LOG_BAND_COUNT - 1, Math.max(0, Math.floor(t * LOG_BAND_COUNT)));
+    const index = Math.min(
+      LOG_BAND_COUNT - 1,
+      Math.max(0, Math.floor(t * LOG_BAND_COUNT)),
+    );
     const mag = magnitudes[i] ?? 0;
     const unit = mag > 1 ? mag / 255 : mag;
     bands[index] += Number.isFinite(unit) ? Math.min(1, Math.max(0, unit)) : 0;
@@ -68,7 +71,9 @@ export function onsetUpdate(
   pulse: number,
   dt: number,
 ): { average: number; pulse: number } {
-  const safeEnergy = Number.isFinite(energy) ? Math.min(1, Math.max(0, energy)) : 0;
+  const safeEnergy = Number.isFinite(energy)
+    ? Math.min(1, Math.max(0, energy))
+    : 0;
   const nextAverage = average * 0.94 + safeEnergy * 0.06;
   let nextPulse = pulse * Math.exp(-Math.max(0, dt) / 0.16);
   if (safeEnergy > 0.08 && safeEnergy > nextAverage * 1.35) {

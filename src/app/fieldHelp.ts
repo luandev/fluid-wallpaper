@@ -37,7 +37,9 @@ export const VALUE_EMITTER_FIELD_HELP = {
   phase: "Offset along the wave, 0–1 of a cycle. Unused for audio kinds.",
   from: "Low end of the A↔B tween (scale 1).",
   to: "High end of the A↔B tween (scale 1).",
-  scale: "Amplitude around the From/To midpoint. 1 is a full A↔B tween; 0 sits in the middle.",
+  scale:
+    "Amplitude around the From/To midpoint. 1 is a full A↔B tween; 0 sits in the middle.",
   band: "Log-frequency pick, 0 bass through 1 treble, like a Winamp bar.",
-  amount: "How far this binding pulls the target from its base toward the wave.",
+  amount:
+    "How far this binding pulls the target from its base toward the wave.",
 } as const;

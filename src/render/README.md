@@ -39,3 +39,5 @@ flowchart LR
 - `display.ts` — `blitDye`, uniforms for live slots
 - `../shaders/display.frag.glsl` — look shader
 - `../app/shade.ts`, `../app/colorTween.ts` — CPU reference mix
+
+Transparent background mode writes concentration coverage directly to straight alpha, independent of videoReveal. Solid/gradient remain opaque. No new render targets or simulation work are added.

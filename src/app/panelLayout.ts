@@ -98,7 +98,10 @@ export function loadPanelLayout(): PanelLayout {
 }
 
 export function savePanelPos(id: PanelId, pos: PanelPos): PanelLayout {
-  const next = { ...loadPanelLayout(), [id]: { left: Math.round(pos.left), top: Math.round(pos.top) } };
+  const next = {
+    ...loadPanelLayout(),
+    [id]: { left: Math.round(pos.left), top: Math.round(pos.top) },
+  };
   try {
     localStorage.setItem(PANEL_LAYOUT_KEY, JSON.stringify(next));
   } catch {
@@ -117,7 +120,10 @@ export function viewportSize(
   };
 }
 
-export function measurePanel(element: HTMLElement, fallback: PanelSize): PanelSize {
+export function measurePanel(
+  element: HTMLElement,
+  fallback: PanelSize,
+): PanelSize {
   const width = element.offsetWidth;
   const height = element.offsetHeight;
   return {

@@ -1,7 +1,8 @@
 export const YOUTUBE_ID_RE = /^[A-Za-z0-9_-]{11}$/;
 
-export const DEFAULT_YOUTUBE_URL = "https://www.youtube.com/watch?v=wKEeVPfK8nw";
-export const DEFAULT_YOUTUBE_ID = "wKEeVPfK8nw";
+export const DEFAULT_YOUTUBE_URL =
+  "https://www.youtube.com/watch?v=hKckckhpbYY";
+export const DEFAULT_YOUTUBE_ID = "hKckckhpbYY";
 
 function validId(value: string | undefined): string | undefined {
   if (!value) {
@@ -51,7 +52,11 @@ export function parseYouTubeId(value: unknown): string | undefined {
     }
     const parts = url.pathname.split("/").filter(Boolean);
     const marker = parts.findIndex(
-      (part) => part === "embed" || part === "shorts" || part === "live" || part === "v",
+      (part) =>
+        part === "embed" ||
+        part === "shorts" ||
+        part === "live" ||
+        part === "v",
     );
     if (marker >= 0) {
       return validId(parts[marker + 1]);

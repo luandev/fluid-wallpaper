@@ -41,3 +41,5 @@ Wind stations and value emitters are authored on `FluidConfig` (`src/app`). Came
 - `youtubeId.ts` — parse / sanitize watch URLs
 - `audioMath.ts` — log bands and onset pulse (CPU, tested)
 - `audioAnalyser.ts` — mic / tab capture → `AudioFrame`
+
+youtubeApi.ts lazily loads the official YouTube iframe API only for the optional mounted music player. It does not capture audio or request microphone/tab permissions.

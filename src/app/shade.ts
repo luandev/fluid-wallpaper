@@ -10,7 +10,9 @@ import {
   type Rgb,
 } from "./palette";
 
-export const LIGHT_DIR: [number, number, number] = normalize3([0.35, 0.6, 0.85]);
+export const LIGHT_DIR: [number, number, number] = normalize3([
+  0.35, 0.6, 0.85,
+]);
 export const VIEW_DIR: [number, number, number] = [0, 0, 1];
 
 export type MixedLook = {
@@ -29,7 +31,11 @@ function contrastPower(contrast: number): number {
   return mixNumber(1, 4, contrastT);
 }
 
-export function mixLooks(conc: Conc4, slots: readonly LiveMaterial[], contrast: number): MixedLook {
+export function mixLooks(
+  conc: Conc4,
+  slots: readonly LiveMaterial[],
+  contrast: number,
+): MixedLook {
   const power = contrastPower(contrast);
   const weights: number[] = [0, 0, 0, 0];
   let height = 0;
@@ -80,10 +86,17 @@ export function heightNormal(
   heightY: number,
   scale = 4,
 ): [number, number, number] {
-  return normalize3([(height - heightX) * scale, (height - heightY) * scale, 1]);
+  return normalize3([
+    (height - heightX) * scale,
+    (height - heightY) * scale,
+    1,
+  ]);
 }
 
-export function shadeLook(mixed: MixedLook, normal: readonly [number, number, number]): Rgb {
+export function shadeLook(
+  mixed: MixedLook,
+  normal: readonly [number, number, number],
+): Rgb {
   const n = normalize3(normal);
   const l = LIGHT_DIR;
   const v = VIEW_DIR;
@@ -92,7 +105,8 @@ export function shadeLook(mixed: MixedLook, normal: readonly [number, number, nu
   const nDotH = Math.max(dot3(n, h), 0);
   const nDotV = Math.max(dot3(n, v), 0);
   const specPower = mixNumber(8, 128, 1 - clamp01(mixed.roughness));
-  const spec = nDotH ** specPower * mixNumber(0.04, 1, clamp01(mixed.metallic)) * nDotL;
+  const spec =
+    nDotH ** specPower * mixNumber(0.04, 1, clamp01(mixed.metallic)) * nDotL;
   const fresnel = (1 - nDotV) ** 5;
   const diffuse = 0.18 + 0.82 * nDotL;
   const sheen = mixed.albedo.map((c) => c * mixed.sheen * fresnel) as Rgb;
@@ -100,14 +114,29 @@ export function shadeLook(mixed: MixedLook, normal: readonly [number, number, nu
   const overshoot = Math.max(mixed.height - 1, 0);
   const bloom = (1 - Math.exp(-overshoot * 1.85)) * mixed.glow;
   const color: Rgb = [
-    mixed.albedo[0] * diffuse + spec + sheen[0] + emissive[0] + mixed.albedo[0] * bloom * 0.45,
-    mixed.albedo[1] * diffuse + spec + sheen[1] + emissive[1] + mixed.albedo[1] * bloom * 0.45,
-    mixed.albedo[2] * diffuse + spec + sheen[2] + emissive[2] + mixed.albedo[2] * bloom * 0.45,
+    mixed.albedo[0] * diffuse +
+      spec +
+      sheen[0] +
+      emissive[0] +
+      mixed.albedo[0] * bloom * 0.45,
+    mixed.albedo[1] * diffuse +
+      spec +
+      sheen[1] +
+      emissive[1] +
+      mixed.albedo[1] * bloom * 0.45,
+    mixed.albedo[2] * diffuse +
+      spec +
+      sheen[2] +
+      emissive[2] +
+      mixed.albedo[2] * bloom * 0.45,
   ];
   return [clamp01(color[0]), clamp01(color[1]), clamp01(color[2])];
 }
 
-export function viscosityExtra(conc: Conc4, slots: readonly LiveMaterial[]): number {
+export function viscosityExtra(
+  conc: Conc4,
+  slots: readonly LiveMaterial[],
+): number {
   let extra = 0;
   for (let i = 0; i < 4; i += 1) {
     const slot = slots[i];
@@ -119,8 +148,15 @@ export function viscosityExtra(conc: Conc4, slots: readonly LiveMaterial[]): num
   return extra;
 }
 
-export function viscosityDamp(conc: Conc4, slots: readonly LiveMaterial[], baseDecay: number, dt: number): number {
-  return Math.exp(-(Math.max(0, baseDecay) + viscosityExtra(conc, slots)) * Math.max(0, dt));
+export function viscosityDamp(
+  conc: Conc4,
+  slots: readonly LiveMaterial[],
+  baseDecay: number,
+  dt: number,
+): number {
+  return Math.exp(
+    -(Math.max(0, baseDecay) + viscosityExtra(conc, slots)) * Math.max(0, dt),
+  );
 }
 
 export function shadeStatsLuma(color: Rgb): number {
