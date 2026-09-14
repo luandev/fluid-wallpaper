@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import { useState, type ReactNode } from "react";
-import { FluidField } from "./FluidField";
+import { FluidField } from "../../package-dist/react.js";
+import "../../package-dist/styles.css";
 import "./embed.css";
 
 type Mode = "field" | "dashboard";
@@ -13,6 +14,7 @@ function EmbedApp(): ReactNode {
         <span className="embed__mark">FW</span>
         <a href="./">Landing</a>
         <a href="./play.html">Tuner</a>
+        <a href="./usage.html">Install & examples</a>
         <button type="button" data-active={mode === "field" ? "true" : "false"} onClick={() => setMode("field")}>
           React field
         </button>

@@ -31,6 +31,13 @@ jobs:
         run: yarn test
       - name: Build
         run: yarn build
+      - name: Validate packed npm consumers
+        run: |
+          name=$(npm pack ./package-dist --json | node -e 'let s="";process.stdin.on("data",d=>s+=d);process.stdin.on("end",()=>console.log(Object.values(JSON.parse(s))[0].filename))')
+          mkdir packed
+          tar -xzf "$name" -C packed
+          node scripts/check-package.mjs packed/package
+          node scripts/check-consumers.mjs "$name"
       - name: Assert usage docs
         run: |
           grep -F -q "## Landing page" docs/USAGE.md
@@ -46,6 +53,10 @@ jobs:
           test -f dist/index.html
           test -f dist/play.html
           test -f dist/embed.html
+          test -f dist/usage.html
+          test -f dist/component.html
+          test -f dist/liquid.html
+          test -f dist/diagnostics.html
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3

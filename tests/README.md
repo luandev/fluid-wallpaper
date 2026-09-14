@@ -39,3 +39,5 @@ flowchart LR
 - `react-field.test.ts` — `FluidField` flag/config merge
 - `youtube-id.test.ts` / `audio-math.test.ts` — URL parse, log bands, pulse, audio drivers
 - `ensure-yarn.test.ts` — package-manager guard
+
+`release-policy.test.ts` checks preview/stable channels, tag/version mismatch, invalid versions and missing/duplicate changelog entries. Packed artifacts and isolated consumer checks belong to the release scripts and CI.

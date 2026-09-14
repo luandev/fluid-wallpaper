@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Fluid field · Web component</title><link rel="stylesheet" href="/src/integration.css"></head>
+<body><main>
+<nav><a href="./">Home</a><a href="./usage.html">Integration guide</a><a href="./embed.html">React demo</a></nav>
+<p class="eyebrow">Web component · Preview</p><h1>A fluid field in your page.</h1>
+<p>This example runs the compiled, React-free component. Drag to stir, or use the controls.</p>
+<fluid-ink id="field" quality="eco" style="height:360px"><p slot="fallback">This artwork needs a browser with WebGL2 and floating-point render targets.</p></fluid-ink>
+<div class="controls"><button id="play">Play</button><button id="pause">Pause</button><button id="reset">Reset</button><button id="inject">Inject</button><label>Quality <select id="quality"><option>eco</option><option>balanced</option><option>high</option></select></label><label>Swirl <input id="swirl" type="range" min="0" max="40" value="12"></label></div>
+<p>Latest event: <output id="status" aria-live="polite">Initializing…</output></p>
+<h2>Use the same component</h2><pre><code>import { defineFluidInk } from 'fluid-wallpaper/element';
+defineFluidInk();
+
+// HTML:
+&lt;fluid-ink quality="eco" style="height:360px"&gt;&lt;/fluid-ink&gt;</code></pre>
+<h2>Experimental two-liquid scene</h2><p>This solver is expensive and has not met physical convergence or mobile acceptance. This example creates a paused composition. Use the <a href="./liquid.html">experimental studio</a> to explore its controls.</p>
+<button id="experimental">Create paused experiment</button><div id="experiment"></div>
+</main><script type="module" src="/src/componentDemo.ts"></script></body></html>

@@ -6,7 +6,7 @@ A GPU-driven generative wallpaper that should feel fluid, material, intricate, a
 
 ## Current status
 
-The current working tree contains a browser-runnable WebGL2 fluid with packed material concentrations, multiple emitters, wind stations, a React dashboard/embed, wave drivers, optional user-armed microphone/tab audio, and a native element. An opt-in [two-liquid prototype](docs/TWO_LIQUID.md) adds conservative transport, absorption and experimental adaptive scheduling. Camera/tilt remain stubs; mobile support, a compiled component release and Wallpaper Engine properties are not complete.
+The current working tree contains a browser-runnable WebGL2 fluid with packed material concentrations, multiple emitters, wind stations, a React dashboard/embed, wave drivers, optional user-armed microphone/tab audio, and a native element. An opt-in [two-liquid prototype](docs/TWO_LIQUID.md) adds conservative transport, absorption and experimental adaptive scheduling. Camera/tilt remain stubs; mobile support, npm registry publication and Wallpaper Engine properties are not complete. The compiled preview build and release workflow are ready for CI validation; see [release status](docs/RELEASE.md).
 
 The current product priority is believable **ink mixing**, predictable controls, mobile performance, and a reusable web component release ([DEC-010](docs/DECISIONS.md#dec-010--ink-first-web-component-product-direction)). The [source review and proposal](docs/REVIEW_INK_COMPONENT.md) identifies the work required; its technical recommendations are not release guarantees.
 
@@ -25,7 +25,7 @@ These are contributor setup commands. Agent sessions must honor the install rest
 
 `yarn dev` opens the **landing** (`index.html`) — live fluid with editorial chrome. Open `/play.html` for the tabbed tuner (Scene, Materials, Emitters, Wind, Drivers, Presets). Open `/embed.html` for the React `<FluidField />` demo (canvas-only or dashboard). Multi-scale curl-noise runs without the mouse; drag still stirs if pointer is on. Value emitters can tween numeric knobs with waves. **H** hides the panel, **P** toggles the perf HUD, **F** fullscreen on the canvas, **Esc** exits fullscreen. Drag a panel header (or a Panel/Perf button) to reposition; overlay positions persist in `localStorage`. Tunings persist there too. Presets can be exported and imported as versioned JSON (`fluid-wallpaper.preset.v1`); import merges by name.
 
-Install this repo as a React component with Yarn (`import { FluidField } from "fluid-wallpaper"`). The consumer needs Vite (or equivalent) so GLSL `?raw` compiles. See [docs/USAGE.md](docs/USAGE.md).
+Compiled preview distribution supports npm and Yarn consumers, a React component, and a React-free native element. See [usage](docs/USAGE.md), [integration examples](usage.html), and [release instructions/status](docs/RELEASE.md).
 
 ```bash
 yarn test

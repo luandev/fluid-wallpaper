@@ -52,3 +52,5 @@ Folder READMEs are local architecture; scoped AGENTS.md files guide edits. They 
 ## Key files
 
 - `ARCHITECTURE.md`, `DECISIONS.md`, `PROJECT.md`, `ROADMAP.md`, `OPEN_QUESTIONS.md`, `USAGE.md`
+
+[RELEASE.md](RELEASE.md) owns compiled-package artifacts, CI publication, bootstrap instructions and validation status. [PACKAGE_README.md](PACKAGE_README.md) is copied into the npm artifact.

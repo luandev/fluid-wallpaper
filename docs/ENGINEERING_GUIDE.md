@@ -115,11 +115,9 @@ Do not mark these fixed because documentation exists. The dated review retains h
 
 ## Build, embedding, and release know-how
 
-[USAGE.md](USAGE.md) owns existing recipes. The package currently exports source TypeScript from React/engine/config and needs raw GLSL bundler support. `yarn build` type-checks and bundles three HTML entry pages; it does not emit a verified native element library with declaration artifacts.
+[USAGE.md](USAGE.md) owns recipes; [RELEASE.md](RELEASE.md) owns packaging and publication. `yarn build` compiles the library with inline GLSL, emits declarations, generates a consumer manifest in `package-dist/`, and builds seven Pages entries in `dist/`. The root manifest stays private with the Yarn guard; the published manifest excludes development lifecycle scripts and makes React peers optional.
 
-Vite `base: './'` is shared by Pages and future local-folder packaging. CI checks USAGE headings plus index/play/embed output. Keep those stable unless their owning workflow/decision changes in the same task.
-
-Before a future package release, inspect its actual allowlist/lifecycle scripts: the current source-package allowlist omits the guard script referenced by preinstall. Validate built exports, GLSL bundling, styles, declarations, licensing, and isolated consumer fixtures. Native element name/API, package name/registry, SSR behavior, and multi-instance policy remain open.
+Vite `base: './'` remains relative. Integration demos import the compiled package; `yarn dev` prepares that package once, so rebuild/restart after changing public library source. CI checks the packed artifact and installs it in isolated vanilla/React consumers. Local sessions do not install dependencies. Publication, physical accuracy and mobile support require separate evidence.
 
 ## Validation and handoff
 

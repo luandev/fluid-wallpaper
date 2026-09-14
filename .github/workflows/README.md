@@ -30,12 +30,14 @@ flowchart LR
 
 ## Enforced patterns
 
-- Do not call npm in workflows.
+- Use npm only for package packing/publishing and isolated consumer verification (DEC-014); repository installation/builds stay Yarn.
 - Do not deploy from pull requests.
 - Do not commit `dist/` or secrets.
 - Do not add extra required local commands; Pages is CI-only.
-- Keep `actions/checkout`, `setup-node` (Node 20), `upload-pages-artifact`, and `deploy-pages` as the deploy path ([DEC-007](../../docs/DECISIONS.md#dec-007--github-pages-showcase)).
+- Keep `actions/checkout`, `setup-node` (Node 20 for Pages, Node 24 for npm release), `upload-pages-artifact`, and `deploy-pages` as the deploy path ([DEC-007](../../docs/DECISIONS.md#dec-007--github-pages-showcase)).
 
 ## Key files
 
 - `pages.yml`
+
+`release.yml` publishes version tags using npm OIDC and creates GitHub Releases. Both workflows validate packed consumers; Pages asserts all seven HTML entries. See [release setup and lifecycle](../../docs/RELEASE.md).

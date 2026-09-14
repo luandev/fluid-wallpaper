@@ -32,7 +32,7 @@ Child folders are contracts, not a junk drawer. The engine owns the frame loop. 
 
 System map: [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md).
 
-Editing context: [AGENTS.md](AGENTS.md), [all folders](../docs/CONTEXT_MAP.md), and [engineering recipes](../docs/ENGINEERING_GUIDE.md). The native element exists as a source adapter. The opt-in [two-liquid path](../docs/TWO_LIQUID.md) uses `app/liquidEngine.ts`, `sim/liquidSolver.ts`, `render/liquidDisplay.ts`, and `quality/liquidQuality.ts`; its studio and GPU fixture are additional Vite entries, not a compiled package release.
+Editing context: [AGENTS.md](AGENTS.md), [all folders](../docs/CONTEXT_MAP.md), and [engineering recipes](../docs/ENGINEERING_GUIDE.md). The native element exists as a source adapter. The opt-in [two-liquid path](../docs/TWO_LIQUID.md) uses `app/liquidEngine.ts`, `sim/liquidSolver.ts`, `render/liquidDisplay.ts`, and `quality/liquidQuality.ts`; its studio and GPU fixture remain experimental. The compiled preview package and integration examples are documented in [RELEASE.md](../docs/RELEASE.md).
 
 ## Paradigms
 
@@ -55,3 +55,5 @@ Editing context: [AGENTS.md](AGENTS.md), [all folders](../docs/CONTEXT_MAP.md), 
 - [react/README.md](react/README.md) — `FluidField` package export
 - [element/README.md](element/README.md) — framework-neutral `<fluid-ink>` adoption host
 - [app/README.md](app/README.md), [ui/README.md](ui/README.md), [sim/README.md](sim/README.md), [render/README.md](render/README.md), [inputs/README.md](inputs/README.md), [platform/README.md](platform/README.md), [quality/README.md](quality/README.md), [shaders/README.md](shaders/README.md)
+
+`componentDemo.ts` hosts the compiled element integration example. `integration.css` styles the guide and example; both are separate from simulation and rendering.

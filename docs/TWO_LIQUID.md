@@ -20,7 +20,7 @@ if (next) {
 element.inject({ position: { x: 0.5, y: 0.5 }, pigmentSlot: 0, fraction: 0.2, radius: 0.04 });
 ```
 
-Assigning `scene` creates a new composition. `updateScene` preserves state and rejects slot ID/carrier changes. Assign `null` to return to legacy configuration. Legacy damping, contrast and dose have no automatic physical migration. `setConfig` rejects liquid-scene edits. `play`, `pause`, `reset` and `inject` remain available. `qualityStatus` and `qualitychange` expose requested/effective FPS, dimensions, effects, discarded simulation time, reason, allocations and timing. Reduced motion starts with a static composition until explicitly played. The package remains private and source-exported.
+Assigning `scene` creates a new composition. `updateScene` preserves state and rejects slot ID/carrier changes. Assign `null` to return to legacy configuration. Legacy damping, contrast and dose have no automatic physical migration. `setConfig` rejects liquid-scene edits. `play`, `pause`, `reset` and `inject` remain available. `qualityStatus` and `qualitychange` expose requested/effective FPS, dimensions, effects, discarded simulation time, reason, allocations and timing. Reduced motion starts with a static composition until explicitly played. The root package remains private; compiled preview distribution is owned by [RELEASE.md](RELEASE.md).
 
 ## Numerical contract
 

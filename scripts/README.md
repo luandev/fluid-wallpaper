@@ -23,7 +23,7 @@ flowchart LR
 
 ## Enforced patterns
 
-- Do not add npm as an allowed installer.
+- Do not add npm as a repository installer. DEC-014 permits isolated CI consumer installs.
 - Do not put WebGL, React, or config sanitize in this folder.
 - New repo-level guards belong here only if they are package-manager or hygiene checks, not product features.
 - Use Yarn for `yarn`, `yarn test`, and `yarn build`.
@@ -32,3 +32,5 @@ flowchart LR
 
 - `ensure-yarn.js`
 - `../tests/ensure-yarn.test.ts`
+
+DEC-014 adds `build-package.mjs` (Vite/declarations/consumer manifest), `check-package.mjs` (artifact and import checks), `check-consumers.mjs` (CI-only npm fixtures), and `release.mjs` (identity and idempotent publishing). The Yarn guard remains development-only and is excluded from the npm artifact. See [release contract](../docs/RELEASE.md).

@@ -29,7 +29,7 @@ flowchart LR
 - Consumers need a bundler that understands Vite `?raw` GLSL imports (this repo’s Vite app, or an equivalent).
 - Do not call `getUserMedia` from this host. The dashboard Listen control may, after a gesture.
 - Do not add MUI/shadcn.
-- Keep Yarn; package `exports` point at `src/react/index.ts`.
+- Keep Yarn for development; the publishing manifest exports compiled modules and declarations. See [release contract](../../docs/RELEASE.md).
 
 ## Key files
 
@@ -37,3 +37,5 @@ flowchart LR
 - `resolveFieldOptions.ts` — CPU defaults for flags and config merge
 - `index.ts` — public exports
 - `embed.tsx` / `../../embed.html` — Pages demo of React usage
+
+The embed demo imports compiled package JavaScript/CSS. `yarn dev` first builds that package; restart after library edits.

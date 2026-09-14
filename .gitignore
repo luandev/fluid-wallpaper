@@ -1,5 +1,8 @@
 node_modules/
 dist/
+package-dist/
+*.tgz
+.consumer-check/
 .vite/
 *.local
 .DS_Store

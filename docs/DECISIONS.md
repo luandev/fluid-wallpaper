@@ -161,3 +161,13 @@ Accepted records preserve intent and history; they do not certify that implement
 - **Consequences:** A source-level element and studio can exercise the new model. The implementation currently uses collocated pigment resolution, RGBA32F diagnostic readbacks and conservative CPU resize. These are prototype limitations, not completion of the requested mobile architecture. The full plan, higher quality ceilings, separate pigment grid, coordinated solver budgets, efficient reductions, recovery and device gates remain outstanding. Static-drop refinement has not met acceptance; measured evidence is recorded rather than hidden by optical effects. No publication authorized or performed.
 - **Evidence:** Owner's implementation plan; [numerical contract, reference provenance and session results](TWO_LIQUID.md); scene/solver/display/runtime modules and browser fixture. CPU tests and build are separate from GPU/device acceptance.
 - **Review trigger:** Static-drop/shear convergence fails; carrier transport diffuses excessively; named-device experiments cannot sustain the work/memory budgets; or consumer requirements change the source API.
+
+### DEC-014 — Compiled npm preview and tag releases
+
+- **Status:** Accepted implementation scope; publication and clean CI consumer execution require external evidence.
+- **Date:** 2026-09-14
+- **Context:** The owner requested npm distribution, release CI and integration demos, selecting Yarn development, the existing package name, a preview release, manual version tags and unchanged React API.
+- **Decision:** Generate an ESM/declaration/CSS package in `package-dist/`; preserve the private development manifest and guard. Publish `fluid-wallpaper` prereleases to `next` through npm OIDC from version tags. Root and `/react` export React 19; `/element` and `/element/auto` do not depend on React. CI installs tarballs into isolated consumers with npm. This is the explicit npm exception to DEC-004.
+- **Tradeoffs:** ESM-only distribution; explicit React CSS import; optional React peers; current React initial-only config and dashboard storage limitations remain. Compiled demos require rebuilding the library after source edits. No new solver or mobile guarantee.
+- **Evidence:** [Release contract and session validation](RELEASE.md), integration demos and package scripts.
+- **Review trigger:** Consumer checks fail, package ownership is unavailable, or a stable release needs stronger API/device guarantees.

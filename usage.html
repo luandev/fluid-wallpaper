@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Fluid field · Install and examples</title><link rel="stylesheet" href="/src/integration.css"></head>
+<body><main><nav><a href="./">Home</a><a href="./component.html">Web component demo</a><a href="./embed.html">React demo</a><a href="./play.html">Tuner</a></nav>
+<p class="eyebrow">fluid-wallpaper · Preview</p><h1>Bring living fluid to your interface.</h1><p>Choose a native web component or a React component. Both ship as compiled JavaScript with TypeScript declarations. No shader loader or special Vite setup is needed.</p>
+<p>The examples on this site use the local build. Registry and CDN commands below work once version 0.1.0-next.0 is published.</p>
+<h2>Install</h2><pre><code>npm install fluid-wallpaper@next
+# Yarn works too:
+yarn add fluid-wallpaper@next</code></pre>
+<h2>Web component</h2><p>No React dependency or external CSS. Give the host a height.</p><pre><code>import { defineFluidInk } from 'fluid-wallpaper/element';
+defineFluidInk();
+
+// Add to your HTML:
+&lt;fluid-ink quality="eco" style="height:360px"&gt;
+  &lt;p slot="fallback"&gt;This artwork needs WebGL2.&lt;/p&gt;
+&lt;/fluid-ink&gt;</code></pre><p><a href="./component.html">Try the interactive web component →</a></p>
+<h2>Plain HTML, no build step</h2><pre><code>&lt;fluid-ink quality="eco" style="height:360px"&gt;&lt;/fluid-ink&gt;
+&lt;script type="module" src="https://cdn.jsdelivr.net/npm/fluid-wallpaper@0.1.0-next.0/element-auto.js"&gt;&lt;/script&gt;</code></pre>
+<h2>React 19</h2><pre><code>npm install react@^19 react-dom@^19
+
+import { FluidField } from 'fluid-wallpaper/react';
+import 'fluid-wallpaper/styles.css';
+
+export function Artwork() {
+  return &lt;div style={{ height: 360 }}&gt;
+    &lt;FluidField config={{ vorticity: 12 }} onError={console.error} /&gt;
+  &lt;/div&gt;;
+}</code></pre><p>For the artist panel, add <code>dashboard</code>. Persistence defaults off. Configuration is applied on mount; use <code>onEngine</code> and <code>engine.applyConfig()</code> for later changes. Resolution changes also need <code>engine.reseed()</code>.</p><p><a href="./embed.html">Try React with or without the dashboard →</a></p>
+<h2>Control the element</h2><pre><code>import type { FluidInkElement } from 'fluid-wallpaper/element';
+const field = document.querySelector('fluid-ink') as FluidInkElement;
+field.addEventListener('ready', () =&gt; {
+  field.setConfig({ vorticity: 18 });
+  field.pause();
+  field.play();
+  field.inject({ position: { x: 0.5, y: 0.5 }, velocity: { x: 0.1, y: 0 } });
+});
+field.addEventListener('error', event =&gt; console.error(event));</code></pre>
+<p>Set <code>paused</code> before insertion for an initially paused field. <code>reset()</code> recreates the composition. The element also emits <code>configchange</code> and <code>qualitychange</code>.</p>
+<h2>Experimental liquids</h2><pre><code>import { defineFluidInk, defaultLiquidScene } from 'fluid-wallpaper/element';
+defineFluidInk();
+const field = document.createElement('fluid-ink');
+field.setAttribute('paused', '');
+field.style.height = '320px';
+// In TypeScript, cast field to FluidInkElement.
+field.scene = defaultLiquidScene();
+document.body.append(field);</code></pre><p>The two-liquid scene is available through the element; React keeps the established material solver. <a href="./liquid.html">Open the experimental studio</a>.</p>
+<h2>Before shipping your integration</h2><p>Mount only in the browser. In server-component frameworks, put React artwork behind a client boundary and import the stylesheet through the framework's supported CSS entry. Modules may be imported without a DOM; constructing an element requires one.</p><p>WebGL2 and floating-point render targets are required. Mobile performance and two-liquid accuracy are not certified. Dashboard presets and panel positions can share browser storage even when base-config persistence is off.</p>
+<p><a href="https://github.com/luandev/fluid-wallpaper/blob/main/docs/USAGE.md">Full API usage</a> · <a href="https://github.com/luandev/fluid-wallpaper/blob/main/docs/TWO_LIQUID.md">Numerical evidence and limits</a></p>
+</main></body></html>

@@ -1,0 +1,57 @@
+name: npm release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: read
+concurrency:
+  group: npm-release
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: corepack enable
+      - run: yarn install --frozen-lockfile
+      - run: yarn test
+      - run: yarn build
+      - name: Validate release identity
+        run: node scripts/release.mjs validate
+      - name: Pack exact release artifact
+        id: pack
+        run: |
+          name=$(npm pack ./package-dist --json | node -e 'let s="";process.stdin.on("data",d=>s+=d);process.stdin.on("end",()=>console.log(Object.values(JSON.parse(s))[0].filename))')
+          echo "file=$name" >> "$GITHUB_OUTPUT"
+          mkdir packed
+          tar -xzf "$name" -C packed
+          node scripts/check-package.mjs packed/package
+      - name: Validate clean consumers
+        run: node scripts/check-consumers.mjs '${{ steps.pack.outputs.file }}'
+      - name: Retain validated artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-package
+          path: '*.tgz'
+      - name: Publish through npm trusted publishing
+        run: node scripts/release.mjs publish '${{ steps.pack.outputs.file }}'
+      - name: Create or complete GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          TARBALL: ${{ steps.pack.outputs.file }}
+        run: |
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            flags=()
+            if [[ "$TAG" == *-* ]]; then flags+=(--prerelease); fi
+            gh release create "$TAG" --verify-tag --title "$TAG" --notes-file release-notes.md "${flags[@]}"
+          fi
+          gh release upload "$TAG" "$TARBALL" "$TARBALL.sha256" --clobber

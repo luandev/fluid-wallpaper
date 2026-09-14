@@ -20,6 +20,8 @@ export default defineConfig({
         embed: resolve(root, "embed.html"),
         liquid: resolve(root, "liquid.html"),
         diagnostics: resolve(root, "diagnostics.html"),
+        usage: resolve(root, "usage.html"),
+        component: resolve(root, "component.html"),
       },
     },
   },

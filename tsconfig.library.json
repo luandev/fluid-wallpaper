@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "rootDir": "src",
+    "outDir": "package-dist/types"
+  },
+  "include": ["src/react/index.ts", "src/element/index.ts", "src/element/auto.ts", "src/app/engine.ts", "src/app/config.ts", "src/vite-env.d.ts"],
+  "exclude": ["tests"]
+}

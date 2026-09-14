@@ -65,3 +65,7 @@ Resolved by [DEC-003](DECISIONS.md#dec-003--typescript-vite-webgl2-and-glsl):
 - Which assets, licenses, and attribution records are required before publishing?
 
 Until Phase 4, Wallpaper Engine testing means importing `dist/play.html` from a Vite production build, never the Git working tree. `dist/index.html` is the public landing page. Git/Yarn source install of `<FluidField />` is [DEC-008](DECISIONS.md#dec-008--react-fluidfield-embed); npm registry publish and Workshop packaging remain open. Browser audio uses Web Audio + mic/tab capture ([DEC-009](DECISIONS.md#dec-009--optional-youtube-music-and-web-audio-drivers)); Wallpaper Engine audio listeners stay open.
+
+## Preview distribution decision
+
+DEC-014 selects npm `fluid-wallpaper`, compiled ESM/declarations/CSS, native and React entries, a `next` preview channel, and tag-driven GitHub Actions publication. Artifact/consumer fixtures and setup are specified in [RELEASE.md](RELEASE.md). Package-name ownership is an external prerequisite; physical/mobile release questions above remain open.

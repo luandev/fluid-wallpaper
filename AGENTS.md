@@ -33,7 +33,7 @@ The owner's priority is believable ink mixing, useful controls, mobile performan
 - Record durable architectural choices and their tradeoffs in `docs/DECISIONS.md`.
 - Update related documentation when scope, behavior, interfaces, or assumptions change.
 - Keep Vite `base` as `'./'` so `dist/` can load from a local folder or Wallpaper Engine later.
-- Use Yarn only (`yarn`, `yarn test`, `yarn build`). Do not use npm; installs are blocked.
+- Use Yarn for repository development (`yarn`, `yarn test`, `yarn build`). DEC-014 permits npm packing/publishing and isolated CI consumer installs. Local agent dependency installs remain blocked.
 
 ## Documentation and knowledge
 
