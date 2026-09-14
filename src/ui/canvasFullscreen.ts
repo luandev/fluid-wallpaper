@@ -3,7 +3,9 @@ export function toggleCanvasFullscreen(element: HTMLElement): void {
     void document.exitFullscreen();
     return;
   }
-  void element.requestFullscreen();
+  const parent = element.parentElement;
+  const target = parent?.querySelector(":scope > .yt-background") ? parent : element;
+  void target.requestFullscreen();
 }
 
 export function exitCanvasFullscreen(): void {

@@ -41,3 +41,6 @@ flowchart LR
 - `ensure-yarn.test.ts` — package-manager guard
 
 `release-policy.test.ts` checks preview/stable channels, tag/version mismatch, invalid versions and missing/duplicate changelog entries. Packed artifacts and isolated consumer checks belong to the release scripts and CI.
+
+
+`eco.test.ts` covers adaptive policy, pacing, bounds and slow-time accounting; `background.test.ts` checks portable background validation. Real shader/state-transfer and tuner-layer checks run in the bounded CI browser gate described in [ECO.md](../docs/ECO.md#validation).

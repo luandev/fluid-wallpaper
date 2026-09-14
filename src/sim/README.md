@@ -42,3 +42,5 @@ flowchart TD
 - `gpu.ts` — FBOs, blit, resolution
 - `programs.ts` — compiled passes
 - `capabilities.ts` — WebGL2 / float render-target selection
+
+`FluidSolver.resample()` transfers pigment and grid-scaled velocity to a replacement solver without seed/warmup, then projects velocity. Its original bilinear GPU pass is `resample.frag.glsl`; it preserves visual state approximately, not exact mass. See [ECO.md](../../docs/ECO.md).

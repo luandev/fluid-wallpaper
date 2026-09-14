@@ -34,3 +34,6 @@ flowchart LR
 - `../tests/ensure-yarn.test.ts`
 
 DEC-014 adds `build-package.mjs` (Vite/declarations/consumer manifest), `check-package.mjs` (artifact and import checks), `check-consumers.mjs` (CI-only npm fixtures), and `release.mjs` (identity and idempotent publishing). The Yarn guard remains development-only and is excluded from the npm artifact. See [release contract](../docs/RELEASE.md).
+
+
+The user-requested browser regression gate is `check-eco-browser.mjs` plus `eco-browser.html`. This explicit test exception loads compiled product code and a built tuner; it does not implement product behavior. Requires Node 24 and installed Chrome (`BROWSER_PATH` override). It uses a temporary isolated profile, bounded scheduling, blocks external media for UI checks, and writes `.consumer-check/eco-report.json`. CI invokes it after build; no local dependency installation is required.

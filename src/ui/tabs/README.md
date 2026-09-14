@@ -4,7 +4,7 @@ Read [AGENTS.md](AGENTS.md) and [the UI contract](../README.md). Each tab render
 
 | File | Responsibility |
 | --- | --- |
-| [SceneTab.tsx](SceneTab.tsx) | Scalar controlSchema groups and current music setting |
+| [SceneTab.tsx](SceneTab.tsx) | Scalar controlSchema groups, background colors/mode and music setting |
 | [MaterialsTab.tsx](MaterialsTab.tsx) | Material cards, look fields, add/remove/duplicate |
 | [EmittersTab.tsx](EmittersTab.tsx) | Field/point/pointer sources and selected source |
 | [WindTab.tsx](WindTab.tsx) | Procedural stations and selection |

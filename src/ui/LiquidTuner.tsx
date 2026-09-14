@@ -43,7 +43,7 @@ function LiquidTuner() {
         {slider("Surface tension", "surfaceTension", .001, .00001)}{slider("Stirring strength", "stirring", .02, .0001)}
         {slider("Swirl scale", "swirlScale", 8, .1)}{slider("Pigment dose", "dose", 3, .05)}
         {slider("Absorption", "absorption", 3, .05)}{slider("Surface relief (stylized)", "relief", 1, .01)}{slider("Gloss", "gloss", 1, .01)}
-        <label>Quality policy <select value={scene.quality} onChange={e => edit(s => { s.quality = e.target.value as LiquidScene["quality"]; })}>{["auto", "eco", "balanced", "high"].map(q => <option key={q}>{q}</option>)}</select></label>
+        <label>Quality policy <select value={scene.quality} onChange={e => edit(s => { s.quality = e.target.value as LiquidScene["quality"]; })}>{["auto", "eco", "balanced", "high"].map(q => <option key={q}>{q}</option>)}</select>{scene.quality === "eco" && <small>ECO lowers resolution and simulation speed under load, then recovers gradually. Pointer gestures keep the ECO frame limit.</small>}</label>
         <label><input type="checkbox" checked={scene.detail} onChange={e => edit(s => { s.detail = e.target.checked; })} /> Flow-carried surface detail (stylized)</label>
       </div>
       {error && <p role="alert">{error}</p>}

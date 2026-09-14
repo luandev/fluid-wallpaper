@@ -22,6 +22,7 @@ export type ShaderPasses = {
   viscosityWeight: Pass;
   windForce: Pass;
   display: Pass;
+  resample: Pass;
 };
 
 export function createPasses(gl: WebGL2RenderingContext): ShaderPasses {
@@ -45,6 +46,7 @@ export function createPasses(gl: WebGL2RenderingContext): ShaderPasses {
     viscosityWeight: make(shaders.viscosityWeight, "viscosityWeight"),
     windForce: make(shaders.windForce, "windForce"),
     display: make(shaders.display, "display"),
+    resample: make(shaders.resample, "resample"),
   };
 }
 

@@ -12,6 +12,7 @@ export interface LiquidStatus {
   effects: { relief: boolean; gloss: boolean; detail: boolean };
   slowdownSeconds: number; reason: string; allocationBytes: number;
   timing: LiquidTiming; experimental: true;
+  simulationSpeed: number;
 }
 
 /** Owns the opt-in scene loop; legacy Engine/config/audio remain independent. */
@@ -86,7 +87,7 @@ export class LiquidEngine {
     gl.bindVertexArray(this.vao); gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
     gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
-    const grid = areaGrid(LIQUID_TIERS[this.quality.tier].cells, this.aspect());
+    const grid = areaGrid(this.quality.cellBudget, this.aspect());
     this.solver = new LiquidSolver(gl, this.scene, grid.width, grid.height);
     this.display = new LiquidDisplay(gl); this.timing = new GpuTiming(gl);
     this.resizeCanvas();
@@ -96,13 +97,13 @@ export class LiquidEngine {
     const visible = [...LiquidEngine.instances].filter(i => !i.offscreen && !i.paused);
     const active = performance.now() < this.boostedUntil;
     const divisor = active ? 1 : Math.max(1, visible.length);
-    const pixels = Math.min(LIQUID_TIERS[this.quality.tier].pixels / divisor, Math.max(64, this.canvas.clientWidth * this.canvas.clientHeight * devicePixelRatio ** 2));
+    const pixels = Math.min(this.quality.pixelBudget / divisor, Math.max(64, this.canvas.clientWidth * this.canvas.clientHeight * devicePixelRatio ** 2));
     const grid = areaGrid(pixels, this.aspect());
     this.canvas.width = grid.width; this.canvas.height = grid.height;
   }
   private resize(): void {
     this.gl.bindVertexArray(this.vao);
-    const grid = areaGrid(LIQUID_TIERS[this.quality.tier].cells, this.aspect());
+    const grid = areaGrid(this.quality.cellBudget, this.aspect());
     if (grid.width !== this.solver.width || grid.height !== this.solver.height) {
       const next = this.solver.resize(grid.width, grid.height); this.solver.dispose(); this.solver = next;
     }
@@ -120,9 +121,9 @@ export class LiquidEngine {
     this.raf = 0;
     if (this.paused || this.offscreen || this.lost || document.hidden || this.disposed) return;
     try {
-      if (this.last) this.clock.add((now - this.last) / 1000);
+      if (this.last) this.clock.add((now - this.last) / 1000, this.quality.simulationSpeed);
       this.last = now;
-      const fps = now < this.boostedUntil ? 60 : this.quality.fps;
+      const fps = this.scene.quality !== "eco" && now < this.boostedUntil ? 60 : this.quality.fps;
       if (now - this.presented >= 1000 / fps - 1) {
         this.effectiveFps = this.presented ? 1000 / (now - this.presented) : fps;
         this.presented = now;
@@ -132,10 +133,14 @@ export class LiquidEngine {
         this.draw();
         const sample = this.timing.value;
         this.quality.sample(sample.solverMs + sample.rendererMs, this.effectiveFps < fps * .8);
+        if (this.scene.quality === "eco" && this.quality.observe(now, sample.solverMs + sample.rendererMs, this.effectiveFps < fps * .65, fps)) {
+          this.clock.suspend(); this.resize();
+          this.onStatus(this.status);
+        }
         if (now - this.lastStatus >= 1000) {
           this.lastStatus = now;
           const t = this.timing.value;
-          if (this.quality.observe(now, t.solverMs + t.rendererMs, this.effectiveFps < fps * .8, fps)) this.resize();
+          if (this.scene.quality !== "eco" && this.quality.observe(now, t.solverMs + t.rendererMs, this.effectiveFps < fps * .8, fps)) this.resize();
           this.onStatus(this.status);
         }
       }
@@ -143,7 +148,7 @@ export class LiquidEngine {
     } catch (error) { this.fail(error); }
   };
   private fail(error: unknown): void { this.pause(); this.onError(error instanceof Error ? error : new Error(String(error))); }
-  private stop(): void { cancelAnimationFrame(this.raf); this.raf = 0; this.last = this.presented = 0; this.clock.suspend(); }
+  private stop(): void { cancelAnimationFrame(this.raf); this.raf = 0; this.last = this.presented = 0; this.clock.suspend(); this.quality.suspend(); }
   private schedule(): void {
     this.stop();
     if (!this.paused && !this.offscreen && !this.lost && !document.hidden && !this.disposed) this.raf = requestAnimationFrame(this.loop);
@@ -160,7 +165,7 @@ export class LiquidEngine {
     const next = validateLiquidScene(value); assertSameCarriers(this.scene, next);
     const changedQuality = next.quality !== this.scene.quality;
     this.scene = next; this.solver.scene = next;
-    if (changedQuality) { this.quality.setPolicy(next.quality); this.resize(); }
+    if (changedQuality) { this.quality.setPolicy(next.quality); this.clock.suspend(); this.last = this.presented = 0; this.resize(); }
     this.draw();
   }
   inject(x: number, y: number, slot = 0, fraction = .1, radius = .04, vx = 0, vy = 0): void {
@@ -178,11 +183,11 @@ export class LiquidEngine {
     this.draw();
   }
   get status(): LiquidStatus {
-    return { requestedFps: performance.now() < this.boostedUntil ? 60 : 30, effectiveFps: this.paused || this.offscreen || this.lost ? 0 : this.effectiveFps,
+    return { requestedFps: this.scene.quality === "eco" ? this.quality.fps : performance.now() < this.boostedUntil ? 60 : 30, effectiveFps: this.paused || this.offscreen || this.lost ? 0 : this.effectiveFps,
       simulation: [this.solver.width, this.solver.height], pigment: [this.solver.width, this.solver.height], display: [this.canvas.width, this.canvas.height],
       effects: { relief: this.scene.relief > 0, gloss: this.scene.gloss > 0, detail: this.scene.detail && LIQUID_TIERS[this.quality.tier].detail },
       slowdownSeconds: this.clock.dropped, reason: this.quality.reason, allocationBytes: this.solver.allocationBytes,
-      timing: { ...this.timing.value }, experimental: true };
+      timing: { ...this.timing.value }, simulationSpeed: this.quality.simulationSpeed, experimental: true };
   }
   private release(): void {
     if (!this.resourcesValid) return;

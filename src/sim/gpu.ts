@@ -122,6 +122,8 @@ export function createFbo(
   const texture = gl.createTexture();
   const framebuffer = gl.createFramebuffer();
   if (!texture || !framebuffer) {
+    if (texture) gl.deleteTexture(texture);
+    if (framebuffer) gl.deleteFramebuffer(framebuffer);
     throw new Error("Failed to allocate framebuffer");
   }
   gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -189,7 +191,9 @@ export function createDoubleFbo(
   format: SimFormat,
 ): DoubleFBO {
   const a = createFbo(gl, width, height, format);
-  const b = createFbo(gl, width, height, format);
+  let b: FBO;
+  try { b = createFbo(gl, width, height, format); }
+  catch (error) { deleteFbo(gl, a); throw error; }
   const pair: DoubleFBO = {
     read: a,
     write: b,

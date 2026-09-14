@@ -1,3 +1,4 @@
+import { hexToRgb } from "../app/colors";
 import type { LiveMaterials } from "../app/colorTween";
 import { padLiveMaterials, tweenMaterials } from "../app/colorTween";
 import type { FluidConfig } from "../app/config";
@@ -84,5 +85,10 @@ export function blitDye(
   set1f(gl, pass, "uManualBilinear", manualBilinear ? 1 : 0);
   set1f(gl, pass, "uContrast", config.contrast);
   set1f(gl, pass, "uVideoReveal", config.videoReveal);
+  set1f(gl, pass, "uBackgroundMode", config.backgroundMode === "solid" ? 1 : config.backgroundMode === "gradient" ? 2 : 0);
+  for (const [name, color] of [["uBackgroundA", config.backgroundColor], ["uBackgroundB", config.backgroundColorB]]) {
+    const location = loc(pass, name);
+    if (location) gl.uniform3fv(location, hexToRgb(color));
+  }
   gl.drawArrays(gl.TRIANGLES, 0, 3);
 }

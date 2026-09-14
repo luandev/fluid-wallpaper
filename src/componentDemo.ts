@@ -1,9 +1,15 @@
-import { defineFluidInk, defaultLiquidScene, type FluidInkElement } from "../package-dist/element.js";
+import { defineFluidInk, defaultLiquidScene, type FluidInkElement, type EcoStatus } from "../package-dist/element.js";
 
 const status = document.querySelector<HTMLOutputElement>("#status")!;
 const field = document.querySelector<FluidInkElement>("#field")!;
 for (const event of ["ready", "error", "configchange", "qualitychange"]) {
-  field.addEventListener(event, () => { status.textContent = event === "error" ? "WebGL initialization failed; fallback shown." : event; });
+  field.addEventListener(event, e => {
+    const detail = (e as CustomEvent<EcoStatus>).detail;
+    status.textContent = event === "error" ? "WebGL initialization failed; fallback shown."
+      : event === "qualitychange" && detail?.quality === "eco"
+        ? `ECO: ${detail.simulation.join(" × ")} simulation · ${detail.targetFps} fps target · ${Math.round(detail.simulationSpeed * 100)}% speed. ${detail.reason}`
+        : event;
+  });
 }
 defineFluidInk();
 document.querySelector("#play")!.addEventListener("click", () => field.play());

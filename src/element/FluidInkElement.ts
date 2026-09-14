@@ -1,4 +1,4 @@
-import { Engine } from "../app/engine";
+import { Engine, type EcoStatus } from "../app/engine";
 import { cloneConfig, defaultConfig, type FluidConfig } from "../app/config";
 import type { PointerSplat } from "../inputs/pointer";
 import { LiquidEngine, type LiquidStatus } from "../app/liquidEngine";
@@ -82,8 +82,13 @@ export class FluidInkElement extends ElementBase {
         return;
       }
       const config = { ...cloneConfig(defaultConfig), ...this.pendingConfig };
-      this.engine = new Engine(this.canvas, config);
-      this.applyQuality();
+      const quality = this.getAttribute("quality") ?? "auto";
+      if (quality === "balanced" || quality === "high") Object.assign(config, QUALITY_PATCHES[quality]);
+      this.engine = new Engine(this.canvas, config, {
+        eco: quality === "eco",
+        onEcoChange: status => this.dispatchEvent(new CustomEvent("qualitychange", { detail: status ?? { quality: this.getAttribute("quality") ?? "auto" } })),
+      });
+      this.dispatchEvent(new CustomEvent("qualitychange", { detail: this.engine.getEcoStatus() ?? { quality } }));
       if (this.hasAttribute("paused")) {
         this.engine.pause();
       } else {
@@ -193,13 +198,20 @@ export class FluidInkElement extends ElementBase {
     this.liquid.updateScene(value); this.pendingScene = this.liquid.getScene();
     this.dispatchEvent(new CustomEvent("scenechange", { detail: this.scene }));
   }
-  get qualityStatus(): LiquidStatus | null { return this.liquid?.status ?? null; }
+  get qualityStatus(): LiquidStatus | EcoStatus | null { return this.liquid?.status ?? this.engine?.getEcoStatus() ?? null; }
 
   private applyQuality(): void {
     const quality = (this.getAttribute("quality") ?? "auto") as FluidInkQuality;
-    if (!this.engine || quality === "auto") return;
-    this.setConfig(QUALITY_PATCHES[quality] ?? QUALITY_PATCHES.balanced);
-    this.dispatchEvent(new CustomEvent("qualitychange", { detail: { quality } }));
+    if (!this.engine) return;
+    if (quality === "eco") { this.engine.setEcoMode(true); return; }
+    const wasEco = this.engine.getEcoStatus() !== null;
+    if (quality !== "auto") {
+      const next = this.engine.applyConfig(QUALITY_PATCHES[quality] ?? QUALITY_PATCHES.balanced);
+      this.dispatchEvent(new CustomEvent("configchange", { detail: next }));
+    }
+    this.engine.setEcoMode(false);
+    if (!wasEco && quality !== "auto") this.engine.reseed();
+    if (!wasEco) this.dispatchEvent(new CustomEvent("qualitychange", { detail: { quality } }));
   }
 
   private showError(message: string): void {

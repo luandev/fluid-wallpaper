@@ -13,3 +13,5 @@ defineFluidInk();
 Public methods are `play()`, `pause()`, `reset()`, `inject({ position, velocity })`, `setConfig(patch)`, and `getConfig()`. Supported attributes are `paused` and `quality="auto|eco|balanced|high"`; `interaction` is reserved for the future scoped interaction policy. Events are `ready`, `configchange`, `qualitychange`, and `error`.
 
 Do not add global storage, shortcuts, dashboard portals, or media permissions here. SSR may import the module, but constructing an element requires a browser DOM. The root development package stays private. The release build emits a public preview package with compiled `/element` and auto-registering `/element/auto` entries; see [release status](../../docs/RELEASE.md).
+
+`quality="eco"` is adaptive for both models. Legacy qualityStatus now exposes EcoStatus (including effective grids, FPS and speed), and qualitychange reports adaptation. The constructor applies ECO before the first allocation. See [ECO.md](../../docs/ECO.md).

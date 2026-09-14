@@ -62,7 +62,7 @@ flowchart TB
 ## Key files
 
 - `Dashboard.tsx` — shell, tabs, commit, H/F/Esc, spatial wiring; `canvas` + `persist` props for embeds
-- `YouTubePlayer.tsx` — compact music iframe from `youtubeUrl`
+- `YouTubePlayer.tsx` — music iframe behind the canvas in video mode, compact player for color modes, with explicit playback interaction
 - [tabs/README.md](tabs/README.md) — Scene, Materials, Emitters, Wind, Drivers, Presets
 - `ItemCard.tsx` / `duplicateItem.ts` — collapse + duplicate for list cards
 - `rows.tsx` / `rangeMath.ts` / `format.ts` — slider + number field, Shift fine step, stepper arrows, wheel nudge, help

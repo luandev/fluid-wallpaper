@@ -180,3 +180,17 @@ Accepted records preserve intent and history; they do not certify that implement
 - **Decision:** Keep one existing Engine and author three landing-only configs: Aurora, Gilded Obsidian and Porcelain Tide. Select equally on plain visits, allow explicit scene links, and bypass tuner storage. Palettes, materials, forces, drivers and emitters vary; simulation/render contracts remain unchanged.
 - **Tradeoffs:** Random visits may repeat a scene. The picker reloads through normal links. These scenes showcase existing artistic capabilities without certifying experimental physics, optional media or mobile performance.
 - **Evidence:** [Landing collection and validation](../src/landing/README.md#the-scene-collection).
+
+### DEC-016 - Adaptive ECO resolution and simulation speed
+
+- **Status:** Accepted implementation scope; device performance requires measurement.
+- **Date:** 2026-09-14
+- **Context:** The owner requested automatic resolution and speed reductions when ECO struggles.
+- **Decision:** Use shared windowed hysteresis for legacy and experimental ECO, lower simulation/pigment/display budgets and frame targets, intentionally slow simulation time, and recover only to the initial ECO ceiling. Preserve legacy composition through GPU resampling and projection instead of reseeding. Keep authored settings unchanged; expose effective status and reasons.
+- **Tradeoffs:** Smaller internal grids can soften detail. Legacy resizing is not conservative; experimental resizing retains costly CPU readbacks. Pacing/CPU submission are proxies where GPU timing is unavailable. No target-FPS or mobile guarantee is implied.
+- **Evidence:** [ECO contract and validation](ECO.md).
+
+
+## DEC-017 - Authored display backgrounds and music underlay
+
+Accepted 2026-09-14 at owner request. The established renderer supports video, solid color and a two-color diagonal gradient as portable config. Colors composite in the existing display pass without extra simulation targets. Video uses concentration-derived alpha and the tuner mounts its existing YouTube iframe behind the canvas with explicit playback interaction; optional audio analysis remains separate. Legacy presets without the new mode migrate to video reveal enabled. Dashboard-free components do not load media automatically. Experimental two-liquid substrate semantics remain unchanged. Browser tests cover pixels and DOM routing with external media blocked; playback and mobile visual acceptance remain unmeasured.

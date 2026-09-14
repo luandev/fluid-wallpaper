@@ -16,6 +16,7 @@ import perlinDyeFrag from "./perlinDye.frag.glsl?raw";
 import viscosityWeightFrag from "./viscosityWeight.frag.glsl?raw";
 import windForceFrag from "./windForce.frag.glsl?raw";
 import displayFrag from "./display.frag.glsl?raw";
+import resampleFrag from "./resample.frag.glsl?raw";
 
 function includeMarker(src: string, marker: string, chunk: string): string {
   if (!src.includes(marker)) {
@@ -41,4 +42,5 @@ export const shaders = {
   viscosityWeight: viscosityWeightFrag,
   windForce: windForceFrag,
   display: displayFrag,
+  resample: resampleFrag,
 } as const;

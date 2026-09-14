@@ -84,7 +84,7 @@ describe("defaultConfig", () => {
     expect(defaultConfig.warmupSteps).toBeGreaterThan(0);
     expect(defaultConfig.windStations).toHaveLength(4);
     expect(defaultConfig.youtubeUrl).toBe("https://www.youtube.com/watch?v=wKEeVPfK8nw");
-    expect(defaultConfig.videoReveal).toBe(0);
+    expect(defaultConfig.videoReveal).toBe(1);
     expect(defaultConfig.valueEmitters.map((emitter) => emitter.kind)).toEqual([
       "triangle",
       "audioPulse",

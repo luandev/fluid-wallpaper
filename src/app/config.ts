@@ -157,6 +157,9 @@ export type FluidConfig = {
   colorTweenSpeed: number;
   wiggleAmount: number;
   windStrength: number;
+  backgroundMode: "video" | "solid" | "gradient";
+  backgroundColor: string;
+  backgroundColorB: string;
   videoReveal: number;
   youtubeUrl: string;
   materials: FluidMaterial[];
@@ -447,7 +450,10 @@ export const defaultConfig: FluidConfig = {
   colorTweenSpeed: 0.24,
   wiggleAmount: 0.28,
   windStrength: 47,
-  videoReveal: 0,
+  backgroundMode: "video",
+  backgroundColor: "#101827",
+  backgroundColorB: "#59355f",
+  videoReveal: 1,
   youtubeUrl: DEFAULT_YOUTUBE_URL,
   materials: defaultMaterials(),
   emitters: defaultEmitters(),
@@ -1257,6 +1263,9 @@ export function clampConfig(config: FluidConfig): FluidConfig {
   const next = cloneConfig(config);
   next.noiseType = sanitizeNoiseType(next.noiseType);
   next.youtubeUrl = sanitizeYoutubeUrl(next.youtubeUrl);
+  next.backgroundMode = ["video", "solid", "gradient"].includes(next.backgroundMode) ? next.backgroundMode : defaultConfig.backgroundMode;
+  next.backgroundColor = sanitizeHex(next.backgroundColor, defaultConfig.backgroundColor);
+  next.backgroundColorB = sanitizeHex(next.backgroundColorB, defaultConfig.backgroundColorB);
   for (const control of controlSchema) {
     if (control.kind !== "range" || control.min === undefined || control.max === undefined) {
       continue;
@@ -1323,6 +1332,10 @@ export function sanitizeConfig(raw: unknown): FluidConfig {
       next.noiseType = sanitizeNoiseType(value);
       continue;
     }
+    if (key === "backgroundMode" || key === "backgroundColor" || key === "backgroundColorB") {
+      (next as unknown as Record<string, unknown>)[key] = value;
+      continue;
+    }
     if (key === "youtubeUrl") {
       next.youtubeUrl = sanitizeYoutubeUrl(value);
       continue;
@@ -1333,6 +1346,7 @@ export function sanitizeConfig(raw: unknown): FluidConfig {
       (next[key] as boolean) = value;
     }
   }
+  if (input.backgroundMode === undefined) next.videoReveal = 1;
   next.materials = sanitizeMaterials(input.materials, input);
   next.emitters = sanitizeEmitters(input.emitters, next.materials);
   next.windStations = sanitizeWindStations(input.windStations);

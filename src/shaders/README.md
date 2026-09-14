@@ -41,3 +41,5 @@ Simulation fragments read/write float (or half-float) targets. `display.frag.gls
 - Stam set: `advection`, `jacobi`, `divergence`, `gradientSubtract`, `curl`, `vorticity`, `splat`, `clear`
 - Composer / inject: `curlNoiseForce`, `perlinDye`, `marbleSeed`, `marbleVelocity`, `windForce`, `viscosityWeight`
 - `display.frag.glsl` — look + optional video-reveal alpha
+
+`resample.frag.glsl` performs clamped manual bilinear sampling for ECO grid changes. Pigment scale is one; velocity components scale by new/old grid dimensions before projection. See [ECO.md](../../docs/ECO.md).

@@ -22,7 +22,7 @@ Artist dashboard, perf HUD, spatial UV markers.
 - Live: [play.html](https://luandev.github.io/fluid-wallpaper/play.html)
 - Boot: `src/main.ts` → Engine + `mountDashboard` + `mountPerfHud`
 
-**H** panel, **P** perf, **F** canvas fullscreen, **Esc** exit. Base config persists in `localStorage` (`fluid-wallpaper.config.v9`). Default look includes a compact YouTube music player ([this track](https://www.youtube.com/watch?v=wKEeVPfK8nw)) and example audio drivers. Play the track, then Drivers → Listen → **Tab audio** (share this tab) or a mic loopback. The iframe cannot feed the analyser. Landing never mounts the player.
+**H** panel, **P** perf, **F** canvas fullscreen, **Esc** exit. Base config persists in `localStorage` (`fluid-wallpaper.config.v9`). Default look includes a YouTube music video behind the ink ([this track](https://www.youtube.com/watch?v=wKEeVPfK8nw)) and example audio drivers. Play the track, then Drivers → Listen → **Tab audio** (share this tab) or a mic loopback. The iframe cannot feed the analyser. Landing never mounts the player.
 
 ## React embed demo
 
@@ -136,3 +136,27 @@ Later. Import **`dist/play.html`** from a production `yarn build`, not the Git t
 ```
 
 The CDN URL becomes available after publication. Modules support import without a DOM; construct/mount components only in the browser. Use a client boundary in server-component frameworks. The element has shadow styles; React requires the exported CSS. WebGL2 failure exposes fallback content. No mobile-device certification or full dashboard instance-isolation guarantee is claimed.
+
+## Backgrounds
+
+On the tuner, **Scene > Background** selects **Music video**, **Solid color**, or **Gradient**. Color pickers edit the solid color or both ends of a diagonal gradient. Changes persist with presets and do not reseed. Older presets without a background selection migrate to video with empty-ink transparency.
+
+Music video fills the area behind the canvas. Use **Play / control music** to route clicks to the player, then **Return to fluid** to stir again. Playback remains user initiated; the iframe cannot feed the audio analyzer directly. Solid/gradient modes retain a compact player. Fullscreen includes the video layer. Landing scenes use gradients without mounting a player.
+
+Solid and gradient backgrounds also work in native and React component configs:
+
+```js
+field.config = {
+  backgroundMode: "gradient",
+  backgroundColor: "#101827",
+  backgroundColorB: "#59355f"
+};
+```
+
+The established renderer composites colors in its existing stylized RGB display pass with opaque output. Video mode uses `videoReveal` (0-1, default 1) to expose a host-provided layer through empty ink. The tuner/dashboard provides YouTube; dashboard-free embeds do not create media automatically. The experimental two-liquid renderer continues to use its opaque substrate.
+
+Browser checks verify shader colors/alpha and tuner placement/control routing with external media blocked. Actual YouTube availability/playback and mobile appearance require interactive checks.
+
+## Adaptive ECO
+
+`quality="eco"` progressively lowers effective resolution, frame rate and simulation speed under sustained load, then recovers slowly. Authored settings remain unchanged. See [ECO policy and evidence](ECO.md).

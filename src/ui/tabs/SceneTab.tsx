@@ -18,6 +18,12 @@ export function SceneTab({
   return (
     <div className="dash__scene">
       <section className="dash__group">
+        <h3 className="dash__group-title">Background</h3>
+        <SelectRow label="Background" help="Video sits behind the ink. Colors render directly in the display pass without additional simulation work." value={config.backgroundMode}
+          options={[{value:"video",label:"Music video"},{value:"solid",label:"Solid color"},{value:"gradient",label:"Gradient"}]}
+          onChange={value => commit({backgroundMode:value as FluidConfig["backgroundMode"], ...(value === "video" ? {videoReveal:1} : {})})} />
+        {config.backgroundMode !== "video" && <label>Background color <input type="color" value={config.backgroundColor} onChange={event => commit({backgroundColor:event.target.value})} /></label>}
+        {config.backgroundMode === "gradient" && <label>Gradient end <input type="color" value={config.backgroundColorB} onChange={event => commit({backgroundColorB:event.target.value})} /></label>}
         <h3 className="dash__group-title">Music</h3>
         <p className="dash__hint">
           Play the track, then Listen on Drivers with tab audio or a mic loopback. The iframe cannot feed the analyser.

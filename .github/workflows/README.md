@@ -34,10 +34,13 @@ flowchart LR
 - Do not deploy from pull requests.
 - Do not commit `dist/` or secrets.
 - Do not add extra required local commands; Pages is CI-only.
-- Keep `actions/checkout`, `setup-node` (Node 20 for Pages, Node 24 for npm release), `upload-pages-artifact`, and `deploy-pages` as the deploy path ([DEC-007](../../docs/DECISIONS.md#dec-007--github-pages-showcase)).
+- Keep `actions/checkout`, `setup-node` (Node 24 for Pages and npm release), `upload-pages-artifact`, and `deploy-pages` as the deploy path ([DEC-007](../../docs/DECISIONS.md#dec-007--github-pages-showcase)).
 
 ## Key files
 
 - `pages.yml`
 
 `release.yml` publishes version tags using npm OIDC and creates GitHub Releases. Both workflows validate packed consumers; Pages asserts all seven HTML entries. See [release setup and lifecycle](../../docs/RELEASE.md).
+
+
+Both workflows run the bounded Chrome ECO/background gate after build and retain its JSON report. Failures block deployment/publishing; timings are observations, not universal performance claims. See [ECO evidence](../../docs/ECO.md#validation).

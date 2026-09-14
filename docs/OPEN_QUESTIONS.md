@@ -38,7 +38,7 @@ Phase 0–1 detects `EXT_color_buffer_float` / `EXT_color_buffer_half_float` at 
 - Which settings should reduce first under frame-time pressure?
 - How should update rate and display frame rate be separated?
 
-The legacy path uses a fixed budget (see `src/quality/budgets.ts`). The opt-in path has an experimental controller; complete multi-instance budgets and named-device validation remain open as tracked in [TWO_LIQUID.md](TWO_LIQUID.md).
+Legacy non-ECO budgets remain fixed; DEC-016 selects opt-in [adaptive ECO](ECO.md) with runtime resolution, pacing and speed reductions. The opt-in path has an experimental controller; complete multi-instance budgets and named-device validation remain open as tracked in [TWO_LIQUID.md](TWO_LIQUID.md).
 
 ## Visual state
 

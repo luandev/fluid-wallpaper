@@ -82,3 +82,7 @@ Still required: translation, long static-drop/grid studies, viscous shear and ti
 - [Khronos timer-query extension](https://registry.khronos.org/webgl/extensions/EXT_disjoint_timer_query_webgl2/): asynchronous availability and disjoint rejection.
 
 The plan's OpenAI 3D theorem discussion supplies no numerical pass or mobile optimization here. Its proof and timing claims were not independently verified in this implementation session and are not implementation evidence.
+
+### Adaptive ECO update
+
+DEC-016 adds an independent ECO ceiling with shared overload/recovery windows, progressively smaller grids and slowed simulation time. ECO no longer stays fixed and pointer gestures do not boost its frame rate. Existing Auto adaptation is retained. [ECO.md](ECO.md) owns the updated runtime contract; physical convergence and mobile acceptance remain incomplete.

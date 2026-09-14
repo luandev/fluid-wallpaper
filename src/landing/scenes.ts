@@ -25,7 +25,7 @@ export function createLandingConfig(id: LandingSceneId): FluidConfig {
     ...defaultConfig,
     simResolution: 256, dyeResolution: 768, pressureIterations: 28, warmupSteps: 36,
     pointerEnabled: true, splatForce: 900, splatRadius: .0006,
-    dyeInject: .32, dyeDecay: .012, videoReveal: 0, youtubeUrl: "",
+    dyeInject: .32, dyeDecay: .012, videoReveal: 0, backgroundMode: "gradient", youtubeUrl: "",
     wiggleAmount: .13, colorTweenSpeed: .025,
     valueEmitters: [{ id: "breath", name: "Slow current", enabled: true, kind: "sine", rate: .035, phase: .2, from: .18, to: .38, scale: 1, band: 0 }],
     valueBindings: [{ id: "current", emitterId: "breath", path: "noiseTime", amount: .6 }],

@@ -44,17 +44,29 @@ export class FluidSolver {
     private readonly format: SimFormat,
     private readonly config: FluidConfig,
     aspect: number,
+    initialize = true,
   ) {
     this.simSize = resolutionFor(config.simResolution, aspect);
     this.dyeSize = resolutionFor(config.dyeResolution, aspect);
-    this.velocity = createDoubleFbo(gl, this.simSize.width, this.simSize.height, format);
-    this.pressure = createDoubleFbo(gl, this.simSize.width, this.simSize.height, format);
-    this.divergence = createFbo(gl, this.simSize.width, this.simSize.height, format);
-    this.curl = createFbo(gl, this.simSize.width, this.simSize.height, format);
-    this.dye = createDoubleFbo(gl, this.dyeSize.width, this.dyeSize.height, format);
-    this.liveNoiseTime = config.noiseTime;
-    this.liveNoiseScale = config.noiseScale;
-    this.seed();
+    const allocated: FBO[] = [];
+    const single = () => {
+      const field = createFbo(gl, this.simSize.width, this.simSize.height, format);
+      allocated.push(field); return field;
+    };
+    const pair = (size: { width: number; height: number }) => {
+      const field = createDoubleFbo(gl, size.width, size.height, format);
+      allocated.push(field.read, field.write); return field;
+    };
+    try {
+      this.velocity = pair(this.simSize);
+      this.pressure = pair(this.simSize);
+      this.divergence = single();
+      this.curl = single();
+      this.dye = pair(this.dyeSize);
+      this.liveNoiseTime = config.noiseTime;
+      this.liveNoiseScale = config.noiseScale;
+      if (initialize) this.seed();
+    } catch (error) { allocated.forEach(field => deleteFbo(gl, field)); throw error; }
   }
 
   setLiveMotion(motion: LiveMotion): void {
@@ -64,6 +76,26 @@ export class FluidSolver {
 
   get dyeRead(): FBO {
     return this.dye.read;
+  }
+
+  /** Carry the current composition into a new grid without seeding or warmup. */
+  resample(aspect: number): FluidSolver {
+    const next = new FluidSolver(this.gl, this.passes, this.format, this.config, aspect, false);
+    try {
+      const pass = this.passes.resample;
+      const transfer = (source: FBO, target: FBO, x: number, y: number) => {
+        this.use(pass);
+        this.bindField(pass, "uSource", source.texture, 0);
+        this.set2f(pass, "uSourceRes", source.width, source.height);
+        this.set4f(pass, "uScale", x, y, 1, 1);
+        this.drawTo(target, { width: target.width, height: target.height });
+      };
+      transfer(this.dye.read, next.dye.read, 1, 1);
+      // Velocity is in grid cells/sec; preserve normalized-domain displacement.
+      transfer(this.velocity.read, next.velocity.read, next.simSize.width / this.simSize.width, next.simSize.height / this.simSize.height);
+      next.project();
+      return next;
+    } catch (error) { next.dispose(); throw error; }
   }
 
   get gridSizes(): { simWidth: number; simHeight: number; dyeWidth: number; dyeHeight: number } {

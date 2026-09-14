@@ -19,7 +19,7 @@ flowchart LR
   blit --> pass
 ```
 
-`Engine` calls `blitDye` after `solver.step`. Live material colors may tween; concentrations still come from the dye target. Manual bilinear is a capability fallback, not a look choice. `uVideoReveal` writes canvas alpha so a music/video layer can show through empty dye; default 0 is opaque.
+`Engine` calls `blitDye` after `solver.step`. Live material colors may tween; concentrations still come from the dye target. Manual bilinear is a capability fallback, not a look choice. `uVideoReveal` writes canvas alpha so a music/video layer can show through empty dye; default 1 reveals the layer; 0 remains opaque. Solid/gradient modes composite authored colors against concentration coverage in the same pass and output alpha 1.
 
 ## Paradigms
 

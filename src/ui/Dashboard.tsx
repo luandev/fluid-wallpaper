@@ -233,7 +233,7 @@ export function Dashboard({ engine, canvas, persist = true }: DashboardProps): R
       >
         Panel
       </button>
-      <YouTubePlayer url={config.youtubeUrl} />
+      <YouTubePlayer url={config.youtubeUrl} canvas={view} background={config.backgroundMode === "video"} />
       <SpatialOverlay
         canvas={view}
         active={spatialKind === "emitters"}

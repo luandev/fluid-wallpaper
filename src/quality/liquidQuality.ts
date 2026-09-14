@@ -1,4 +1,5 @@
 import type { LiquidQuality } from "../app/liquidScene";
+import { EcoController } from "./eco";
 
 export const LIQUID_MEMORY_CAP = 32 * 1024 * 1024;
 // Prototype keeps pigments collocated for identical carrier transfer rates.
@@ -20,9 +21,18 @@ export class LiquidQualityController {
   private lastWindow = -Infinity;
   private samples: { workMs: number; pacingOverload: boolean }[] = [];
   policy: LiquidQuality = "auto";
+  private eco = new EcoController();
+  get simulationSpeed(): number { return this.policy === "eco" ? this.eco.budget.speed : 1; }
+  get cellBudget(): number { return this.policy === "eco" ? Math.round(16384 * this.eco.budget.scale ** 2) : LIQUID_TIERS[this.tier].cells; }
+  get pixelBudget(): number { return this.policy === "eco" ? Math.min(262144, this.eco.budget.pixels) : LIQUID_TIERS[this.tier].pixels; }
+  suspend(): void {
+    this.eco.suspend(); this.samples = []; this.overloaded = this.comfortable = 0; this.lastWindow = -Infinity;
+  }
 
   setPolicy(policy: LiquidQuality): void {
     this.policy = policy;
+    this.eco = new EcoController();
+    this.lastChange = this.lastWindow = -Infinity;
     this.tier = policy === "eco" ? 1 : policy === "balanced" ? 3 : 4;
     this.fps = 30;
     this.overloaded = this.comfortable = 0;
@@ -31,12 +41,19 @@ export class LiquidQualityController {
   }
 
   sample(workMs: number, pacingOverload: boolean): void {
+    if (this.policy === "eco") return;
     if (Number.isFinite(workMs) && workMs >= 0) this.samples.push({ workMs, pacingOverload });
     // Guard calls outside the runtime's once-per-second evaluation contract.
     if (this.samples.length > 240) this.samples.shift();
   }
 
   observe(now: number, workMs: number, pacingOverload: boolean, presentationFps: number): boolean {
+    if (this.policy === "eco") {
+      const changed = this.eco.observe(now, workMs, (1000 / this.fps) * (pacingOverload ? 2 : 1));
+      this.fps = this.eco.budget.fps;
+      this.reason = this.eco.reason;
+      return changed;
+    }
     if (this.policy !== "auto" || now - this.lastWindow < 1000) return false;
     this.lastWindow = now;
     if (this.samples.length) {
@@ -67,8 +84,11 @@ export class LiquidClock {
   pending = 0;
   simulated = 0;
   dropped = 0;
-  add(seconds: number): void {
-    this.pending += Math.max(0, seconds);
+  add(seconds: number, speed = 1): void {
+    const wall = Math.max(0, seconds);
+    const rate = Math.max(0, Math.min(1, speed));
+    this.dropped += wall * (1 - rate);
+    this.pending += wall * rate;
     if (this.pending > 4 / 30) { this.dropped += this.pending - 4 / 30; this.pending = 4 / 30; }
   }
   advance(limit: number | (() => number), step: (dt: number) => void): number {
