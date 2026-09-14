@@ -1,10 +1,10 @@
 {
   "id": "porcelain",
   "name": "Porcelain Tide",
-  "description": "Indigo and sea glass drifting through warm ivory. Soft ink, fine tendrils, a quieter rhythm.",
-  "character": "Pigment / delicate / tidal",
+  "description": "Soft indigo ink on warm ivory. Quiet washes, fine tendrils, a pale paper ground.",
+  "character": "Pigment / delicate / light",
   "accent": "#B9DDEB",
   "author": "fluid-wallpaper contributors",
   "license": "MIT",
-  "tags": ["pigment", "delicate", "tidal"]
+  "tags": ["pigment", "delicate", "light"]
 }

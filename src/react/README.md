@@ -40,4 +40,4 @@ flowchart LR
 
 The embed demo imports compiled package JavaScript/CSS. `yarn dev` first builds that package; restart after library edits.
 
-FluidHero is a new reactive wrapper over the native hero; it does not alter FluidField initial-only config. It uses shadow styles, includes no dashboard, and provides preset/config/quality/paused/interactive plus CustomEvent callbacks. FluidField backing is transparent so transparent config can reveal DOM beneath it.
+FluidHero is a new reactive wrapper over the native hero; it does not alter FluidField initial-only config. It uses shadow styles, includes no dashboard, and provides preset/config/quality/paused/interactive/glass/blur plus CustomEvent callbacks. FluidField backing is transparent so transparent config can reveal DOM beneath it.

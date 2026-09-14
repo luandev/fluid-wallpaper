@@ -21,6 +21,9 @@ describe("landing compositions", () => {
       const config = createLandingConfig(id);
       expect(sanitizeConfig(config)).toEqual(config);
       expect(config.noiseTime).toBeGreaterThan(0);
+      expect(config.simResolution).toBe(256);
+      expect(config.dyeResolution).toBe(768);
+      expect(config.viewZoom).toBeLessThan(1.5);
       expect(config.emitters.filter((e) => e.kind === "field")).toHaveLength(2);
       expect(config.materials).toHaveLength(4);
       expect(

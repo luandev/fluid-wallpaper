@@ -9,9 +9,11 @@ import {
 } from "../../package-dist/presets.js";
 import type { FluidConfig } from "../app/config";
 import { reference } from "./reference";
+import { PAGE_HEROES, TRANSPARENT_HERO } from "./heroes";
+
 const $ = <T extends HTMLElement>(id: string) =>
   document.getElementById(id) as T;
-const page = document.body.dataset.page;
+const page = document.body.dataset.page ?? "";
 const menu = document.querySelector<HTMLButtonElement>(".menu-toggle")!,
   nav = $("docs-nav");
 menu.onclick = () => {
@@ -22,16 +24,28 @@ menu.onclick = () => {
 for (const link of nav.querySelectorAll("a"))
   if (new URL(link.href).pathname === location.pathname)
     link.setAttribute("aria-current", "page");
+
 const heroes = Array.from(
   document.querySelectorAll("fluid-hero"),
 ) as FluidHeroElement[];
 heroes.forEach((hero) => hero.setAttribute("paused", ""));
 defineFluidHero();
+
+const pageHero = document.getElementById("page-hero") as FluidHeroElement | null;
+if (pageHero && PAGE_HEROES[page]) {
+  pageHero.removeAttribute("preset");
+  pageHero.toggleAttribute("glass", true);
+  pageHero.config = PAGE_HEROES[page]!;
+}
+
 let previewPaused = false;
 const visible = new Set<FluidHeroElement>();
 function coordinate() {
   const candidates = heroes.filter((h) => visible.has(h));
-  const active = candidates.find((h) => h.id !== "page-hero") ?? candidates[0];
+  const active =
+    candidates.find((h) => h.id === "gallery-preview") ??
+    candidates.find((h) => h.id !== "page-hero") ??
+    candidates[0];
   for (const hero of heroes) {
     if (hero === active && !(hero.id === "gallery-preview" && previewPaused))
       hero.removeAttribute("paused");
@@ -46,22 +60,22 @@ const observer = new IntersectionObserver(
     }
     coordinate();
   },
-  { threshold: 0 },
+  { threshold: 0.15 },
 );
 heroes.forEach((h) => observer.observe(h));
-window.addEventListener("pagehide", () => observer.disconnect(), {
-  once: true,
-});
+window.addEventListener("pagehide", () => observer.disconnect(), { once: true });
+
 if (page === "hero") {
-  $("transparent-example") &&
-    (($("transparent-example") as FluidHeroElement).config = {
-      backgroundMode: "transparent",
-      dyeInject: 0.08,
-    });
+  const example = $("transparent-example") as FluidHeroElement | null;
+  if (example) {
+    example.removeAttribute("preset");
+    example.config = TRANSPARENT_HERO;
+  }
   $("underlay-action").onclick = () => {
     $("underlay-status").textContent = " Click received through the fluid.";
   };
 }
+
 if (page === "settings") {
   const groups = [...new Set(reference.map((r) => r.group))];
   for (const group of groups) {
@@ -102,9 +116,7 @@ if (page === "settings") {
   const filter = () => {
     let count = 0;
     const terms = search.value.toLowerCase().trim().split(/\s+/);
-    for (const row of document.querySelectorAll<HTMLElement>(
-      ".reference-entry",
-    )) {
+    for (const row of document.querySelectorAll<HTMLElement>(".reference-entry")) {
       row.hidden = !terms.every((term) => row.dataset.search!.includes(term));
       if (!row.hidden) count++;
     }
@@ -119,6 +131,7 @@ if (page === "settings") {
       .getElementById(decodeURIComponent(location.hash.slice(1)))
       ?.scrollIntoView();
 }
+
 if (page === "gallery") {
   const previews = import.meta.glob("../../presets/*/preview.png", {
     eager: true,
@@ -131,71 +144,92 @@ if (page === "gallery") {
     : "aurora";
   const background = $<HTMLSelectElement>("background-mode");
   if (
-    ["solid", "gradient", "transparent"].includes(
-      params.get("background") ?? "",
-    )
+    ["solid", "gradient", "transparent"].includes(params.get("background") ?? "")
   )
     background.value = params.get("background")!;
   const preview = $<FluidHeroElement>("gallery-preview");
   let current: FluidConfig;
+
+  const applySelection = (config: FluidConfig) => {
+    preview.removeAttribute("preset");
+    preview.config = config;
+    if (pageHero) {
+      pageHero.removeAttribute("preset");
+      pageHero.config = { ...config, pointerEnabled: false };
+    }
+  };
+
   const update = () => {
     const info = fluidPresets.find((p) => p.id === selected)!;
     const override =
       background.value === "preset"
         ? {}
-        : { backgroundMode: background.value as FluidConfig["backgroundMode"] };
+        : {
+            backgroundMode: background.value as FluidConfig["backgroundMode"],
+          };
     current = { ...getFluidPreset(selected), ...override };
-    preview.config = override;
-    preview.setAttribute("preset", selected);
+    applySelection(current);
     $("preset-title").textContent = info.name;
     $("preset-description").textContent = info.description;
+    document.body.style.setProperty("--accent", info.accent);
     const query = new URLSearchParams({ preset: selected });
-    if (background.value !== "preset")
-      query.set("background", background.value);
+    if (background.value !== "preset") query.set("background", background.value);
     history.replaceState(null, "", "?" + query);
     $<HTMLAnchorElement>("open-tuner").href = "../play.html?" + query;
-    const configText = Object.keys(override).length
-      ? JSON.stringify(override)
-      : null;
-    $("html-example").textContent =
-      `<fluid-hero id="art" preset="${selected}"><h1>Your headline</h1></fluid-hero>
+    $("html-example").textContent = `<fluid-hero id="art"><h1>Your headline</h1></fluid-hero>
 <script type="module">
 import { defineFluidHero } from 'fluid-wallpaper/hero';
-defineFluidHero();${
-        configText
-          ? `
-document.querySelector('#art').config = ${configText};`
-          : ""
-      }
+import { getFluidPreset } from 'fluid-wallpaper/presets';
+defineFluidHero();
+const art = document.querySelector('#art');
+art.config = { ...getFluidPreset('${selected}')${
+      background.value !== "preset"
+        ? `, backgroundMode: '${background.value}'`
+        : ""
+    } };
 </script>`;
-    $("react-example").textContent =
-      `import { FluidHero } from 'fluid-wallpaper/react';
+    $("react-example").textContent = `import { FluidHero } from 'fluid-wallpaper/react';
+import { getFluidPreset } from 'fluid-wallpaper/presets';
 
-<FluidHero preset="${selected}"${configText ? ` config={${configText}}` : ""}>
+const look = { ...getFluidPreset('${selected}')${
+      background.value !== "preset"
+        ? `, backgroundMode: '${background.value}' as const`
+        : ""
+    } };
+
+<FluidHero config={look}>
   <h1>Your headline</h1>
-</FluidHero>`;
+</FluidHero>
+
+// Or start from a preset attribute and patch:
+// <FluidHero preset="${selected}" config={{ noiseTime: 0.06 }} />`;
     for (const card of document.querySelectorAll<HTMLElement>(".preset-card"))
-      card.setAttribute(
-        "aria-current",
-        String(card.dataset.preset === selected),
-      );
+      card.setAttribute("aria-current", String(card.dataset.preset === selected));
+    previewPaused = false;
+    $("preview-toggle").textContent = "Pause preview";
     coordinate();
   };
+
   for (const info of fluidPresets) {
-    const card = document.createElement("article");
+    const card = document.createElement("button");
+    card.type = "button";
     card.className = "preset-card";
     card.dataset.preset = info.id;
+    card.setAttribute("aria-label", "Load " + info.name + " in the hero");
     const image = document.createElement("img");
     image.src = previews[`../../presets/${info.id}/preview.png`] ?? "";
-    image.alt = info.name + " fluid composition";
+    image.alt = "";
     image.loading = "lazy";
     image.width = 640;
     image.height = 400;
-    const button = document.createElement("button");
-    button.type = "button";
-    button.setAttribute("aria-label", "Preview " + info.name);
+    image.draggable = false;
+    const body = document.createElement("div");
+    body.className = "preset-card__body";
     const h = document.createElement("h3");
     h.textContent = info.name;
+    const character = document.createElement("p");
+    character.className = "preset-card__character";
+    character.textContent = info.character;
     const p = document.createElement("p");
     p.textContent = info.description;
     const swatches = document.createElement("div");
@@ -206,15 +240,17 @@ document.querySelector('#art').config = ${configText};`
       span.style.background = material.color;
       swatches.append(span);
     }
-    button.append(h, p, swatches);
-    button.onclick = () => {
+    body.append(h, character, p, swatches);
+    card.append(image, body);
+    card.onclick = () => {
       selected = info.id;
       update();
-      $("gallery-detail").scrollIntoView({ behavior: "instant" });
+      $("gallery-detail").scrollIntoView({ behavior: "smooth", block: "start" });
+      preview.play();
     };
-    card.append(image, button);
     $("gallery-grid").append(card);
   }
+
   background.onchange = update;
   $("preview-toggle").onclick = () => {
     previewPaused = !previewPaused;

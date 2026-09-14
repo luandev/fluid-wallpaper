@@ -18,6 +18,10 @@ export interface FluidHeroProps {
   quality?: FluidInkQuality;
   paused?: boolean;
   interactive?: boolean;
+  /** Frosted panel behind slotted content for readability over the fluid. */
+  glass?: boolean;
+  /** Soften the fluid artwork with a blur (content stays sharp). */
+  blur?: boolean;
   className?: string;
   style?: CSSProperties;
   onReady?: (event: CustomEvent) => void;
@@ -32,6 +36,8 @@ export function FluidHero({
   quality = "eco",
   paused = false,
   interactive = false,
+  glass = false,
+  blur = false,
   className,
   style,
   ...callbacks
@@ -64,8 +70,10 @@ export function FluidHero({
     if (ref.current) {
       ref.current.config = config ?? {};
       ref.current.toggleAttribute("paused", paused);
+      ref.current.toggleAttribute("glass", glass);
+      ref.current.toggleAttribute("blur", blur);
     }
-  }, [config, paused]);
+  }, [config, paused, glass, blur]);
   return createElement(
     "fluid-hero",
     {
@@ -74,6 +82,8 @@ export function FluidHero({
       quality,
       paused: paused ? "" : undefined,
       interactive: interactive ? "" : undefined,
+      glass: glass ? "" : undefined,
+      blur: blur ? "" : undefined,
       className,
       style,
     },

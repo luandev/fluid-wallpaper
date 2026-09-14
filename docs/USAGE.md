@@ -170,16 +170,20 @@ The browser documentation starts at [docs/index.html](index.html), with [all set
 
 ```js
 import { defineFluidHero } from "fluid-wallpaper/hero";
-import { getFluidPreset, fluidPresets } from "fluid-wallpaper/presets";
+import { getFluidPreset } from "fluid-wallpaper/presets";
 defineFluidHero();
-// <fluid-hero preset="aurora"><h1>Your headline</h1></fluid-hero>
 const hero = document.querySelector("fluid-hero");
-hero.config = { backgroundMode: "transparent" };
+// Preferred: hand-authored or gallery config
+hero.config = {
+  ...getFluidPreset("aurora"),
+  backgroundMode: "transparent",
+};
+// Optional shortcut: <fluid-hero preset="aurora"> still works; config patches override it.
 ```
 
-`fluid-wallpaper/hero/auto` registers the element; plain HTML can use the published `hero-auto.js` URL. React exports `FluidHero` with children, preset/config/quality/paused/interactive, className/style and onReady/onError/onConfigChange/onQualityChange callbacks receiving CustomEvent. Unlike the existing FluidField's initial-only config, hero config updates are reactive. Hero config overrides its preset; changing presets starts a new composition. Native methods are play(), pause(), reset(); qualityStatus is a readout.
+`fluid-wallpaper/hero/auto` registers the element; plain HTML can use the published `hero-auto.js` URL. React exports `FluidHero` with children, preset/config/quality/paused/interactive, className/style and onReady/onError/onConfigChange/onQualityChange callbacks receiving CustomEvent. Unlike the existing FluidField's initial-only config, hero config updates are reactive. Prefer assigning `config` for page heroes; `preset` remains a convenient starting point and config overrides it. Changing materials/flow identity starts a fresh composition. Native methods are play(), pause(), reset(); qualityStatus is a readout.
 
-Default heroes use Aurora, adaptive ECO, decorative pointer handling and scoped shadow styles (no CSS import needed). Foreground content is caller-owned. CSS variables: --fluid-hero-height, --fluid-hero-radius, --fluid-hero-content-width, --fluid-hero-overlay. Hidden/offscreen heroes pause; reduced motion shows a static background and explicit Play animation. Disconnection disposes the field. Native hero imports do not require React and module imports are SSR-safe.
+Docs page heroes use hand-authored configs. Gallery cards load a full preset config into both the page hero and the live preview. Adaptive ECO, decorative pointer handling and scoped shadow styles remain the defaults when those fields are omitted. Optional `glass` adds a frosted content panel (`backdrop-filter`) for readability; optional `blur` softens the fluid artwork while keeping copy sharp. Tune with `--fluid-hero-glass-blur`, `--fluid-hero-glass-fill`, `--fluid-hero-blur`. Foreground content is caller-owned. CSS variables: --fluid-hero-height, --fluid-hero-radius, --fluid-hero-content-width, --fluid-hero-overlay. Hidden/offscreen heroes pause; reduced motion shows a static background and explicit Play animation. Disconnection disposes the field. Native hero imports do not require React and module imports are SSR-safe.
 
 Transparent is a fourth background mode, available in the tuner and all established-renderer components. Empty pigment has zero alpha; sparse pigment is translucent. It ignores videoReveal, creates no media, and does not pass pointer events through automatically. Use pointer-events:none for a decorative overlay over clickable content. Transparent heroes have no default scrim or colored fallback; caller-supplied styles remain caller-owned.
 

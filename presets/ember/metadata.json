@@ -1,10 +1,10 @@
 {
   "id": "ember",
   "name": "Ember Bloom",
-  "description": "Coral blooms and molten peach curling through plum shadows.",
-  "character": "Warm / blooming / expressive",
+  "description": "A coral and peach bloom erupting from plum heat. Warm, expansive, expressive.",
+  "character": "Warm / blooming / explosive",
   "accent": "#ff977b",
   "author": "fluid-wallpaper contributors",
   "license": "MIT",
-  "tags": ["warm", "blooming", "expressive"]
+  "tags": ["warm", "blooming", "explosive"]
 }

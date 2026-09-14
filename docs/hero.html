@@ -29,7 +29,7 @@
       </nav>
     </header>
     <main id="content">
-      <fluid-hero id="page-hero" preset="obsidian"
+      <fluid-hero id="page-hero"
         ><p class="eyebrow">fluid-wallpaper / Fluid hero</p>
         <h1>
           Make an entrance.<br />
@@ -77,6 +77,21 @@ defineFluidHero();
   --fluid-hero-overlay: linear-gradient(90deg, #07111bcc, transparent);
   color: white;
 }</code></pre>
+        <h2>Glass and soft blur</h2>
+        <p>
+          Add <code>glass</code> for a frosted panel behind your copy so type
+          stays readable over busy fluid. Add <code>blur</code> to soften the
+          artwork itself — the content stays sharp.
+        </p>
+        <pre><code>&lt;fluid-hero glass&gt;
+  &lt;h1&gt;Readable over motion.&lt;/h1&gt;
+&lt;/fluid-hero&gt;
+
+&lt;fluid-hero glass blur style=&quot;--fluid-hero-blur: 14px; --fluid-hero-glass-blur: 20px&quot;&gt;
+  &lt;h1&gt;Soft field, clear message.&lt;/h1&gt;
+&lt;/fluid-hero&gt;
+
+// React: &lt;FluidHero glass blur&gt;...&lt;/FluidHero&gt;</code></pre>
         <h2>Let the page show through</h2>
         <p>
           Transparent mode reveals your existing HTML, photography or video
@@ -92,7 +107,6 @@ defineFluidHero();
         ><span id="underlay-status" role="status"></span
         ><fluid-hero
           id="transparent-example"
-          preset="porcelain"
           paused
           aria-label="Transparent fluid overlay"
         ></fluid-hero>

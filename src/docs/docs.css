@@ -269,28 +269,39 @@ section[hidden] {
   font-size: 13px;
 }
 .preset-card {
+  display: block;
+  width: 100%;
   padding: 0;
   overflow: hidden;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  background: #ffffff03;
 }
 .preset-card img {
   display: block;
   width: 100%;
   aspect-ratio: 16/10;
   object-fit: cover;
+  pointer-events: none;
 }
-.preset-card button {
-  width: 100%;
-  border-radius: 0;
-  background: transparent;
+.preset-card__body {
   padding: 20px;
-  text-align: left;
-  color: inherit;
 }
 .preset-card[aria-current="true"] {
   border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
 }
 .preset-card h3 {
-  margin: 0 0 8px;
+  margin: 0 0 6px;
+}
+.preset-card__character {
+  font-size: 12px !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent) !important;
+  margin: 0 0 10px !important;
 }
 .preset-card p {
   font-size: 14px;

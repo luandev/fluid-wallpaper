@@ -1,10 +1,10 @@
 {
   "id": "obsidian",
   "name": "Gilded Obsidian",
-  "description": "Gold and copper threaded through dark stone. Slow eddies, liquid metal, intricate folds.",
-  "character": "Metallic / sculptural / slow",
+  "description": "Thick metallic gold and copper seams carved through near-black stone. Slow, sculptural, close.",
+  "character": "Metallic / sculptural / dense",
   "accent": "#E8BD79",
   "author": "fluid-wallpaper contributors",
   "license": "MIT",
-  "tags": ["metallic", "sculptural", "slow"]
+  "tags": ["metallic", "sculptural", "dense"]
 }

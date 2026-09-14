@@ -1,10 +1,10 @@
 {
   "id": "aurora",
   "name": "Aurora",
-  "description": "Electric ribbons of cyan, violet and rose. Light caught in a restless current.",
-  "character": "Luminous / flowing / electric",
+  "description": "Electric cyan ribbons and plasma rose against a deep violet night. Bright, restless, luminous.",
+  "character": "Luminous / electric / ribboned",
   "accent": "#7AEFDC",
   "author": "fluid-wallpaper contributors",
   "license": "MIT",
-  "tags": ["luminous", "flowing", "electric"]
+  "tags": ["luminous", "electric", "ribboned"]
 }

@@ -1,10 +1,10 @@
 {
   "id": "verdant",
   "name": "Verdant Drift",
-  "description": "Lime filaments unfurl through emerald pools and deep forest greens.",
-  "character": "Organic / intricate / drifting",
+  "description": "Lime filaments and sap sparks threading a moss canopy. Organic, intricate, leafy.",
+  "character": "Organic / intricate / leafy",
   "accent": "#bfe77c",
   "author": "fluid-wallpaper contributors",
   "license": "MIT",
-  "tags": ["organic", "intricate", "drifting"]
+  "tags": ["organic", "intricate", "leafy"]
 }

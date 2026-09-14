@@ -11,7 +11,14 @@ const Base: typeof HTMLElement =
     : HTMLElement;
 /** A decorative, lifecycle-aware hero. Content belongs to the caller's light DOM. */
 export class FluidHeroElement extends Base {
-  static observedAttributes = ["preset", "quality", "paused", "interactive"];
+  static observedAttributes = [
+    "preset",
+    "quality",
+    "paused",
+    "interactive",
+    "glass",
+    "blur",
+  ];
   private field: FluidInkElement | null = null;
   private observer: IntersectionObserver | null = null;
   private reduced: MediaQueryList | null = null;
@@ -28,22 +35,60 @@ export class FluidHeroElement extends Base {
       .surface,.scrim{position:absolute;inset:0;z-index:-2;pointer-events:none}
       fluid-ink{height:100%;min-height:0}.scrim{z-index:-1;background:var(--fluid-hero-overlay,linear-gradient(90deg,#081019c9,#08101925))}
       :host([data-transparent]) .scrim{background:transparent}
-      .content{box-sizing:border-box;max-width:var(--fluid-hero-content-width,1200px);margin:auto;padding:clamp(28px,6vw,80px);pointer-events:none}.content ::slotted(*){pointer-events:auto}
+      :host([blur]) .surface{filter:blur(var(--fluid-hero-blur,10px));transform:scale(1.06);transform-origin:center}
+      .content{box-sizing:border-box;max-width:var(--fluid-hero-content-width,1200px);margin:auto;padding:clamp(28px,6vw,80px);pointer-events:none}
+      .panel{display:contents}
+      :host([glass]) .panel{
+        display:block;width:fit-content;max-width:100%;
+        padding:clamp(18px,3vw,32px) clamp(20px,3.5vw,40px);
+        border-radius:var(--fluid-hero-glass-radius,22px);
+        background:var(--fluid-hero-glass-fill,rgba(8,14,22,.48));
+        border:1px solid var(--fluid-hero-glass-border,rgba(255,255,255,.18));
+        box-shadow:var(--fluid-hero-glass-shadow,0 18px 50px rgba(0,0,0,.28));
+        backdrop-filter:blur(var(--fluid-hero-glass-blur,16px)) saturate(1.25);
+        -webkit-backdrop-filter:blur(var(--fluid-hero-glass-blur,16px)) saturate(1.25);
+      }
+      .content ::slotted(*){pointer-events:auto}
       button{position:absolute;right:18px;bottom:18px;border:1px solid #ffffff60;border-radius:999px;background:#101820;color:white;padding:10px 16px;cursor:pointer}
       [hidden]{display:none!important}
-    </style><div class="surface" aria-hidden="true"></div><div class="scrim"></div><div class="content"><slot></slot></div><button type="button" hidden>Play animation</button>`;
+    </style><div class="surface" aria-hidden="true"></div><div class="scrim"></div><div class="content"><div class="panel"><slot></slot></div></div><button type="button" hidden>Play animation</button>`;
     this.surface = root.querySelector(".surface")!;
     this.playButton = root.querySelector("button")!;
     this.playButton.onclick = () => this.play();
   }
   get config(): FluidConfig {
-    return sanitizeConfig({
-      ...getFluidPreset(this.getAttribute("preset") || "aurora"),
-      ...this.overrides,
-    });
+    const preset = this.getAttribute("preset");
+    const base = preset ? getFluidPreset(preset) : {};
+    return sanitizeConfig({ ...base, ...this.overrides });
   }
   set config(value: Partial<FluidConfig>) {
+    const previous = this.overrides;
     this.overrides = structuredClone(value);
+    // Fresh composition when materials/flow identity change; display-only patches keep the field.
+    if (
+      this.field &&
+      [
+        "materials",
+        "emitters",
+        "windStations",
+        "valueEmitters",
+        "valueBindings",
+        "noiseType",
+        "simResolution",
+        "dyeResolution",
+        "pressureIterations",
+        "warmupSteps",
+        "viewZoom",
+      ].some(
+        (key) =>
+          key in value &&
+          JSON.stringify(value[key as keyof FluidConfig]) !==
+            JSON.stringify(previous[key as keyof FluidConfig]),
+      )
+    ) {
+      this.field.remove();
+      this.field = null;
+    }
     this.updateConfig();
   }
   get qualityStatus() {

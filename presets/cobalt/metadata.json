@@ -1,10 +1,10 @@
 {
   "id": "cobalt",
   "name": "Cobalt Glass",
-  "description": "Cobalt currents with glacial white edges and translucent blue folds.",
-  "character": "Cool / glassy / sweeping",
+  "description": "Glassy cobalt sheets and ice rims over an abyss. Cool, linear, reflective.",
+  "character": "Cool / glassy / linear",
   "accent": "#8fbfff",
   "author": "fluid-wallpaper contributors",
   "license": "MIT",
-  "tags": ["cool", "glassy", "sweeping"]
+  "tags": ["cool", "glassy", "linear"]
 }
