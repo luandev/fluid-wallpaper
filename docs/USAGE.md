@@ -8,7 +8,9 @@ Full-viewport field with editorial chrome. No dashboard.
 
 - Dev: `yarn dev` → `index.html`
 - Live: [luandev.github.io/fluid-wallpaper](https://luandev.github.io/fluid-wallpaper/)
-- Boot: `src/landing/main.ts` → `new Engine(canvas, loadStoredConfig())`
+- Boot: `src/landing/main.ts` → `new Engine(canvas, createLandingConfig(sceneId))`
+
+The landing randomly chooses Aurora, Gilded Obsidian or Porcelain Tide. Its scene picker and `?scene=aurora|obsidian|porcelain` links allow direct selection. Saved tuner settings do not affect these curated scenes. See [the collection](../src/landing/README.md#the-scene-collection).
 
 Pointer still stirs the field. **H / P / F** do nothing here.
 

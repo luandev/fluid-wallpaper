@@ -171,3 +171,12 @@ Accepted records preserve intent and history; they do not certify that implement
 - **Tradeoffs:** ESM-only distribution; explicit React CSS import; optional React peers; current React initial-only config and dashboard storage limitations remain. Compiled demos require rebuilding the library after source edits. No new solver or mobile guarantee.
 - **Evidence:** [Release contract and session validation](RELEASE.md), integration demos and package scripts.
 - **Review trigger:** Consumer checks fail, package ownership is unavailable, or a stable release needs stronger API/device guarantees.
+
+### DEC-015 - Independent curated landing scenes
+
+- **Status:** Accepted.
+- **Date:** 2026-09-14
+- **Context:** The owner requested three distinct, intricate fields selected randomly on landing.
+- **Decision:** Keep one existing Engine and author three landing-only configs: Aurora, Gilded Obsidian and Porcelain Tide. Select equally on plain visits, allow explicit scene links, and bypass tuner storage. Palettes, materials, forces, drivers and emitters vary; simulation/render contracts remain unchanged.
+- **Tradeoffs:** Random visits may repeat a scene. The picker reloads through normal links. These scenes showcase existing artistic capabilities without certifying experimental physics, optional media or mobile performance.
+- **Evidence:** [Landing collection and validation](../src/landing/README.md#the-scene-collection).
