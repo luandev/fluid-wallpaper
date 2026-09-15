@@ -11,6 +11,8 @@ if (process.env.CAPTURE_PRESETS !== "1") {
   await build({
     configFile: false,
     logLevel: "error",
+    // React's CJS entry reads process.env.NODE_ENV; the probe runs in Chrome via CDP.
+    define: { "process.env.NODE_ENV": JSON.stringify("production") },
     esbuild: { jsx: "automatic" },
     build: {
       outDir: ".consumer-check/react-probe",

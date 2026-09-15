@@ -31,7 +31,9 @@ const heroes = Array.from(
 heroes.forEach((hero) => hero.setAttribute("paused", ""));
 defineFluidHero();
 
-const pageHero = document.getElementById("page-hero") as FluidHeroElement | null;
+const pageHero = document.getElementById(
+  "page-hero",
+) as FluidHeroElement | null;
 if (pageHero && PAGE_HEROES[page]) {
   pageHero.removeAttribute("preset");
   pageHero.toggleAttribute("glass", true);
@@ -63,7 +65,9 @@ const observer = new IntersectionObserver(
   { threshold: 0.15 },
 );
 heroes.forEach((h) => observer.observe(h));
-window.addEventListener("pagehide", () => observer.disconnect(), { once: true });
+window.addEventListener("pagehide", () => observer.disconnect(), {
+  once: true,
+});
 
 if (page === "hero") {
   const example = $("transparent-example") as FluidHeroElement | null;
@@ -116,7 +120,9 @@ if (page === "settings") {
   const filter = () => {
     let count = 0;
     const terms = search.value.toLowerCase().trim().split(/\s+/);
-    for (const row of document.querySelectorAll<HTMLElement>(".reference-entry")) {
+    for (const row of document.querySelectorAll<HTMLElement>(
+      ".reference-entry",
+    )) {
       row.hidden = !terms.every((term) => row.dataset.search!.includes(term));
       if (!row.hidden) count++;
     }
@@ -144,7 +150,9 @@ if (page === "gallery") {
     : "aurora";
   const background = $<HTMLSelectElement>("background-mode");
   if (
-    ["solid", "gradient", "transparent"].includes(params.get("background") ?? "")
+    ["solid", "gradient", "transparent"].includes(
+      params.get("background") ?? "",
+    )
   )
     background.value = params.get("background")!;
   const preview = $<FluidHeroElement>("gallery-preview");
@@ -173,29 +181,32 @@ if (page === "gallery") {
     $("preset-description").textContent = info.description;
     document.body.style.setProperty("--accent", info.accent);
     const query = new URLSearchParams({ preset: selected });
-    if (background.value !== "preset") query.set("background", background.value);
+    if (background.value !== "preset")
+      query.set("background", background.value);
     history.replaceState(null, "", "?" + query);
     $<HTMLAnchorElement>("open-tuner").href = "../play.html?" + query;
-    $("html-example").textContent = `<fluid-hero id="art"><h1>Your headline</h1></fluid-hero>
+    $("html-example").textContent =
+      `<fluid-hero id="art"><h1>Your headline</h1></fluid-hero>
 <script type="module">
 import { defineFluidHero } from 'fluid-wallpaper/hero';
 import { getFluidPreset } from 'fluid-wallpaper/presets';
 defineFluidHero();
 const art = document.querySelector('#art');
 art.config = { ...getFluidPreset('${selected}')${
-      background.value !== "preset"
-        ? `, backgroundMode: '${background.value}'`
-        : ""
-    } };
+        background.value !== "preset"
+          ? `, backgroundMode: '${background.value}'`
+          : ""
+      } };
 </script>`;
-    $("react-example").textContent = `import { FluidHero } from 'fluid-wallpaper/react';
+    $("react-example").textContent =
+      `import { FluidHero } from 'fluid-wallpaper/react';
 import { getFluidPreset } from 'fluid-wallpaper/presets';
 
 const look = { ...getFluidPreset('${selected}')${
-      background.value !== "preset"
-        ? `, backgroundMode: '${background.value}' as const`
-        : ""
-    } };
+        background.value !== "preset"
+          ? `, backgroundMode: '${background.value}' as const`
+          : ""
+      } };
 
 <FluidHero config={look}>
   <h1>Your headline</h1>
@@ -204,7 +215,10 @@ const look = { ...getFluidPreset('${selected}')${
 // Or start from a preset attribute and patch:
 // <FluidHero preset="${selected}" config={{ noiseTime: 0.06 }} />`;
     for (const card of document.querySelectorAll<HTMLElement>(".preset-card"))
-      card.setAttribute("aria-current", String(card.dataset.preset === selected));
+      card.setAttribute(
+        "aria-current",
+        String(card.dataset.preset === selected),
+      );
     previewPaused = false;
     $("preview-toggle").textContent = "Pause preview";
     coordinate();
@@ -245,7 +259,10 @@ const look = { ...getFluidPreset('${selected}')${
     card.onclick = () => {
       selected = info.id;
       update();
-      $("gallery-detail").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("gallery-detail").scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
       preview.play();
     };
     $("gallery-grid").append(card);

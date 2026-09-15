@@ -26,14 +26,12 @@ document
 document
   .querySelector("#reset")!
   .addEventListener("click", () => field.reset());
-document
-  .querySelector("#inject")!
-  .addEventListener("click", () =>
-    field.inject({
-      position: { x: 0.5, y: 0.5 },
-      velocity: { x: 0.15, y: 0.1 },
-    }),
-  );
+document.querySelector("#inject")!.addEventListener("click", () =>
+  field.inject({
+    position: { x: 0.5, y: 0.5 },
+    velocity: { x: 0.15, y: 0.1 },
+  }),
+);
 document
   .querySelector<HTMLSelectElement>("#quality")!
   .addEventListener("change", (event) =>
