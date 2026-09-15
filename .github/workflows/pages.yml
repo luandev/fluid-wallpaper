@@ -67,6 +67,7 @@ jobs:
           test -f dist/docs/settings.html
           test -f dist/docs/hero.html
           test -f dist/docs/gallery.html
+          test -f dist/docs/shaders.html
           test -f dist/docs/contributing-presets.html
           test -f dist/component.html
           test -f dist/liquid.html

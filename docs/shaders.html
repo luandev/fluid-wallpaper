@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="How Navier–Stokes becomes living ink on the GPU — Stam stable fluids, pressure projection, and WebGL2 shaders."
+    />
+    <title>Shaders · fluid-wallpaper</title>
+    <link rel="stylesheet" href="../src/docs/docs.css" />
+  </head>
+  <body data-page="shaders" style="--accent: #9ad7ff">
+    <a class="skip button" href="#content">Skip to content</a>
+    <header class="site-nav">
+      <a class="brand" href="../index.html">fluid<span>—</span>wallpaper</a
+      ><button
+        class="menu-toggle"
+        aria-expanded="false"
+        aria-controls="docs-nav"
+      >
+        Menu
+      </button>
+      <nav class="nav-links" id="docs-nav" aria-label="Documentation">
+        <a href="./index.html">Start</a><a href="./settings.html">Settings</a
+        ><a href="./hero.html">Fluid hero</a><a href="./gallery.html">Gallery</a
+        ><a href="./shaders.html">Shaders</a
+        ><a href="./contributing-presets.html">Contribute</a
+        ><a href="../play.html">Open tuner ↗</a>
+      </nav>
+    </header>
+    <main id="content">
+      <fluid-hero id="page-hero"
+        ><p class="eyebrow">fluid-wallpaper / Shaders</p>
+        <h1>
+          Equations into<br />
+          living ink.
+        </h1>
+        <p>
+          Navier–Stokes on a grid, made interactive — then painted as pigment,
+          not pixels.
+        </p>
+        <div class="hero-links">
+          <a class="button" href="./gallery.html">Explore the gallery</a
+          ><a href="../play.html">Open the tuner ↗</a>
+        </div></fluid-hero
+      >
+      <p class="lead">
+        The wallpaper is not a baked video loop. Each frame a small fluid solve
+        runs on the GPU, then a display pass turns concentrations into the look
+        you see.
+      </p>
+
+      <article>
+        <h2>The Navier–Stokes problem</h2>
+        <p>
+          Fluids follow the <strong>Navier–Stokes equations</strong>: velocity
+          and pressure evolve together under inertia, viscosity, and forces,
+          while volume is conserved. In everyday words — the fluid carries
+          itself, resists shearing, reacts to stirs and wind, and should not
+          invent or destroy space.
+        </p>
+        <p>
+          For interactive art we use a
+          <strong>2D incompressible</strong> approximation: one shared velocity
+          field, a pressure-like projection to keep flow roughly
+          divergence-free, and scalar fields (our dyes) that ride along. Exact
+          continuum CFD is too heavy for a background; we want motion that
+          <em>reads</em> as fluid within a frame budget.
+        </p>
+      </article>
+
+      <article>
+        <h2>Stable fluids on the GPU</h2>
+        <p>
+          The method family is Jos Stam’s
+          <strong>stable fluids</strong>, widely taught for real-time demos in
+          <a
+            href="https://developer.nvidia.com/gpugems/gpugems/part-vi-beyond-triangles/chapter-38-fast-fluid-dynamics-simulation-gpu"
+            >GPU Gems chapter 38</a
+          >
+          (<em>Fast Fluid Dynamics Simulation on the GPU</em>). This repository
+          studies that family and implements
+          <strong>original</strong> WebGL2 / GLSL ES 3.00 passes — it does not
+          paste third-party fluid-simulation source.
+        </p>
+        <div class="tiles">
+          <section class="tile">
+            <small>01 / Advect</small>
+            <h3>Semi-Lagrangian transport</h3>
+            <p>
+              Trace each texel backward through velocity and sample the previous
+              field. Stable at larger steps than naïve forward integration.
+            </p>
+          </section>
+          <section class="tile">
+            <small>02 / Project</small>
+            <h3>Pressure / Jacobi solve</h3>
+            <p>
+              Measure divergence, relax a pressure-like field, subtract its
+              gradient so the flow stays closer to incompressible.
+            </p>
+          </section>
+          <section class="tile">
+            <small>03 / Liven</small>
+            <h3>Vorticity &amp; forces</h3>
+            <p>
+              Curl confinement, injectors, wind stations and curl-noise
+              composers keep the field from going flat under numerical
+              dissipation.
+            </p>
+          </section>
+        </div>
+        <pre><code>forces → project velocity → advect velocity → advect dye → display look</code></pre>
+        <p>
+          Dye is up to four <strong>concentration</strong> channels sharing one
+          velocity field — not baked RGB paint. The display shader interprets
+          weight, sheen, glow and alpha. Simulation moves matter; rendering
+          decides identity.
+        </p>
+      </article>
+
+      <article>
+        <h2>Where the shaders live</h2>
+        <p>
+          Fullscreen fragment programs write float / half-float targets. A
+          small catalog assembles includes; the solver schedules passes each
+          tick.
+        </p>
+        <ul>
+          <li>
+            Pass sources —
+            <a
+              href="https://github.com/luandev/fluid-wallpaper/tree/main/src/shaders"
+              >src/shaders</a
+            >
+          </li>
+          <li>
+            Transport orchestration —
+            <a
+              href="https://github.com/luandev/fluid-wallpaper/blob/main/src/sim/solver.ts"
+              >src/sim/solver.ts</a
+            >
+          </li>
+          <li>
+            Durable technique notes —
+            <a
+              href="https://github.com/luandev/fluid-wallpaper/blob/main/docs/SHADERS.md"
+              >docs/SHADERS.md</a
+            >
+          </li>
+          <li>
+            Experimental two-liquid path —
+            <a href="./settings.html">settings</a> / scene ·
+            <a
+              href="https://github.com/luandev/fluid-wallpaper/blob/main/docs/TWO_LIQUID.md"
+              >TWO_LIQUID.md</a
+            >
+          </li>
+        </ul>
+        <p class="note">
+          This page explains the approach. It does not certify physical accuracy,
+          mobile thermals, or unfinished prototype solvers.
+        </p>
+      </article>
+
+      <div class="hero-links">
+        <a class="button" href="./gallery.html">See it in the gallery</a
+        ><a href="./settings.html">Browse every control</a>
+      </div>
+    </main>
+    <footer class="site-footer">
+      <span>fluid-wallpaper · Living color, thoughtfully embedded.</span
+      ><a href="https://github.com/luandev/fluid-wallpaper"
+        >Source &amp; contributions ↗</a
+      >
+    </footer>
+    <script type="module" src="../src/docs/main.ts"></script>
+  </body>
+</html>

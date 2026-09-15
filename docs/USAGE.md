@@ -166,7 +166,7 @@ Browser checks verify shader colors/alpha and tuner placement/control routing wi
 
 ## Public docs and fluid hero
 
-The browser documentation starts at [docs/index.html](index.html), with [all settings](settings.html), [hero integration](hero.html), [gallery](gallery.html) and [preset contributions](contributing-presets.html). `usage.html` remains a compatibility link.
+The browser documentation starts at [docs/index.html](index.html), with [all settings](settings.html), [hero integration](hero.html), [gallery](gallery.html), [shaders & technique](shaders.html) and [preset contributions](contributing-presets.html). `usage.html` remains a compatibility link.
 
 ```js
 import { defineFluidHero } from "fluid-wallpaper/hero";

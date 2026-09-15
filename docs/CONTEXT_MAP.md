@@ -61,6 +61,7 @@ For a new maintained folder, add a short AGENTS.md linking root/ancestor guidanc
 ## Public documentation additions
 
 - [Public site source](../src/docs/README.md): page behavior, settings metadata, gallery coordination.
+- [Shaders & technique](SHADERS.md): Navier–Stokes overview, Stam / GPU Gems ch. 38 family, WebGL2 pass map ([public page](shaders.html)).
 - [Hero components](../src/hero/README.md): native decorative host and lifecycle; React wrapper lives in src/react.
 - [Preset runtime](../src/presets/README.md): validated discovery and independent config/document lookup.
 - [Preset collection](../presets/README.md): source JSON, metadata and authored preview captures.

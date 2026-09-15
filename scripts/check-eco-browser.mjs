@@ -283,6 +283,7 @@ try {
         "settings",
         "hero",
         "gallery",
+        "shaders",
         "contributing-presets",
       ]) {
         await command("Emulation.setDeviceMetricsOverride", {
@@ -391,7 +392,7 @@ try {
         }
       }
     result.result.value.assertions.push(
-      "All five docs at desktop/mobile widths, reference search, gallery links, one running preview, transparent click-through",
+      "All six docs at desktop/mobile widths, reference search, gallery links, one running preview, transparent click-through",
     );
   }
   const report = JSON.stringify(result.result.value, null, 2);

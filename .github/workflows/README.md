@@ -44,4 +44,4 @@ flowchart LR
 
 Both workflows run the bounded Chrome ECO/background gate after build and retain its JSON report. Failures block deployment/publishing; timings are observations, not universal performance claims. See [ECO evidence](../../docs/ECO.md#validation).
 
-The build additionally emits five /docs/ pages. Browser validation covers reference search, gallery selection, transparent layering and native/React heroes; source preset previews are validated by tests.
+The build additionally emits six /docs/ pages (including shaders/technique). Browser validation covers reference search, gallery selection, transparent layering and native/React heroes; source preset previews are validated by tests.

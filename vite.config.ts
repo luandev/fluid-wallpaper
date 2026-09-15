@@ -19,6 +19,7 @@ export default defineConfig({
         "docs-settings": resolve(root, "docs/settings.html"),
         "docs-hero": resolve(root, "docs/hero.html"),
         "docs-gallery": resolve(root, "docs/gallery.html"),
+        "docs-shaders": resolve(root, "docs/shaders.html"),
         "docs-contributing-presets": resolve(
           root,
           "docs/contributing-presets.html",
