@@ -140,10 +140,10 @@ try {
   });
   timer = setTimeout(() => {
     for (const item of pending.values())
-      item.reject(new Error("ECO browser probe exceeded 120 seconds"));
+      item.reject(new Error("ECO browser probe exceeded 180 seconds"));
     pending.clear();
     child.kill();
-  }, 120000);
+  }, 180000);
   await command("Page.enable");
   await command("Page.navigate", {
     url: `http://127.0.0.1:${server.address().port}/`,
@@ -340,10 +340,15 @@ try {
             throw Error("Settings search failed");
         }
         if (page === "gallery") {
-          await command("Runtime.evaluate", {
+          const pick = await command("Runtime.evaluate", {
             expression:
-              "document.querySelector('[data-preset=ember] button').click();document.querySelector('#background-mode').value='transparent';document.querySelector('#background-mode').dispatchEvent(new Event('change'));",
+              "(()=>{const card=document.querySelector('button.preset-card[data-preset=ember]');if(!card)throw Error('Missing ember card');card.click();const bg=document.querySelector('#background-mode');bg.value='transparent';bg.dispatchEvent(new Event('change'));return true;})()",
+            returnByValue: true,
           });
+          if (pick.exceptionDetails)
+            throw Error(
+              "Gallery card click: " + JSON.stringify(pick.exceptionDetails),
+            );
           await delay(200);
           const selected = await command("Runtime.evaluate", {
             expression:

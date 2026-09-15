@@ -3,6 +3,7 @@ dist/
 package-dist/
 *.tgz
 .consumer-check/
+packed/
 .vite/
 *.local
 .DS_Store

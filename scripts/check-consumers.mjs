@@ -6,8 +6,8 @@ import { execFileSync } from "node:child_process";
 const tarball = resolve(process.argv[2]);
 const root = resolve(".consumer-check");
 const npm = process.platform === "win32" ? "npm.cmd" : "npm";
-const run = (cmd, args, cwd) =>
-  execFileSync(cmd, args, { cwd, stdio: "inherit" });
+const run = (cmd, args, cwd, shell = false) =>
+  execFileSync(cmd, args, { cwd, stdio: "inherit", shell });
 for (const kind of ["vanilla", "react"]) {
   const dir = `${root}/${kind}`;
   await mkdir(dir, { recursive: true });
@@ -33,6 +33,7 @@ for (const kind of ["vanilla", "react"]) {
         : []),
     ],
     dir,
+    process.platform === "win32",
   );
   const source =
     kind === "vanilla"

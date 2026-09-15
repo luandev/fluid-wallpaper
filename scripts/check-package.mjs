@@ -36,6 +36,19 @@ async function check(dir) {
           !/from\s*["'][^"']*\/src\//.test(text),
           `Source import: ${file}`,
         );
+        if (file.endsWith(".d.ts")) {
+          for (const match of text.matchAll(
+            /(?:from\s*|import\s*\(?)["'](\.[^"']+)["']/g,
+          )) {
+            const target = resolve(file, "..", match[1]).replace(
+              /\.js$/i,
+              ".d.ts",
+            );
+            await access(target).catch(() => {
+              throw new Error(`Missing declaration import ${match[1]} from ${file}`);
+            });
+          }
+        }
       }
     }
   }

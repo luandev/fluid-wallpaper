@@ -29,6 +29,15 @@ The publish job is serialized. A rerun checks registry SHA-512 integrity against
 
 PRs validate package consumers but never publish/deploy. Local agent dependency installs remain blocked; missing dependencies must be reported. Repository installs/builds use Yarn; npm is permitted only for packaging, publication and isolated CI consumer validation under DEC-014.
 
+## Validation record — 2026-09-15
+
+- `yarn test`: 118 tests passed, including tag/channel/changelog validation.
+- `yarn build`: library, declarations (directory barrel imports rewritten to `/index.js`), Pages entries, export/allowlist checks, standalone dependency graph, SSR imports and declaration path resolution passed.
+- `node scripts/check-eco-browser.mjs`: passed on Windows with installed Chrome (SwiftShader). Gallery card selection, mobile docs overflow (`minmax(0, 1fr)`), React probe `NODE_ENV` define, and a 180s probe budget are covered. Host timings remain observations, not absolute FPS gates.
+- `npm pack` of `package-dist/`, `check-package` on the extracted tarball, and isolated vanilla/React `check-consumers` installs passed locally (Node 24, existing Yarn deps; consumer installs used npm in `.consumer-check/` only).
+- Environment: Windows, Node 24.5.0, Vite 7.3.6 / Vitest 3.2.7. No repository lockfile changes.
+- Still external: GitHub Actions on the release tag, npm ownership/trusted-publisher bootstrap, actual `npm publish`, CDN availability, and device/mobile visual certification.
+
 ## Validation record — 2026-09-14
 
 - `yarn test`: 106 tests passed, including tag/channel/changelog validation.

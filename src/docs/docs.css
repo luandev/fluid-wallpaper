@@ -362,7 +362,7 @@ section[hidden] {
 }
 .gallery-code {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 20px;
 }
 .copy-status {
@@ -422,7 +422,7 @@ section[hidden] {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .reference-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .reference-nav {
     position: static;
@@ -430,7 +430,7 @@ section[hidden] {
     flex-wrap: wrap;
   }
   .gallery-code {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .site-nav {
     flex-wrap: wrap;
@@ -463,7 +463,7 @@ section[hidden] {
   }
   .tiles,
   .gallery-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   fluid-hero {
     --fluid-hero-height: 410px;

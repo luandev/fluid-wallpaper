@@ -1,6 +1,7 @@
 import { build } from "vite";
 import { execFileSync } from "node:child_process";
-import { readFile, writeFile, copyFile, readdir } from "node:fs/promises";
+import { readFile, writeFile, copyFile, readdir, access } from "node:fs/promises";
+import { dirname, join } from "node:path";
 
 await build({ configFile: "vite.library.config.ts" });
 execFileSync(
@@ -9,6 +10,14 @@ execFileSync(
   { stdio: "inherit" },
 );
 // NodeNext consumers need explicit relative declaration extensions. CSS is a separate public import.
+async function exists(path) {
+  try {
+    await access(path);
+    return true;
+  } catch {
+    return false;
+  }
+}
 async function fixDeclarations(dir) {
   for (const entry of await readdir(dir, { withFileTypes: true })) {
     const path = `${dir}/${entry.name}`;
@@ -16,14 +25,26 @@ async function fixDeclarations(dir) {
     else if (path.endsWith(".d.ts")) {
       let source = await readFile(path, "utf8");
       source = source.replace(/^import ["'][^"']+\.css["'];?\r?\n/gm, "");
-      source = source.replace(
-        /(from\s+["']|import\(["'])(\.[^"']+)(["'])/g,
-        (all, prefix, specifier, quote) =>
-          /\.[a-z]+$/i.test(specifier)
-            ? all
-            : `${prefix}${specifier}.js${quote}`,
-      );
-      await writeFile(path, source);
+      const pieces = [];
+      let cursor = 0;
+      const pattern = /(from\s+["']|import\(["'])(\.[^"']+)(["'])/g;
+      for (const match of source.matchAll(pattern)) {
+        const specifier = match[2];
+        const start = match.index;
+        pieces.push(source.slice(cursor, start));
+        if (/\.[a-z]+$/i.test(specifier)) {
+          pieces.push(match[0]);
+        } else {
+          const base = join(dirname(path), specifier);
+          const resolved = (await exists(join(base, "index.d.ts")))
+            ? `${specifier}/index.js`
+            : `${specifier}.js`;
+          pieces.push(`${match[1]}${resolved}${match[3]}`);
+        }
+        cursor = start + match[0].length;
+      }
+      pieces.push(source.slice(cursor));
+      await writeFile(path, pieces.join(""));
     }
   }
 }
