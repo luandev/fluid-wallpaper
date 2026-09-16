@@ -1,11 +1,13 @@
 # fluid-wallpaper
 
-Generative WebGL2 fluid artwork as a web component or React component. **Preview:** experimental two-liquid physics and mobile support are not certified.
+Generative WebGL2 fluid artwork as a web component or React component. **Preview** on npm: `fluid-wallpaper@0.1.0-next.0` (`next` / `latest`). Experimental two-liquid physics and mobile support are not certified.
 
 ```sh
 npm install fluid-wallpaper@next
 # or: yarn add fluid-wallpaper@next
 ```
+
+Live docs (same published build): [GitHub Pages](https://luandev.github.io/fluid-wallpaper/docs/) · [Shaders & technique](https://luandev.github.io/fluid-wallpaper/docs/shaders.html)
 
 ## Web component
 

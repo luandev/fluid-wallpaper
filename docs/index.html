@@ -85,8 +85,10 @@
       <article>
         <h2>Install once. Use anywhere.</h2>
         <p>
-          The site uses the local compiled preview. Registry commands become
-          available once the preview release is published.
+          The preview package is on npm as
+          <code>fluid-wallpaper@0.1.0-next.0</code> (dist-tag
+          <code>next</code>). These docs load that published build from the CDN
+          so what you read matches what you install.
         </p>
         <pre><code>npm install fluid-wallpaper@next
 # or
@@ -99,8 +101,14 @@ defineFluidInk();
 &lt;fluid-ink quality=&quot;eco&quot; style=&quot;height:360px&quot;&gt;
   &lt;p slot=&quot;fallback&quot;&gt;A still moment.&lt;/p&gt;
 &lt;/fluid-ink&gt;</code></pre>
+        <h2>No bundler</h2>
+        <pre><code>&lt;fluid-ink quality=&quot;eco&quot; style=&quot;height:360px&quot;&gt;&lt;/fluid-ink&gt;
+&lt;script type=&quot;module&quot;
+  src=&quot;https://cdn.jsdelivr.net/npm/fluid-wallpaper@0.1.0-next.0/element-auto.js&quot;&gt;
+&lt;/script&gt;</code></pre>
         <h2>React</h2>
         <pre><code>import { FluidHero } from &#x27;fluid-wallpaper/react&#x27;;
+import &#x27;fluid-wallpaper/styles.css&#x27;;
 
 export function Welcome() {
   return &lt;FluidHero preset=&quot;aurora&quot;&gt;
@@ -114,6 +122,7 @@ export function Welcome() {
         </p>
         <h2>Meet the tools</h2>
         <p>
+          <a href="./shaders.html">Shaders &amp; Navier–Stokes</a> ·
           <a href="../component.html">Web component playground</a> ·
           <a href="../embed.html">React field demo</a> ·
           <a href="../play.html">Artist tuner</a> ·

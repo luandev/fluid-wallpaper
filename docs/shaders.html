@@ -118,6 +118,46 @@
           weight, sheen, glow and alpha. Simulation moves matter; rendering
           decides identity.
         </p>
+        <h3>Pass map</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Idea</th>
+              <th>What it means here</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Semi-Lagrangian advection</td>
+              <td>
+                Trace each texel backward along velocity and sample the previous
+                field — stable at larger steps than naïve forward schemes.
+              </td>
+            </tr>
+            <tr>
+              <td>Pressure projection</td>
+              <td>
+                Estimate divergence, iteratively relax a pressure-like field
+                (Jacobi-style), subtract its gradient so velocity stays closer to
+                divergence-free.
+              </td>
+            </tr>
+            <tr>
+              <td>Vorticity confinement</td>
+              <td>
+                Reintroduce curl lost to numerical dissipation so motion stays
+                lively under artistic budgets.
+              </td>
+            </tr>
+            <tr>
+              <td>Packed dye</td>
+              <td>
+                Up to four concentration channels share one velocity; display
+                turns weights into color and material response.
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </article>
 
       <article>
@@ -125,7 +165,10 @@
         <p>
           Fullscreen fragment programs write float / half-float targets. A
           small catalog assembles includes; the solver schedules passes each
-          tick.
+          tick. The public docs and component playground load the
+          <strong>published</strong>
+          <code>fluid-wallpaper@0.1.0-next.0</code> build from jsDelivr so the
+          live site matches npm.
         </p>
         <ul>
           <li>
@@ -156,6 +199,10 @@
               href="https://github.com/luandev/fluid-wallpaper/blob/main/docs/TWO_LIQUID.md"
               >TWO_LIQUID.md</a
             >
+          </li>
+          <li>
+            Install the same build —
+            <code>npm install fluid-wallpaper@next</code>
           </li>
         </ul>
         <p class="note">

@@ -36,14 +36,25 @@ This page uses `persist={false}` so base configuration does not share the tuner 
 
 ## React component
 
-Install the compiled preview from npm after the first publication:
+Install the published preview from npm:
 
 ```bash
 npm install fluid-wallpaper@next react@^19 react-dom@^19
 # or: yarn add fluid-wallpaper@next react@^19 react-dom@^19
 ```
 
-Import `fluid-wallpaper/styles.css` once in your app. Both `fluid-wallpaper` and `fluid-wallpaper/react` export `FluidField`. JavaScript and TypeScript declarations are compiled; no GLSL loader or Vite workaround is required. See the [integration guide](../usage.html) and [release mechanism](RELEASE.md).
+Current pin: `fluid-wallpaper@0.1.0-next.0` (also on the `latest` and `next` dist-tags for this first release). Import `fluid-wallpaper/styles.css` once in your app. Both `fluid-wallpaper` and `fluid-wallpaper/react` export `FluidField`. JavaScript and TypeScript declarations are compiled; no GLSL loader or Vite workaround is required. See the [integration guide](../usage.html), [public docs](index.html), and [release mechanism](RELEASE.md).
+
+For plain HTML without a bundler:
+
+```html
+<script
+  type="module"
+  src="https://cdn.jsdelivr.net/npm/fluid-wallpaper@0.1.0-next.0/element-auto.js"
+></script>
+```
+
+The GitHub Pages docs site and web-component playground load that same published build from jsDelivr. Technique notes: [shaders.html](shaders.html) · [SHADERS.md](SHADERS.md).
 
 Canvas only:
 

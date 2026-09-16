@@ -81,12 +81,14 @@ We follow the **Stam stable-fluids** method family as presented for GPUs in [GPU
 
 ## Quick start
 
-**Install (preview channel)**
+**Install (published preview)**
 
 ```bash
 npm install fluid-wallpaper@next
 # or: yarn add fluid-wallpaper@next
 ```
+
+Pinned build used by the public docs and CDN examples: `fluid-wallpaper@0.1.0-next.0`.
 
 **Web component (no React required)**
 
@@ -98,6 +100,16 @@ npm install fluid-wallpaper@next
 <fluid-ink quality="eco" style="height: 320px">
   <p slot="fallback">This artwork needs WebGL2.</p>
 </fluid-ink>
+```
+
+**No bundler**
+
+```html
+<fluid-ink quality="eco" style="height: 320px"></fluid-ink>
+<script
+  type="module"
+  src="https://cdn.jsdelivr.net/npm/fluid-wallpaper@0.1.0-next.0/element-auto.js"
+></script>
 ```
 
 **React**
@@ -115,7 +127,7 @@ export function Banner() {
 }
 ```
 
-More recipes: [docs/USAGE.md](docs/USAGE.md) · [package guide](docs/PACKAGE_README.md)
+More recipes: [docs/USAGE.md](docs/USAGE.md) · [package guide](docs/PACKAGE_README.md) · [live docs](https://luandev.github.io/fluid-wallpaper/docs/)
 
 ## Status
 

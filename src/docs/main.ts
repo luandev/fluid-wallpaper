@@ -1,15 +1,15 @@
-import {
-  defineFluidHero,
-  type FluidHeroElement,
-} from "../../package-dist/hero.js";
+import { defineFluidHero } from "https://cdn.jsdelivr.net/npm/fluid-wallpaper@0.1.0-next.0/hero.js";
+import type { FluidHeroElement } from "../hero";
 import {
   fluidPresets,
   getFluidPreset,
   getFluidPresetDocument,
-} from "../../package-dist/presets.js";
+} from "https://cdn.jsdelivr.net/npm/fluid-wallpaper@0.1.0-next.0/presets.js";
+import type { FluidPresetInfo } from "../presets";
 import type { FluidConfig } from "../app/config";
 import { reference } from "./reference";
 import { PAGE_HEROES, TRANSPARENT_HERO } from "./heroes";
+import { PUBLISHED_CDN, PUBLISHED_VERSION } from "./published";
 
 const $ = <T extends HTMLElement>(id: string) =>
   document.getElementById(id) as T;
@@ -145,7 +145,9 @@ if (page === "gallery") {
     import: "default",
   }) as Record<string, string>;
   const params = new URLSearchParams(location.search);
-  let selected = fluidPresets.some((p) => p.id === params.get("preset"))
+  let selected = fluidPresets.some(
+    (p: FluidPresetInfo) => p.id === params.get("preset"),
+  )
     ? params.get("preset")!
     : "aurora";
   const background = $<HTMLSelectElement>("background-mode");
@@ -168,7 +170,7 @@ if (page === "gallery") {
   };
 
   const update = () => {
-    const info = fluidPresets.find((p) => p.id === selected)!;
+    const info = fluidPresets.find((p: FluidPresetInfo) => p.id === selected)!;
     const override =
       background.value === "preset"
         ? {}
@@ -188,8 +190,8 @@ if (page === "gallery") {
     $("html-example").textContent =
       `<fluid-hero id="art"><h1>Your headline</h1></fluid-hero>
 <script type="module">
-import { defineFluidHero } from 'fluid-wallpaper/hero';
-import { getFluidPreset } from 'fluid-wallpaper/presets';
+import { defineFluidHero } from '${PUBLISHED_CDN}/hero.js';
+import { getFluidPreset } from '${PUBLISHED_CDN}/presets.js';
 defineFluidHero();
 const art = document.querySelector('#art');
 art.config = { ...getFluidPreset('${selected}')${
@@ -197,9 +199,14 @@ art.config = { ...getFluidPreset('${selected}')${
           ? `, backgroundMode: '${background.value}'`
           : ""
       } };
-</script>`;
+</script>
+
+<!-- Or no-bundler auto-define:
+<script type="module" src="${PUBLISHED_CDN}/hero-auto.js"></script>
+-->`;
     $("react-example").textContent =
-      `import { FluidHero } from 'fluid-wallpaper/react';
+      `// npm i fluid-wallpaper@${PUBLISHED_VERSION} react@^19 react-dom@^19
+import { FluidHero } from 'fluid-wallpaper/react';
 import { getFluidPreset } from 'fluid-wallpaper/presets';
 
 const look = { ...getFluidPreset('${selected}')${

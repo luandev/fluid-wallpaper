@@ -31,8 +31,9 @@
       <p class="eyebrow">Web component · Preview</p>
       <h1>A fluid field in your page.</h1>
       <p>
-        This example runs the compiled, React-free component. Drag to stir, or
-        use the controls.
+        This example runs the published npm preview
+        (<code>fluid-wallpaper@0.1.0-next.0</code>) from the CDN. Drag to stir,
+        or use the controls.
       </p>
       <fluid-ink id="field" quality="eco" style="height: 360px"
         ><p slot="fallback">
@@ -59,11 +60,17 @@
         <output id="status" aria-live="polite">Initializing…</output>
       </p>
       <h2>Use the same component</h2>
-      <pre><code>import { defineFluidInk } from 'fluid-wallpaper/element';
+      <pre><code>npm install fluid-wallpaper@next
+
+import { defineFluidInk } from 'fluid-wallpaper/element';
 defineFluidInk();
 
-// HTML:
-&lt;fluid-ink quality="eco" style="height:360px"&gt;&lt;/fluid-ink&gt;</code></pre>
+&lt;fluid-ink quality="eco" style="height:360px"&gt;&lt;/fluid-ink&gt;
+
+&lt;!-- No bundler: --&gt;
+&lt;script type="module"
+  src="https://cdn.jsdelivr.net/npm/fluid-wallpaper@0.1.0-next.0/element-auto.js"&gt;
+&lt;/script&gt;</code></pre>
       <h2>Experimental two-liquid scene</h2>
       <p>
         This solver is expensive and has not met physical convergence or mobile

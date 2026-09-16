@@ -1,14 +1,13 @@
 import {
   defineFluidInk,
   defaultLiquidScene,
-  type FluidInkElement,
-  type EcoStatus,
-} from "../package-dist/element.js";
+} from "https://cdn.jsdelivr.net/npm/fluid-wallpaper@0.1.0-next.0/element.js";
+import type { FluidInkElement, EcoStatus } from "./element";
 
 const status = document.querySelector<HTMLOutputElement>("#status")!;
 const field = document.querySelector<FluidInkElement>("#field")!;
 for (const event of ["ready", "error", "configchange", "qualitychange"]) {
-  field.addEventListener(event, (e) => {
+  field.addEventListener(event, (e: Event) => {
     const detail = (e as CustomEvent<EcoStatus>).detail;
     status.textContent =
       event === "error"
