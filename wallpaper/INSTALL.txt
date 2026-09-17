@@ -1,0 +1,40 @@
+fluid-wallpaper — desktop HTML pack (minimal)
+============================================
+
+Entry: wallpaper.html
+Optional scene: wallpaper.html?scene=aurora|obsidian|porcelain
+
+Windows 11 — Wallpaper Engine (Steam)
+-------------------------------------
+1. Open Wallpaper Engine editor.
+2. Drag wallpaper.html onto Create Wallpaper (or import the folder).
+3. Confirm type is web and the preview looks correct.
+4. Apply as wallpaper. Workshop upload is not part of this minimal pack.
+
+Windows 11 — Lively Wallpaper
+-----------------------------
+1. Install Lively Wallpaper.
+2. Drag this folder into Lively, or add wallpaper.html.
+3. Set as wallpaper.
+
+Linux — Wallpaper Engine (Steam)
+--------------------------------
+Where Wallpaper Engine is available on Steam for Linux, import the same
+folder/file as on Windows (web wallpaper → wallpaper.html).
+
+macOS — HTML wallpaper host
+---------------------------
+Wallpaper Engine is not the Mac path for this pack. Use a local HTML
+wallpaper host (for example Plash or ScreenPlay-class apps):
+1. Keep this folder intact (HTML + assets/ + manifests).
+2. Point the host at wallpaper.html (or the folder containing it).
+3. Prefer offline/local file loading; this pack does not require a network.
+
+Notes
+-----
+- Needs WebGL2 and floating-point render targets.
+- Pauses when the host hides the page (document visibility).
+- No user properties, audio listeners, or Workshop packaging in this zip.
+- Source and docs: https://github.com/luandev/fluid-wallpaper
+- Desktop install docs: https://luandev.github.io/fluid-wallpaper/docs/desktop.html
+- Live technique notes: https://luandev.github.io/fluid-wallpaper/docs/shaders.html

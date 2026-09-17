@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="Install the offline HTML wallpaper pack on Windows, Linux, and macOS hosts."
+    />
+    <title>Desktop wallpaper · fluid-wallpaper</title>
+    <link rel="stylesheet" href="../src/docs/docs.css" />
+  </head>
+  <body data-page="desktop" style="--accent: #c4b5fd">
+    <a class="skip button" href="#content">Skip to content</a>
+    <header class="site-nav">
+      <a class="brand" href="../index.html">fluid<span>—</span>wallpaper</a
+      ><button
+        class="menu-toggle"
+        aria-expanded="false"
+        aria-controls="docs-nav"
+      >
+        Menu
+      </button>
+      <nav class="nav-links" id="docs-nav" aria-label="Documentation">
+        <a href="./index.html">Start</a><a href="./settings.html">Settings</a
+        ><a href="./hero.html">Fluid hero</a><a href="./gallery.html">Gallery</a
+        ><a href="./shaders.html">Shaders</a><a href="./desktop.html">Desktop</a
+        ><a href="./contributing-presets.html">Contribute</a
+        ><a href="../play.html">Open tuner ↗</a>
+      </nav>
+    </header>
+    <main id="content">
+      <fluid-hero id="page-hero"
+        ><p class="eyebrow">fluid-wallpaper / Desktop</p>
+        <h1>
+          One HTML pack.<br />
+          Three desktops.
+        </h1>
+        <p>
+          Offline WebGL2 wallpaper for Wallpaper Engine, Lively, and Mac HTML
+          hosts — minimal zip, no Workshop properties yet.
+        </p>
+        <div class="hero-links">
+          <a class="button" href="../wallpaper.html">Open wallpaper entry</a
+          ><a href="./shaders.html">How the fluid works ↗</a>
+        </div></fluid-hero
+      >
+      <p class="lead">
+        Build with <code>yarn pack:wallpaper</code> (or download a release zip
+        when attached). The pack root contains <code>wallpaper.html</code>,
+        <code>assets/</code>, Wallpaper Engine <code>project.json</code>, Lively
+        <code>LivelyInfo.json</code>, and <code>INSTALL.txt</code>.
+      </p>
+
+      <article>
+        <h2>What you get</h2>
+        <ul>
+          <li>
+            Full-bleed field with ECO enabled; pauses when the host hides the
+            page
+          </li>
+          <li>
+            Optional scene:
+            <code>wallpaper.html?scene=aurora|obsidian|porcelain</code>
+          </li>
+          <li>Offline — no fonts CDN, YouTube, or npm required at runtime</li>
+          <li>
+            Needs WebGL2 and floating-point targets; host GPU behavior is
+            device-specific and not certified here
+          </li>
+        </ul>
+      </article>
+
+      <article>
+        <h2>Windows 11 — Wallpaper Engine</h2>
+        <ol>
+          <li>Open the Wallpaper Engine editor.</li>
+          <li>
+            Drag <code>wallpaper.html</code> onto Create Wallpaper, or import
+            the unpacked folder.
+          </li>
+          <li>Confirm type <code>web</code> and apply.</li>
+        </ol>
+        <p>
+          Workshop upload, user properties, and audio listeners are
+          <strong>not</strong> part of this minimal pack.
+        </p>
+      </article>
+
+      <article>
+        <h2>Windows 11 — Lively Wallpaper</h2>
+        <ol>
+          <li>Install Lively Wallpaper.</li>
+          <li>
+            Drag the pack folder into Lively, or add
+            <code>wallpaper.html</code>.
+          </li>
+          <li>Set as wallpaper.</li>
+        </ol>
+      </article>
+
+      <article>
+        <h2>Linux — Wallpaper Engine</h2>
+        <p>
+          Where Wallpaper Engine is available on Steam for Linux, import the
+          same folder as on Windows (web wallpaper →
+          <code>wallpaper.html</code>).
+        </p>
+      </article>
+
+      <article>
+        <h2>macOS — HTML wallpaper host</h2>
+        <p>
+          Wallpaper Engine is not the Mac path for this pack. Use a local HTML
+          wallpaper host (for example Plash or ScreenPlay-class apps):
+        </p>
+        <ol>
+          <li>Keep the folder intact (HTML + <code>assets/</code>).</li>
+          <li>Point the host at <code>wallpaper.html</code>.</li>
+          <li>Prefer offline/local file loading.</li>
+        </ol>
+      </article>
+
+      <article>
+        <h2>From this repository</h2>
+        <pre><code>yarn pack:wallpaper
+# → fluid-wallpaper-desktop-&lt;version&gt;.zip
+# → wallpaper-dist/ (unpacked copy)</code></pre>
+        <p>
+          Preview the entry in a browser at
+          <a href="../wallpaper.html">/wallpaper.html</a> after
+          <code>yarn build</code>. See also
+          <a
+            href="https://github.com/luandev/fluid-wallpaper/blob/main/docs/USAGE.md"
+            >USAGE.md</a
+          >
+          and decision DEC-019.
+        </p>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <span>fluid-wallpaper · Living color, thoughtfully embedded.</span
+      ><a href="https://github.com/luandev/fluid-wallpaper"
+        >Source &amp; contributions ↗</a
+      >
+    </footer>
+    <script type="module" src="../src/docs/main.ts"></script>
+  </body>
+</html>

@@ -16,6 +16,8 @@ Start at [root AGENTS.md](../AGENTS.md), then [README.md](../README.md), [PROJEC
 
 ## Maintained folders
 
+Promotional media production lives in [`tools/promo/`](../tools/promo/README.md), with [tools guidance](../tools/AGENTS.md) and [local capture guidance](../tools/promo/AGENTS.md). Generated videos, soundtrack and capture evidence stay in ignored `promo-output/`; they are not release or device-certification evidence.
+
 | Folder                    | Local context                                                                                                  | Responsibility                                         |
 | ------------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
 | Repository root           | [AGENTS.md](../AGENTS.md) · [README.md](../README.md)                                                          | Shared rules, entry pages, package/build configuration |
@@ -30,6 +32,8 @@ Start at [root AGENTS.md](../AGENTS.md), then [README.md](../README.md), [PROJEC
 | `src/app/`                | [Agent guidance](../src/app/AGENTS.md) · [Folder contract](../src/app/README.md)                               | Runtime and authored state                             |
 | `src/inputs/`             | [Agent guidance](../src/inputs/AGENTS.md) · [Folder contract](../src/inputs/README.md)                         | Optional interaction                                   |
 | `src/landing/`            | [Agent guidance](../src/landing/AGENTS.md) · [Folder contract](../src/landing/README.md)                       | Public showcase                                        |
+| `src/wallpaper/`          | [Agent guidance](../src/wallpaper/AGENTS.md) · [Folder contract](../src/wallpaper/README.md)                   | Desktop wallpaper entry boot                           |
+| `wallpaper/`              | Host manifests + INSTALL (packed by `scripts/pack-wallpaper.mjs`)                                              | WE / Lively metadata templates                         |
 | `src/platform/`           | [Agent guidance](../src/platform/AGENTS.md) · [Folder contract](../src/platform/README.md)                     | Browser lifecycle boundary                             |
 | `src/quality/`            | [Agent guidance](../src/quality/AGENTS.md) · [Folder contract](../src/quality/README.md)                       | Quality budgets                                        |
 | `src/react/`              | [Agent guidance](../src/react/AGENTS.md) · [Folder contract](../src/react/README.md)                           | React embedding                                        |
@@ -51,6 +55,7 @@ This covers folders containing maintained source, documentation, assets, scripts
 - Artist controls: `src/ui` plus the relevant child inspector/graph/spatial folder; config, help, drivers, and affected CPU tests.
 - Lifecycle/mobile: `src/app`, `src/platform`, `src/quality`, relevant shader costs; quality and device questions remain open.
 - Embedding/release: `src/react`, package/Vite configuration, `docs/USAGE.md`, workflows; DEC-008 describes today's export, DEC-010 the product direction.
+- Desktop HTML pack: `src/wallpaper`, `wallpaper/`, `scripts/pack-wallpaper.mjs`, [USAGE Desktop section](USAGE.md#desktop-wallpaper-pack), [DEC-019](DECISIONS.md#dec-019---multi-host-html-wallpaper-pack).
 - Optional audio/pointer: `src/inputs`, relevant UI, engine/driver path; DEC-009 and CPU helper tests.
 - Documentation: `docs`, the owning module README, root/tool bridges if rules change. Preserve accepted decision history.
 
@@ -62,6 +67,7 @@ For a new maintained folder, add a short AGENTS.md linking root/ancestor guidanc
 
 - [Public site source](../src/docs/README.md): page behavior, settings metadata, gallery coordination.
 - [Shaders & technique](SHADERS.md): Navier–Stokes overview, Stam / GPU Gems ch. 38 family, WebGL2 pass map ([public page](shaders.html)).
+- [Desktop wallpaper](desktop.html): multi-host HTML pack install (WE, Lively, Mac HTML hosts).
 - [Hero components](../src/hero/README.md): native decorative host and lifecycle; React wrapper lives in src/react.
 - [Preset runtime](../src/presets/README.md): validated discovery and independent config/document lookup.
 - [Preset collection](../presets/README.md): source JSON, metadata and authored preview captures.

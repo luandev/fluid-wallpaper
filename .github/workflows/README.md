@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Automate **evidence and distribution** for the public showcase. This is not Wallpaper Engine packaging.
+Automate **evidence and distribution** for the public showcase. Desktop zip packaging is `yarn pack:wallpaper` (DEC-019); Workshop upload is out of scope for CI.
 
 ## Architecture overview
 

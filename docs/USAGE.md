@@ -131,13 +131,19 @@ The element exposes `play()`, `pause()`, `reset()`, `inject({ position, velocity
 
 This repo’s landing and tuner use that path (`src/landing/main.ts`, `src/main.ts`).
 
-## Wallpaper Engine
+## Desktop wallpaper pack
 
-Later. Import **`dist/play.html`** from a production `yarn build`, not the Git tree. `dist/index.html` is the public landing; `dist/embed.html` is the React usage demo. User properties stay Phase 4.
+Minimal multi-host HTML pack for Wallpaper Engine (Windows/Linux Steam), Lively Wallpaper (Windows), and Mac HTML hosts (Plash / ScreenPlay-class). See [DEC-019](DECISIONS.md#dec-019---multi-host-html-wallpaper-pack) and the public [Desktop](desktop.html) page.
+
+1. `yarn pack:wallpaper` → `fluid-wallpaper-desktop-<version>.zip` (or unpack `wallpaper-dist/`).
+2. Import / point the host at **`wallpaper.html`** (not `play.html` or the landing page). Offline relative assets only.
+3. Optional scene: `wallpaper.html?scene=aurora|obsidian|porcelain`.
+
+`BrowserPlatform` pauses on document hide. No Wallpaper Engine `window.wallpaper*` APIs, user properties, or Workshop upload in this slice. Host GPU behavior is device-specific and not certified by packaging checks. Public landing remains `dist/index.html`; `dist/play.html` is the tuner; `dist/embed.html` is the React demo.
 
 ## CI
 
-`.github/workflows/pages.yml` runs `yarn test`, `yarn build`, packed npm consumer checks and seven-page assertions. Pull requests do not deploy. Tag publication uses the separate [release workflow](RELEASE.md).
+`.github/workflows/pages.yml` runs `yarn test`, `yarn build`, packed npm consumer checks and usage-page assertions (including `dist/wallpaper.html` and docs). Pull requests do not deploy. Tag publication uses the separate [release workflow](RELEASE.md).
 
 ## Plain HTML and server rendering
 

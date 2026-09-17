@@ -24,7 +24,7 @@
       <nav class="nav-links" id="docs-nav" aria-label="Documentation">
         <a href="./index.html">Start</a><a href="./settings.html">Settings</a
         ><a href="./hero.html">Fluid hero</a><a href="./gallery.html">Gallery</a
-        ><a href="./shaders.html">Shaders</a
+        ><a href="./shaders.html">Shaders</a><a href="./desktop.html">Desktop</a
         ><a href="./contributing-presets.html">Contribute</a
         ><a href="../play.html">Open tuner ↗</a>
       </nav>
@@ -80,9 +80,9 @@
             >GPU Gems chapter 38</a
           >
           (<em>Fast Fluid Dynamics Simulation on the GPU</em>). This repository
-          studies that family and implements
-          <strong>original</strong> WebGL2 / GLSL ES 3.00 passes — it does not
-          paste third-party fluid-simulation source.
+          studies that family and implements <strong>original</strong> WebGL2 /
+          GLSL ES 3.00 passes — it does not paste third-party fluid-simulation
+          source.
         </p>
         <div class="tiles">
           <section class="tile">
@@ -138,8 +138,8 @@
               <td>Pressure projection</td>
               <td>
                 Estimate divergence, iteratively relax a pressure-like field
-                (Jacobi-style), subtract its gradient so velocity stays closer to
-                divergence-free.
+                (Jacobi-style), subtract its gradient so velocity stays closer
+                to divergence-free.
               </td>
             </tr>
             <tr>
@@ -163,9 +163,9 @@
       <article>
         <h2>Where the shaders live</h2>
         <p>
-          Fullscreen fragment programs write float / half-float targets. A
-          small catalog assembles includes; the solver schedules passes each
-          tick. The public docs and component playground load the
+          Fullscreen fragment programs write float / half-float targets. A small
+          catalog assembles includes; the solver schedules passes each tick. The
+          public docs and component playground load the
           <strong>published</strong>
           <code>fluid-wallpaper@0.1.0-next.0</code> build from jsDelivr so the
           live site matches npm.
@@ -206,8 +206,8 @@
           </li>
         </ul>
         <p class="note">
-          This page explains the approach. It does not certify physical accuracy,
-          mobile thermals, or unfinished prototype solvers.
+          This page explains the approach. It does not certify physical
+          accuracy, mobile thermals, or unfinished prototype solvers.
         </p>
       </article>
 

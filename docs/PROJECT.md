@@ -16,7 +16,7 @@ Build a high-end generative wallpaper that behaves like living fluid artwork rat
 
 As of 2026-09-09, prioritize believable ink mixing, meaningful artist controls, mobile browser performance, and release as a reusable web component ([DEC-010](DECISIONS.md#dec-010--ink-first-web-component-product-direction)). This records the owner's direction, not approval of every technical recommendation in [the review](REVIEW_INK_COMPONENT.md).
 
-Desktop Wallpaper Engine was the original first target and remains a later integration. Its future package should load a static Vite `dist/` bundle, not the Git working tree. Current deliverables include the browser showcase/tuner, private React source embed, native element adapter and an experimental [two-liquid studio](TWO_LIQUID.md). Compiled preview distribution is authorized by DEC-014; publication status is tracked in [RELEASE.md](RELEASE.md). Mobile support remains unvalidated.
+Desktop Wallpaper Engine was the original first target. A minimal multi-host HTML pack (`wallpaper.html` + `yarn pack:wallpaper`, [DEC-019](DECISIONS.md#dec-019---multi-host-html-wallpaper-pack)) covers ambient WE/Lively/Mac HTML install; Workshop properties and WE audio APIs remain later. Packages load a static Vite `dist/`/zip bundle, not the Git working tree. Current deliverables include the browser showcase/tuner, private React source embed, native element adapter and an experimental [two-liquid studio](TWO_LIQUID.md). Compiled preview distribution is authorized by DEC-014; publication status is tracked in [RELEASE.md](RELEASE.md). Mobile support remains unvalidated.
 
 ## Core capabilities
 

@@ -50,7 +50,7 @@ Status: in progress. Dye channels are material amounts; display mixes a 2.5D loo
 - Add adaptive quality and frame-rate controls
 - Validate packaging and release flow
 
-Status: in progress for the in-page product shell. A tabbed React dashboard edits looks, materials, emitters, wind, and presets. Looks can be shared as versioned JSON preset files (merge on import). Value emitters can drive numeric knobs ([DEC-006](DECISIONS.md#dec-006--react-product-shell-dashboard-and-value-drivers)). A GitHub Pages site hosts the live landing, tuner, and React embed from `dist/` ([DEC-007](DECISIONS.md#dec-007--github-pages-showcase), [DEC-008](DECISIONS.md#dec-008--react-fluidfield-embed)). Wallpaper Engine properties, pause lifecycle, and adaptive quality remain later.
+Status: in progress for the in-page product shell. A tabbed React dashboard edits looks, materials, emitters, wind, and presets. Looks can be shared as versioned JSON preset files (merge on import). Value emitters can drive numeric knobs ([DEC-006](DECISIONS.md#dec-006--react-product-shell-dashboard-and-value-drivers)). A GitHub Pages site hosts the live landing, tuner, and React embed from `dist/` ([DEC-007](DECISIONS.md#dec-007--github-pages-showcase), [DEC-008](DECISIONS.md#dec-008--react-fluidfield-embed)). A minimal multi-host HTML wallpaper pack (`wallpaper.html`, WE/Lively manifests, `yarn pack:wallpaper`) is available ([DEC-019](DECISIONS.md#dec-019---multi-host-html-wallpaper-pack)); Workshop upload, user properties, Wallpaper Engine audio listeners, and host-certified GPU evidence remain later. Adaptive ECO quality continues under [DEC-016](DECISIONS.md#dec-016---adaptive-eco-resolution-and-simulation-speed).
 
 ## Phase 5 — Expressive inputs
 

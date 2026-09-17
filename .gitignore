@@ -1,6 +1,8 @@
 node_modules/
 dist/
 package-dist/
+wallpaper-dist/
+fluid-wallpaper-desktop-*.zip
 *.tgz
 .consumer-check/
 packed/
@@ -13,3 +15,4 @@ npm-shrinkwrap.json
 pnpm-lock.yaml
 bun.lock
 bun.lockb
+promo-output/

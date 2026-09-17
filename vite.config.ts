@@ -20,6 +20,7 @@ export default defineConfig({
         "docs-hero": resolve(root, "docs/hero.html"),
         "docs-gallery": resolve(root, "docs/gallery.html"),
         "docs-shaders": resolve(root, "docs/shaders.html"),
+        "docs-desktop": resolve(root, "docs/desktop.html"),
         "docs-contributing-presets": resolve(
           root,
           "docs/contributing-presets.html",
@@ -27,6 +28,7 @@ export default defineConfig({
 
         index: resolve(root, "index.html"),
         play: resolve(root, "play.html"),
+        wallpaper: resolve(root, "wallpaper.html"),
         embed: resolve(root, "embed.html"),
         liquid: resolve(root, "liquid.html"),
         diagnostics: resolve(root, "diagnostics.html"),

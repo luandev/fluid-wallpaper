@@ -27,6 +27,7 @@
     "preinstall": "node ./scripts/ensure-yarn.js",
     "dev": "node scripts/build-package.mjs && vite",
     "build": "node scripts/build-package.mjs && tsc --noEmit && vite build && node scripts/check-package.mjs",
+    "pack:wallpaper": "node scripts/build-package.mjs && tsc --noEmit && vite build && node scripts/check-package.mjs && node scripts/pack-wallpaper.mjs",
     "preview": "vite preview",
     "test": "vitest run"
   },

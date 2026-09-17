@@ -16,7 +16,7 @@ Exact continuum Navier–Stokes on a fine grid is expensive and stiff. Interacti
 
 ## Technique family: Stam stable fluids on the GPU
 
-This project studies Jos Stam’s **stable fluids** approach and the GPU presentation in [GPU Gems chapter 38](https://developer.nvidia.com/gpugems/gpugems/part-vi-beyond-triangles/chapter-38-fast-fluid-dynamics-simulation-gpu) (*Fast Fluid Dynamics Simulation on the GPU*). We implement **original** WebGL2 / GLSL ES 3.00 passes in that method family. Third-party fluid-simulation source is not copied ([repository policy](../AGENTS.md)).
+This project studies Jos Stam’s **stable fluids** approach and the GPU presentation in [GPU Gems chapter 38](https://developer.nvidia.com/gpugems/gpugems/part-vi-beyond-triangles/chapter-38-fast-fluid-dynamics-simulation-gpu) (_Fast Fluid Dynamics Simulation on the GPU_). We implement **original** WebGL2 / GLSL ES 3.00 passes in that method family. Third-party fluid-simulation source is not copied ([repository policy](../AGENTS.md)).
 
 Typical loop (conceptual):
 
@@ -30,12 +30,12 @@ display: interpret concentrations as look
 
 Key ideas:
 
-| Idea | What it means here |
-| --- | --- |
-| **Semi-Lagrangian advection** | Trace each texel backward along velocity and sample the previous field — stable at larger steps than naive forward schemes. |
-| **Pressure projection** | Estimate divergence, iteratively relax a pressure-like field (Jacobi-style), subtract its gradient so velocity stays closer to divergence-free. |
-| **Vorticity confinement** | Reintroduce some curl lost to numerical dissipation so motion stays lively. |
-| **Packed dye** | Up to four **concentration** channels share one velocity field; display shaders turn weights into color, sheen, glow ([DEC-005](DECISIONS.md#dec-005--packed-material-concentrations-and-25d-look)). |
+| Idea                          | What it means here                                                                                                                                                                                   |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Semi-Lagrangian advection** | Trace each texel backward along velocity and sample the previous field — stable at larger steps than naive forward schemes.                                                                          |
+| **Pressure projection**       | Estimate divergence, iteratively relax a pressure-like field (Jacobi-style), subtract its gradient so velocity stays closer to divergence-free.                                                      |
+| **Vorticity confinement**     | Reintroduce some curl lost to numerical dissipation so motion stays lively.                                                                                                                          |
+| **Packed dye**                | Up to four **concentration** channels share one velocity field; display shaders turn weights into color, sheen, glow ([DEC-005](DECISIONS.md#dec-005--packed-material-concentrations-and-25d-look)). |
 
 Simulation moves fields. Rendering decides material look (`display.frag.glsl`). That split is intentional ([ARCHITECTURE.md](ARCHITECTURE.md)).
 
@@ -43,12 +43,12 @@ Simulation moves fields. Rendering decides material look (`display.frag.glsl`). 
 
 Passes are fullscreen GLSL ES 3.00 fragments writing float / half-float targets (WebGL2, [DEC-003](DECISIONS.md#dec-003--webgl2-first-runtime)):
 
-| Role | Where |
-| --- | --- |
-| Catalog / includes | [`src/shaders/sources.ts`](../src/shaders/sources.ts) |
-| Advection, pressure, curl, inject, wind, composer | fragments under [`src/shaders/`](../src/shaders/) |
-| Orchestration | [`src/sim/solver.ts`](../src/sim/solver.ts) |
-| Look / alpha / lighting response | [`src/shaders/display.frag.glsl`](../src/shaders/display.frag.glsl) |
+| Role                                              | Where                                                               |
+| ------------------------------------------------- | ------------------------------------------------------------------- |
+| Catalog / includes                                | [`src/shaders/sources.ts`](../src/shaders/sources.ts)               |
+| Advection, pressure, curl, inject, wind, composer | fragments under [`src/shaders/`](../src/shaders/)                   |
+| Orchestration                                     | [`src/sim/solver.ts`](../src/sim/solver.ts)                         |
+| Look / alpha / lighting response                  | [`src/shaders/display.frag.glsl`](../src/shaders/display.frag.glsl) |
 
 Noise helpers (`noise.glsl`, `perlin.glsl`) are included by markers, not a second shading language. The opt-in two-liquid path uses separate original passes documented in [TWO_LIQUID.md](TWO_LIQUID.md).
 
@@ -62,6 +62,6 @@ For engineers changing pass order, formats, or residuals, start with [ENGINEERIN
 
 ## Further reading
 
-- Jos Stam, *Stable Fluids* (SIGGRAPH 1999) — method family for interactive stable fluids.
+- Jos Stam, _Stable Fluids_ (SIGGRAPH 1999) — method family for interactive stable fluids.
 - [GPU Gems ch. 38](https://developer.nvidia.com/gpugems/gpugems/part-vi-beyond-triangles/chapter-38-fast-fluid-dynamics-simulation-gpu) — GPU pass structure commonly used in demos.
 - Project maps: [ARCHITECTURE.md](ARCHITECTURE.md) · [REVIEW_INK_COMPONENT.md](REVIEW_INK_COMPONENT.md) (labeled findings, not automatic authority).

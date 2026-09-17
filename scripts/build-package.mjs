@@ -1,6 +1,12 @@
 import { build } from "vite";
 import { execFileSync } from "node:child_process";
-import { readFile, writeFile, copyFile, readdir, access } from "node:fs/promises";
+import {
+  readFile,
+  writeFile,
+  copyFile,
+  readdir,
+  access,
+} from "node:fs/promises";
 import { dirname, join } from "node:path";
 
 await build({ configFile: "vite.library.config.ts" });

@@ -64,7 +64,7 @@ Resolved by [DEC-003](DECISIONS.md#dec-003--typescript-vite-webgl2-and-glsl):
 - What reproducible packaging process best maps source releases to Workshop releases?
 - Which assets, licenses, and attribution records are required before publishing?
 
-Until Phase 4, Wallpaper Engine testing means importing `dist/play.html` from a Vite production build, never the Git working tree. `dist/index.html` is the public landing page. Git/Yarn source install of `<FluidField />` is [DEC-008](DECISIONS.md#dec-008--react-fluidfield-embed); npm registry publish and Workshop packaging remain open. Browser audio uses Web Audio + mic/tab capture ([DEC-009](DECISIONS.md#dec-009--optional-youtube-music-and-web-audio-drivers)); Wallpaper Engine audio listeners stay open.
+Ambient desktop install uses the minimal HTML pack (`wallpaper.html` via `yarn pack:wallpaper`, [DEC-019](DECISIONS.md#dec-019---multi-host-html-wallpaper-pack)), never the Git working tree. `dist/index.html` is the public landing; `dist/play.html` remains the tuner. Git/Yarn source install of `<FluidField />` is [DEC-008](DECISIONS.md#dec-008--react-fluidfield-embed); npm registry publish is [DEC-014](DECISIONS.md#dec-014--compiled-npm-preview-and-tag-releases). Workshop upload, user properties, and Wallpaper Engine audio listeners stay open. Browser audio uses Web Audio + mic/tab capture ([DEC-009](DECISIONS.md#dec-009--optional-youtube-music-and-web-audio-drivers)).
 
 ## Preview distribution decision
 

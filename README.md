@@ -59,13 +59,14 @@
 
 **fluid-wallpaper** is ambient artwork that feels material and alive: packed pigments, soft shear, emitters, wind, and optional audio — built to drop into a page as `<fluid-ink>`, `<fluid-hero>`, or React.
 
-| Try it | What you get |
-| --- | --- |
-| [Live field](https://luandev.github.io/fluid-wallpaper/) | Full-bleed landing with scene chrome |
-| [Tuner](https://luandev.github.io/fluid-wallpaper/play.html) | Scene · Materials · Emitters · Wind · Drivers · Presets |
-| [Gallery](https://luandev.github.io/fluid-wallpaper/docs/gallery.html) | Six starting atmospheres you can remix |
-| [Shaders](https://luandev.github.io/fluid-wallpaper/docs/shaders.html) | Navier–Stokes → Stam / GPU Gems ch. 38 → WebGL2 passes |
-| [Docs](https://luandev.github.io/fluid-wallpaper/docs/) | Install, heroes, settings, contribute |
+| Try it                                                                 | What you get                                              |
+| ---------------------------------------------------------------------- | --------------------------------------------------------- |
+| [Live field](https://luandev.github.io/fluid-wallpaper/)               | Full-bleed landing with scene chrome                      |
+| [Tuner](https://luandev.github.io/fluid-wallpaper/play.html)           | Scene · Materials · Emitters · Wind · Drivers · Presets   |
+| [Gallery](https://luandev.github.io/fluid-wallpaper/docs/gallery.html) | Six starting atmospheres you can remix                    |
+| [Shaders](https://luandev.github.io/fluid-wallpaper/docs/shaders.html) | Navier–Stokes → Stam / GPU Gems ch. 38 → WebGL2 passes    |
+| [Desktop](https://luandev.github.io/fluid-wallpaper/docs/desktop.html) | Offline HTML pack for Wallpaper Engine, Lively, Mac hosts |
+| [Docs](https://luandev.github.io/fluid-wallpaper/docs/)                | Install, heroes, settings, contribute                     |
 
 North star: interesting enough to watch on purpose, efficient enough to leave running.
 
@@ -131,12 +132,12 @@ More recipes: [docs/USAGE.md](docs/USAGE.md) · [package guide](docs/PACKAGE_REA
 
 ## Status
 
-| | |
-| --- | --- |
-| **Ready to explore** | Browser WebGL2 field, native element, React embed, public docs/gallery, preview npm package |
-| **In progress** | Believable ink mixing, mobile performance, Wallpaper Engine properties |
-| **Experimental** | [Two-liquid](docs/TWO_LIQUID.md) transport / absorption — not a release guarantee |
-| **Priority** | Ink-first web component ([DEC-010](docs/DECISIONS.md#dec-010--ink-first-web-component-product-direction)) |
+|                      |                                                                                                           |
+| -------------------- | --------------------------------------------------------------------------------------------------------- |
+| **Ready to explore** | Browser WebGL2 field, native element, React embed, public docs/gallery, preview npm package               |
+| **In progress**      | Believable ink mixing, mobile performance, Wallpaper Engine properties                                    |
+| **Experimental**     | [Two-liquid](docs/TWO_LIQUID.md) transport / absorption — not a release guarantee                         |
+| **Priority**         | Ink-first web component ([DEC-010](docs/DECISIONS.md#dec-010--ink-first-web-component-product-direction)) |
 
 ## Develop locally
 
@@ -149,42 +150,42 @@ yarn test
 yarn build   # package-dist/ + dist/ (Pages)
 ```
 
-| Path | Purpose |
-| --- | --- |
-| `/` | Editorial landing |
-| `/play.html` | Tabbed tuner (**H** panel, **P** perf, **F** fullscreen) |
-| `/embed.html` | React `<FluidField />` |
-| `/liquid.html` | Experimental two-liquid studio |
-| `/diagnostics.html` | GPU probes |
+| Path                | Purpose                                                  |
+| ------------------- | -------------------------------------------------------- |
+| `/`                 | Editorial landing                                        |
+| `/play.html`        | Tabbed tuner (**H** panel, **P** perf, **F** fullscreen) |
+| `/embed.html`       | React `<FluidField />`                                   |
+| `/liquid.html`      | Experimental two-liquid studio                           |
+| `/diagnostics.html` | GPU probes                                               |
 
 Tunings and panel positions persist in `localStorage`. Presets use `fluid-wallpaper.preset.v1` JSON.
 
 Pages deploy from `dist/` via GitHub Actions ([DEC-007](docs/DECISIONS.md#dec-007--github-pages-showcase)). Enable **Settings → Pages → GitHub Actions** if the site is empty. Release flow: [docs/RELEASE.md](docs/RELEASE.md).
 
-### Wallpaper Engine (later)
+### Desktop wallpaper pack
 
-Do not import this Git repo into Wallpaper Engine. When packaging, use `dist/play.html` from a production build. User properties are Phase 4.
+`yarn pack:wallpaper` builds `fluid-wallpaper-desktop-<version>.zip` with `wallpaper.html`, assets, and minimal WE/Lively manifests. Import that folder — not this Git tree. See [desktop docs](https://luandev.github.io/fluid-wallpaper/docs/desktop.html) and [DEC-019](docs/DECISIONS.md#dec-019---multi-host-html-wallpaper-pack). Workshop properties and audio listeners remain later.
 
 ## Docs map
 
-| Start | Dig deeper |
-| --- | --- |
-| [Usage](docs/USAGE.md) | [Architecture](docs/ARCHITECTURE.md) · [Shaders](docs/SHADERS.md) · [Engineering guide](docs/ENGINEERING_GUIDE.md) |
-| [Contributing](CONTRIBUTING.md) | [Roadmap](docs/ROADMAP.md) · [Open questions](docs/OPEN_QUESTIONS.md) |
-| [Project](docs/PROJECT.md) | [Decisions](docs/DECISIONS.md) · [Context map](docs/CONTEXT_MAP.md) |
-| [Agent instructions](AGENTS.md) | [AI-assisted development](docs/AI_ASSISTED_DEVELOPMENT.md) |
+| Start                           | Dig deeper                                                                                                         |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| [Usage](docs/USAGE.md)          | [Architecture](docs/ARCHITECTURE.md) · [Shaders](docs/SHADERS.md) · [Engineering guide](docs/ENGINEERING_GUIDE.md) |
+| [Contributing](CONTRIBUTING.md) | [Roadmap](docs/ROADMAP.md) · [Open questions](docs/OPEN_QUESTIONS.md)                                              |
+| [Project](docs/PROJECT.md)      | [Decisions](docs/DECISIONS.md) · [Context map](docs/CONTEXT_MAP.md)                                                |
+| [Agent instructions](AGENTS.md) | [AI-assisted development](docs/AI_ASSISTED_DEVELOPMENT.md)                                                         |
 
 ## Repository layout
 
-| Path | Owns |
-| --- | --- |
-| `docs/` | Product, architecture, decisions, research |
-| `src/` | Simulation, render, inputs, React, element, landing |
-| `presets/` | Gallery starting points + capture artwork |
-| `tests/` | Vitest CPU utilities |
-| `scripts/` | Yarn guard, package/release gates |
-| `.github/workflows/` | Pages CI + npm tag releases |
-| `assets/` | Project references (not shipped in `dist/`) |
+| Path                 | Owns                                                |
+| -------------------- | --------------------------------------------------- |
+| `docs/`              | Product, architecture, decisions, research          |
+| `src/`               | Simulation, render, inputs, React, element, landing |
+| `presets/`           | Gallery starting points + capture artwork           |
+| `tests/`             | Vitest CPU utilities                                |
+| `scripts/`           | Yarn guard, package/release gates                   |
+| `.github/workflows/` | Pages CI + npm tag releases                         |
+| `assets/`            | Project references (not shipped in `dist/`)         |
 
 ---
 

@@ -45,7 +45,9 @@ async function check(dir) {
               ".d.ts",
             );
             await access(target).catch(() => {
-              throw new Error(`Missing declaration import ${match[1]} from ${file}`);
+              throw new Error(
+                `Missing declaration import ${match[1]} from ${file}`,
+              );
             });
           }
         }
