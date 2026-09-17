@@ -2,7 +2,7 @@
 
 ## Artifacts and scope
 
-`yarn build` creates `package-dist/` (npm library) and `dist/` (seven-page showcase). `yarn dev` prepares the library before starting Vite; restart after changing library source to refresh compiled integration demos. The root manifest is private and Yarn-only. Publish **only the generated package**, never the repository root.
+`yarn build` creates `package-dist/` (npm library) and `dist/` (showcase + docs + wallpaper entry). `yarn dev` prepares the library before starting Vite; restart after changing library source to refresh compiled integration demos. The root manifest is private and Yarn-only. Publish **only the generated package**, never the repository root. Desktop zip: `yarn pack:wallpaper` ([DEC-019](DECISIONS.md#dec-019---multi-host-html-wallpaper-pack)).
 
 The npm artifact is ESM-only and includes inline shaders, declarations, CSS, README and MIT license. Root and `/react` export the existing React 19 API; React consumers explicitly import `/styles.css`. `/element`, `/element/auto`, `/engine` and `/config` have no React runtime dependency. `/element/auto` registers `<fluid-ink>` on import and works as a version-pinned browser module. The ordinary element entry registers only when `defineFluidInk()` is called.
 

@@ -1,0 +1,14 @@
+{
+  "AppVersion": "0.1.0-next.0",
+  "Title": "fluid-wallpaper",
+  "Thumbnail": "lively_t.png",
+  "Preview": "lively_p.png",
+  "Desc": "Generative WebGL2 fluid field. Offline HTML wallpaper. Preview — device performance not certified.",
+  "Author": "luandev",
+  "License": "MIT",
+  "Contact": "https://github.com/luandev/fluid-wallpaper",
+  "Type": 1,
+  "FileName": "wallpaper.html",
+  "Arguments": null,
+  "IsAbsolutePath": false
+}

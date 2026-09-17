@@ -25,7 +25,7 @@ flowchart TD
 - [CONTEXT_MAP.md](CONTEXT_MAP.md) — folder-by-folder agent guidance and document ownership
 - [ENGINEERING_GUIDE.md](ENGINEERING_GUIDE.md) — runtime semantics, change recipes, persistence, validation, and known findings
 - [ARCHITECTURE.md](ARCHITECTURE.md) — system map and boundaries
-- [USAGE.md](USAGE.md) — landing, tuner, React `FluidField`, vanilla Engine
+- [USAGE.md](USAGE.md) — landing, tuner, React `FluidField`, vanilla Engine, desktop pack
 - [SHADERS.md](SHADERS.md) — Navier–Stokes overview, Stam / GPU Gems ch. 38 family, WebGL2 pass map
 - [REVIEW_INK_COMPONENT.md](REVIEW_INK_COMPONENT.md) — source critique and proposed ink, mobile, and web component direction (not accepted decisions)
 - [DECISIONS.md](DECISIONS.md) — accepted tradeoffs with evidence
@@ -58,4 +58,4 @@ Folder READMEs are local architecture; scoped AGENTS.md files guide edits. They 
 
 [ECO.md](ECO.md) owns adaptive ECO resolution, pacing, simulation speed, continuity and measurement limits.
 
-The public browser documentation lives at [index.html](index.html): [settings](settings.html), [hero](hero.html), [gallery](gallery.html), [shaders](shaders.html), and [preset contribution guide](contributing-presets.html). Technique notes for Navier–Stokes / Stam / GPU passes: [SHADERS.md](SHADERS.md). Engineering Markdown remains repository documentation.
+The public browser documentation lives at [index.html](index.html): [settings](settings.html), [hero](hero.html), [gallery](gallery.html), [shaders](shaders.html), [desktop wallpaper](desktop.html), and [preset contribution guide](contributing-presets.html). Technique notes for Navier–Stokes / Stam / GPU passes: [SHADERS.md](SHADERS.md). Engineering Markdown remains repository documentation.

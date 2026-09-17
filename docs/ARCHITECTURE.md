@@ -64,9 +64,9 @@ Source: `src/inputs` for pointer, YouTube id parse, and the Web Audio analyser; 
 
 ## Platform integration
 
-Owns Wallpaper Engine and future platform APIs, including lifecycle, properties, packaging, and platform-specific capability checks.
+Owns host lifecycle and future Wallpaper Engine property/audio APIs. Packaging for ambient desktop installs uses the shared `wallpaper.html` entry and `yarn pack:wallpaper` ([DEC-019](DECISIONS.md#dec-019---multi-host-html-wallpaper-pack)); WE/Lively property listeners remain later.
 
-Source today: `src/platform` (browser). Wallpaper Engine remains a later adapter.
+Source today: `src/platform` (browser visibility/resize). Wallpaper Engine adapter APIs remain a later module.
 
 ## Quality management
 

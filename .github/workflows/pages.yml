@@ -54,7 +54,8 @@ jobs:
           grep -F -q "## React embed demo" docs/USAGE.md
           grep -F -q "## React component" docs/USAGE.md
           grep -F -q "## Vanilla Engine" docs/USAGE.md
-          grep -F -q "## Wallpaper Engine" docs/USAGE.md
+          grep -F -q "## Desktop wallpaper pack" docs/USAGE.md
+          grep -F -q "wallpaper.html" docs/USAGE.md
           grep -F -q "<FluidField" docs/USAGE.md
           grep -F -q "new Engine" docs/USAGE.md
       - name: Assert usage pages
@@ -68,7 +69,9 @@ jobs:
           test -f dist/docs/hero.html
           test -f dist/docs/gallery.html
           test -f dist/docs/shaders.html
+          test -f dist/docs/desktop.html
           test -f dist/docs/contributing-presets.html
+          test -f dist/wallpaper.html
           test -f dist/component.html
           test -f dist/liquid.html
           test -f dist/diagnostics.html

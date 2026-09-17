@@ -1,0 +1,12 @@
+{
+  "file": "wallpaper.html",
+  "title": "fluid-wallpaper",
+  "description": "Generative WebGL2 fluid field. Offline HTML wallpaper for desktop hosts. Preview package — not Workshop-certified.",
+  "type": "web",
+  "preview": "preview.png",
+  "tags": ["Abstract", "Relaxing", "Technology"],
+  "visibility": "private",
+  "general": {
+    "properties": {}
+  }
+}

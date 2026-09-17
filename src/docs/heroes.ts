@@ -890,6 +890,14 @@ export const PAGE_HEROES: Record<string, Partial<FluidConfig>> = {
   },
 };
 
+PAGE_HEROES.desktop = {
+  ...PAGE_HEROES.shaders!,
+  backgroundColor: "#0c1018",
+  backgroundColorB: "#1a2838",
+  vorticity: 14,
+  windStrength: 5,
+};
+
 export const TRANSPARENT_HERO: Partial<FluidConfig> = {
   ...PAGE_HEROES.settings!,
   backgroundMode: "transparent",

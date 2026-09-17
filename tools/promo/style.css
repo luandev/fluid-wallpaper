@@ -1,0 +1,248 @@
+* {
+  box-sizing: border-box;
+}
+html,
+body,
+#root {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+body {
+  background: #09111b;
+  color: #f2f8f5;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+#field {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+#caption {
+  position: fixed;
+  z-index: 20;
+  left: 6%;
+  bottom: 9%;
+  pointer-events: none;
+  max-width: 80%;
+  text-shadow: 0 2px 26px #0009;
+}
+#caption:before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -90px -80px;
+  background: radial-gradient(ellipse at 30% 65%, #040b1499, transparent 70%);
+}
+#kicker {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 4px;
+  color: #baf9e6;
+  margin-bottom: 20px;
+}
+h1 {
+  font-size: 76px;
+  line-height: 1.06;
+  letter-spacing: -3px;
+  font-weight: 500;
+  margin: 0;
+  white-space: pre-line;
+}
+#url {
+  font-size: 25px;
+  margin-top: 28px;
+  letter-spacing: 1px;
+}
+#cursor {
+  display: none;
+  position: fixed;
+  width: 28px;
+  height: 28px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 20px #fff8;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 10;
+}
+.pointer #cursor {
+  display: block;
+}
+.dash {
+  left: auto !important;
+  right: 4% !important;
+  top: 6% !important;
+  width: 640px;
+  max-height: 82vh;
+  margin: 0;
+  zoom: 1.1;
+}
+.dash__body {
+  max-height: 640px;
+}
+.dash__help {
+  display: none;
+}
+.dash__hint {
+  font-size: 12px;
+}
+.dash__label {
+  font-size: 14px;
+}
+.materials #caption,
+.lighting #caption,
+.emitters #caption,
+.wind #caption,
+.drivers #caption,
+.presets #caption,
+.distribution #caption,
+.music #caption {
+  max-width: 48%;
+  left: 5%;
+}
+.materials h1,
+.lighting h1,
+.emitters h1,
+.wind h1,
+.drivers h1,
+.presets h1,
+.distribution h1,
+.music h1 {
+  font-size: 62px;
+}
+.backgrounds #root {
+  background: repeating-conic-gradient(#ddd9cb 0 25%, #a8b5b8 0 50%) 0/100px
+    100px;
+}
+.heroes {
+  padding: 80px 90px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 35px;
+}
+.heroes small {
+  display: block;
+  font-size: 18px;
+  letter-spacing: 4px;
+  margin-bottom: 24px;
+}
+.heroes h2 {
+  font-size: 42px;
+  margin: 0 40px;
+}
+.heroes fluid-hero {
+  border-radius: 22px;
+  overflow: hidden;
+}
+.heroes #caption h1 {
+  font-size: 56px;
+}
+.liquid #root {
+  padding: 30px 70px 230px;
+  background: #111923;
+}
+.liquid #liquid-studio {
+  height: 100%;
+  overflow: hidden;
+}
+.liquid #liquid-studio main {
+  margin: 0 !important;
+  max-width: none !important;
+}
+.liquid #liquid-studio h1 {
+  font-size: 24px;
+  letter-spacing: 0;
+  white-space: normal;
+}
+.liquid #caption h1 {
+  font-size: 48px;
+}
+.liquid #kicker {
+  color: #ffce8c;
+}
+.portrait #caption {
+  left: 9%;
+  bottom: 19%;
+  max-width: 80%;
+}
+.portrait h1 {
+  font-size: 88px;
+  line-height: 1.08;
+}
+.portrait #kicker {
+  font-size: 22px;
+  letter-spacing: 3px;
+  line-height: 1.6;
+}
+.portrait #url {
+  font-size: 26px;
+  letter-spacing: 0;
+}
+.portrait.close h1 {
+  font-size: 82px;
+}
+/* Shot-specific framing of the existing controls. */
+body.heroes {
+  display: block;
+  padding: 0;
+}
+#root > .heroes {
+  width: 100%;
+  height: 100%;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+.drivers .dash__drivers {
+  display: flex;
+  flex-direction: column;
+}
+.drivers .dash__drivers > section:nth-child(3) {
+  order: -1;
+}
+.drivers .dash__drivers > section:first-child {
+  display: none;
+}
+.drivers .dash__group > .dash__hint {
+  display: none;
+}
+.liquid #liquid-studio main {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 32px;
+}
+.liquid fluid-ink {
+  height: 720px !important;
+}
+.liquid #liquid-studio section {
+  padding: 0 !important;
+  max-height: 720px;
+  overflow: hidden;
+}
+.liquid #liquid-studio section p {
+  font-size: 14px;
+  line-height: 1.4;
+}
+.liquid #liquid-studio section button {
+  padding: 9px 12px;
+  background: #243440;
+  border: 1px solid #4b6577;
+  border-radius: 5px;
+  color: #eef6fa;
+}
+.liquid #liquid-studio section input {
+  accent-color: #c28b58;
+}
+.liquid #liquid-studio section label {
+  font-size: 16px;
+}
+#caption:before {
+  background: radial-gradient(
+    ellipse at center,
+    #040b14a6 0%,
+    #040b1466 30%,
+    transparent 68%
+  );
+  border-radius: 50%;
+  filter: blur(24px);
+}
